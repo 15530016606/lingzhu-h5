@@ -603,3 +603,123 @@ export function renderBeadBraceletItems(
     drawBead(ctx, pos.x, pos.y, radius * zScale, bead.color.hex, bead.color.gradient, bead.material.roughness, bead.material.metalness, bead.material.transparency, bead.material.glossType, idx)
   }
 }
+
+// === 手绘动画风珠子 ===
+function drawBeadHandDrawn(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, hex: string, grad: string[], seed: number) {
+  // 不规则形状（用贝塞尔画轻微变形的圆）
+  const wobble = ((seed * 7.3 + 3) % 10) / 100  // 0-0.1 的不规则度
+  const rx = r * (1 + wobble)
+  const ry = r * (1 - wobble * 0.5)
+  const rot = (seed * 23.7) % 360
+
+  ctx.save()
+  ctx.translate(cx, cy)
+  ctx.rotate(rot * Math.PI / 180)
+
+  // 第一层：水彩底色（半透明，边缘模糊）
+  for (let layer = 0; layer < 3; layer++) {
+    const lr = r * (1 - layer * 0.08)
+    ctx.beginPath()
+    ctx.ellipse(0, 0, lr, lr * ry / rx, 0, 0, Math.PI * 2)
+    ctx.fillStyle = hex + ['18', '20', '15'][layer]
+    ctx.fill()
+  }
+
+  // 第二层：主体颜色
+  ctx.beginPath()
+  ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2)
+  const mainGrad = ctx.createRadialGradient(-r * 0.15, -r * 0.2, 0, 0, 0, r)
+  mainGrad.addColorStop(0, grad[1] || hex)
+  mainGrad.addColorStop(0.6, hex)
+  mainGrad.addColorStop(1, grad[0] || hex)
+  ctx.fillStyle = mainGrad
+  ctx.fill()
+
+  // 第三层：水彩晕染边缘
+  ctx.beginPath()
+  ctx.ellipse(0, 0, rx + 2, ry + 2, 0, 0, Math.PI * 2)
+  ctx.strokeStyle = hex + '30'
+  ctx.lineWidth = 3
+  ctx.stroke()
+
+  // 可爱高光（两点光斑）
+  ctx.beginPath()
+  ctx.ellipse(-r * 0.2, -r * 0.3, r * 0.25, r * 0.18, -0.3, 0, Math.PI * 2)
+  ctx.fillStyle = 'rgba(255,255,255,0.5)'
+  ctx.fill()
+
+  ctx.beginPath()
+  ctx.ellipse(-r * 0.35, -r * 0.45, r * 0.1, r * 0.08, -0.3, 0, Math.PI * 2)
+  ctx.fillStyle = 'rgba(255,255,255,0.7)'
+  ctx.fill()
+
+  // 底部小阴影（立体感）
+  ctx.beginPath()
+  ctx.ellipse(0, r * 0.7, r * 0.7, r * 0.1, 0, 0, Math.PI * 2)
+  ctx.fillStyle = 'rgba(0,0,0,0.06)'
+  ctx.fill()
+
+  ctx.restore()
+}
+
+export function renderHandDrawnBracelet(canvas: HTMLCanvasElement, beads: Array<{ material: { colors: Array<{ hex: string; gradient: string[] }>; glossType: string }; color: { hex: string; gradient: string[] } }>, width: number, height: number, rotation: number = 0) {
+  if (!canvas || beads.length === 0) return
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  const dpr = 2
+  canvas.width = width * dpr
+  canvas.height = height * dpr
+  canvas.style.width = width + 'px'
+  canvas.style.height = height + 'px'
+  ctx.scale(dpr, dpr)
+  ctx.clearRect(0, 0, width, height)
+
+  const cx = width / 2, cy = height / 2
+  const count = beads.length
+  const beadR = Math.min(Math.min(width, height) / (count + 4), 22)
+  const rx = Math.min(cx - beadR - 10, width / 2 - beadR - 10)
+  const ry = rx * 0.55
+  const rotRad = rotation * Math.PI / 180
+
+  // 穿绳（虚线手绘风格）
+  ctx.save()
+  ctx.setLineDash([3, 3])
+  ctx.beginPath()
+  for (let i = 0; i <= 128; i++) {
+    const a = (i / 128) * Math.PI * 2 + rotRad
+    const x = cx + Math.cos(a) * rx, y = cy + Math.sin(a) * ry
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
+  }
+  ctx.strokeStyle = 'rgba(200,150,150,0.3)'
+  ctx.lineWidth = 1.5
+  ctx.stroke()
+  ctx.setLineDash([])
+  ctx.restore()
+
+  // 珠子位置
+  const positions = Array.from({ length: count }, (_, i) => {
+    const a = (i / count) * Math.PI * 2 + rotRad
+    return { x: cx + Math.cos(a) * rx, y: cy + Math.sin(a) * ry, z: Math.sin(a) }
+  })
+  const sorted = positions.map((_, i) => i).sort((a, b) => positions[a].z - positions[b].z)
+
+  for (const idx of sorted) {
+    const pos = positions[idx]
+    const zScale = 0.7 + (pos.z + 1) * 0.15
+    const bead = beads[idx % beads.length]
+    drawBeadHandDrawn(ctx, pos.x, pos.y, beadR * zScale, bead.color.hex, bead.color.gradient, idx)
+  }
+}
+
+export function drawSingleHandDrawnBead(canvas: HTMLCanvasElement, hex: string, gradient: string[], seed: number) {
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  const dpr = 2
+  canvas.width = 120 * dpr
+  canvas.height = 120 * dpr
+  canvas.style.width = '120px'
+  canvas.style.height = '120px'
+  ctx.scale(dpr, dpr)
+  ctx.clearRect(0, 0, 120, 120)
+  drawBeadHandDrawn(ctx, 60, 60, 42, hex, gradient, seed)
+}

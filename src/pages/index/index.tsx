@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { View, Text, Canvas, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { renderBeadBracelet } from '@/lib/renderer'
+import { renderHandDrawnBracelet } from '@/lib/renderer'
 import { useBeadStore } from '@/lib/store'
 import { MATERIALS } from '@/lib/data'
 import { getH5Canvas } from '@/lib/canvas'
@@ -36,19 +36,7 @@ const IndexPage = () => {
       const node = getCanvas()
       if (node) {
         rotationRef.current = (rotationRef.current + 0.5) % 360
-        renderBeadBracelet({
-          canvas: node,
-          config: {
-            material: defaultMaterial,
-            color: defaultColor,
-            accessories: [],
-            beadCount: 7,
-          },
-          width: 300,
-          height: 300,
-          rotation: rotationRef.current,
-          showHalo: true,
-        })
+        renderHandDrawnBracelet(node, [{ material: defaultMaterial, color: defaultColor }], 300, 300, rotationRef.current)
       }
       animationRef.current = requestAnimationFrame(animate)
     }

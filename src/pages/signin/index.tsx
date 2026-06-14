@@ -1,185 +1,110 @@
 import { useState, useEffect } from 'react'
-import { View, Text, ScrollView } from '@tarojs/components'
-import Taro from '@tarojs/taro'
+import { View, Text } from '@tarojs/components'
 import { useBeadStore } from '@/lib/store'
-import { SIGNIN_LOCKED_COLORS } from '@/lib/data'
-import { Card, CardContent } from '@/components/ui/card'
+
+const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
 
 const SignInPage = () => {
   const { signInRecords, signIn, getStreakCount } = useBeadStore()
   const [streak, setStreak] = useState(0)
-  const [todaySigned, setTodaySigned] = useState(false)
-
-  useEffect(() => {
-    setStreak(getStreakCount())
-    const today = new Date().toISOString().split('T')[0]
-    setTodaySigned(signInRecords.some(r => r.date === today))
-  }, [signInRecords])
-
-  // 生成月历数据
-  const now = new Date()
-  const year = now.getFullYear()
-  const month = now.getMonth()
-  const firstDay = new Date(year, month, 1).getDay()
-  const daysInMonth = new Date(year, month + 1, 0).getDate()
   const today = new Date()
+  const todayStr = today.toISOString().split('T')[0]
+  const signedToday = signInRecords.some(r => r.date === todayStr)
 
-  const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月',
-    '七月', '八月', '九月', '十月', '十一月', '十二月']
+  useEffect(() => { setStreak(getStreakCount()) }, [signInRecords])
 
   const doSignIn = () => {
-    if (todaySigned) {
-      Taro.showToast({ title: '今日已签到', icon: 'none' })
-      return
-    }
+    if (signedToday) return
     signIn()
-    Taro.showToast({ title: '签到成功！', icon: 'success' })
+    setStreak(getStreakCount())
   }
 
-  const isSigned = (day: number) => {
-    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-    return signInRecords.some(r => r.date === dateStr)
-  }
-
-  const isToday = (day: number) => {
-    return today.getFullYear() === year &&
-      today.getMonth() === month &&
-      today.getDate() === day
-  }
+  // 当月日历
+  const year = today.getFullYear()
+  const month = today.getMonth()
+  const firstDay = new Date(year, month, 1).getDay()
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  const calendarDays: (number | null)[] = []
+  for (let i = 0; i < firstDay; i++) calendarDays.push(null)
+  for (let d = 1; d <= daysInMonth; d++) calendarDays.push(d)
 
   return (
-    <View className="min-h-screen bg-[#FFF5F5] px-6 py-6 flex flex-col">
+    <View className="min-h-screen bg-[#FFF5F5] px-6 pt-6 flex flex-col">
       {/* 标题 */}
-      <Text className="block text-4xl font-bold text-[#2D1B14] mb-3">每日签到</Text>
-      <Text className="block text-base text-[#C4A0A0] mb-6">
-        连续签到解锁限定配色 · 当前连续 {streak} 天
-      </Text>
+      <Text className="block text-3xl font-bold text-[#2D1B14] mb-1">每日签到</Text>
+      <Text className="block text-sm text-[#8B6B6B] mb-6">每天打卡，好运连连</Text>
 
-      {/* 签到按钮 */}
-      <Card className="bg-[#FFFFFF] rounded-2xl border border-[#FFE0E0] mb-6 overflow-hidden">
-        <CardContent className="p-6 flex flex-col items-center">
-          <Text className="block text-4xl mb-2">{todaySigned ? '✓' : '○'}</Text>
-          <Text className="block text-lg font-semibold text-[#2D1B14] mb-1">
-            {todaySigned ? '今日已签到' : '今日签到'}
-          </Text>
-          <Text className="block text-xs text-[#C4A0A0] mb-4">
-            {todaySigned ? '明天再来哦' : '开启好运一天'}
-          </Text>
-          {!todaySigned && (
+      {/* 签到状态卡片 */}
+      <View className="rounded-2xl bg-white border border-[#FFE0E0] p-6 mb-6 flex flex-col items-center shadow-sm">
+        {signedToday ? (
+          <>
+            <View className="w-16 h-16 rounded-full bg-[#FF6B6B] flex items-center justify-center mb-3">
+              <Text className="text-2xl text-white font-bold">✓</Text>
+            </View>
+            <Text className="block text-lg font-bold text-[#2D1B14]">今日已签到</Text>
+            <Text className="block text-sm text-[#8B6B6B] mt-1">连续 {streak} 天</Text>
+          </>
+        ) : (
+          <>
+            <View className="w-16 h-16 rounded-full bg-[#FFE0E0] flex items-center justify-center mb-3">
+              <Text className="text-2xl text-[#FF6B6B]">○</Text>
+            </View>
+            <Text className="block text-lg font-bold text-[#2D1B14]">今日未签到</Text>
+            <Text className="block text-sm text-[#8B6B6B] mt-1">连续 {streak} 天</Text>
             <View
-              className="px-8 py-3 rounded-xl interactive"
-              style={{
-                background: 'linear-gradient(135deg, #FF6B6B 0%, #FF9A9E 100%)',
-              }}
+              className="mt-4 px-10 py-3 rounded-xl flex items-center justify-center interactive"
+              style={{ background: 'linear-gradient(135deg, #FF6B6B 0%, #FF9A9E 100%)' }}
               onClick={doSignIn}
             >
-              <Text className="block text-sm font-bold text-[#FFFFFF]">签到领好运</Text>
+              <Text className="block text-base font-bold text-white">签到</Text>
             </View>
-          )}
-        </CardContent>
-      </Card>
+          </>
+        )}
+      </View>
 
-      {/* 月历 */}
-      <Card className="bg-[#FFFFFF] rounded-2xl border border-[#FFE0E0] mb-6">
-        <CardContent className="p-4">
-          <View className="flex flex-row items-center justify-between mb-4">
-            <Text className="block text-base font-semibold text-[#2D1B14]">
-              {year}年 {monthNames[month]}
-            </Text>
-          </View>
-
-          {/* 星期头 */}
-          <View className="grid grid-cols-7 gap-1 mb-2">
-            {['日', '一', '二', '三', '四', '五', '六'].map((d) => (
-              <Text key={d} className="block text-center text-xs text-[#C4A0A0] py-1">
-                {d}
-              </Text>
-            ))}
-          </View>
-
-          {/* 日期网格 */}
-          <View className="grid grid-cols-7 gap-1">
-            {/* 空白占位 */}
-            {Array.from({ length: firstDay }).map((_, i) => (
-              <View key={`empty-${i}`} className="aspect-square" />
-            ))}
-            {/* 日期 */}
-            {Array.from({ length: daysInMonth }).map((_, i) => {
-              const day = i + 1
-              const signed = isSigned(day)
-              const isTodayDay = isToday(day)
-              return (
-                <View
-                  key={day}
-                  className={`aspect-square rounded-lg flex items-center justify-center ${
-                    isTodayDay ? 'border border-[#FF6B6B]' : ''
-                  } ${signed ? 'bg-[#FF6B6B]/10' : ''}`}
-                >
-                  <Text
-                    className={`block text-xs ${
-                      signed ? 'text-[#FF6B6B] font-bold' :
-                      isTodayDay ? 'text-[#2D1B14]' :
-                      'text-[#C4A0A0]'
-                    }`}
-                  >
-                    {day}
-                  </Text>
-                  {signed && (
-                    <Text className="block text-[8px] text-[#FF6B6B]">●</Text>
-                  )}
-                </View>
-              )
-            })}
-          </View>
-        </CardContent>
-      </Card>
-
-      {/* 限定配色展示 */}
-      <Text className="block text-sm font-semibold text-[#2D1B14] mb-3">签到解锁限定配色</Text>
-      <ScrollView scrollX className="pb-4">
-        <View className="flex flex-row gap-3">
-          {Object.entries(SIGNIN_LOCKED_COLORS).map(([days, color]) => {
-            const daysNum = parseInt(days)
-            const unlocked = streak >= daysNum
+      {/* 月度日历 */}
+      <View className="rounded-2xl bg-white border border-[#FFE0E0] p-5 shadow-sm">
+        <Text className="block text-sm font-medium text-[#2D1B14] mb-3">
+          {year}年{month + 1}月
+        </Text>
+        <View className="grid grid-cols-7 gap-1">
+          {WEEKDAYS.map(w => (
+            <Text key={w} className="block text-xs text-[#C4A0A0] text-center py-1">{w}</Text>
+          ))}
+          {calendarDays.map((d, i) => {
+            if (d === null) return <View key={`e${i}`} />
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+            const isSigned = signInRecords.some(r => r.date === dateStr)
+            const isToday = d === today.getDate()
             return (
-              <Card
-                key={days}
-                className={`bg-[#FFFFFF] rounded-xl border flex-shrink-0 w-28 ${
-                  unlocked ? 'border-[#FF6B6B]' : 'border-[#FFE0E0]'
-                }`}
-              >
-                <CardContent className="p-3 flex flex-col items-center">
-                  <View
-                    className={`w-12 h-12 rounded-full mb-2 ${
-                      unlocked ? '' : 'opacity-30'
-                    }`}
-                    style={unlocked ? {
-                      background: `radial-gradient(circle at 35% 30%, ${color.gradient[1]}, ${color.hex})`,
-                      boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.1)',
-                    } : {
-                      background: '#FFE0E0',
-                    }}
-                  />
-                  <Text
-                    className={`block text-xs text-center ${
-                      unlocked ? 'text-[#FF6B6B]' : 'text-[#C4A0A0]'
-                    }`}
-                  >
-                    {unlocked ? '已解锁' : `${daysNum}天`}
-                  </Text>
-                  <Text
-                    className={`block text-xs text-center mt-1 ${
-                      unlocked ? 'text-[#8B6B6B]' : 'text-[#C4A0A0]'
-                    }`}
-                  >
-                    {color.name}
-                  </Text>
-                </CardContent>
-              </Card>
+              <View key={d} className={`py-1 rounded-lg flex items-center justify-center ${isToday ? 'border border-[#FF6B6B]' : ''}`}>
+                {isSigned ? (
+                  <View className="w-7 h-7 rounded-full bg-[#FF6B6B] flex items-center justify-center">
+                    <Text className="text-xs text-white">✓</Text>
+                  </View>
+                ) : (
+                  <Text className={`block text-xs ${isToday ? 'text-[#FF6B6B] font-bold' : 'text-[#2D1B14]'}`}>{d}</Text>
+                )}
+              </View>
             )
           })}
         </View>
-      </ScrollView>
+      </View>
+
+      {/* 统计 */}
+      <View className="flex flex-row gap-3 mt-4">
+        <View className="flex-1 rounded-xl bg-white border border-[#FFE0E0] p-4 shadow-sm">
+          <Text className="block text-xs text-[#C4A0A0]">本月签到</Text>
+          <Text className="block text-xl font-bold text-[#FF6B6B] mt-1">
+            {signInRecords.filter(r => r.date.startsWith(`${year}-${String(month + 1).padStart(2, '0')}`)).length}
+            <Text className="text-xs text-[#C4A0A0]"> / {daysInMonth} 天</Text>
+          </Text>
+        </View>
+        <View className="flex-1 rounded-xl bg-white border border-[#FFE0E0] p-4 shadow-sm">
+          <Text className="block text-xs text-[#C4A0A0]">最长连续</Text>
+          <Text className="block text-xl font-bold text-[#FF6B6B] mt-1">{streak} 天</Text>
+        </View>
+      </View>
     </View>
   )
 }

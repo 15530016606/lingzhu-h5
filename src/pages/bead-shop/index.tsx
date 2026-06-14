@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { View, Text, Canvas, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { drawBead } from '@/lib/renderer'
+import { drawSingleHandDrawnBead } from '@/lib/renderer'
 import { useBeadStore } from '@/lib/store'
 import { MATERIALS, BEAD_SIZES_MM, BeadItem, recommendBeadCount } from '@/lib/data'
 import { getH5Canvas } from '@/lib/canvas'
@@ -40,13 +40,7 @@ const BeadShopPage = () => {
         canvas.style.height = size + 'px'
         ctx.scale(dpr, dpr)
         ctx.clearRect(0, 0, size, size)
-        rotRef.current = (rotRef.current + 0.5) % 360
-        ctx.save()
-        ctx.translate(size / 2, size / 2)
-        ctx.rotate(rotRef.current * Math.PI / 180)
-        ctx.translate(-size / 2, -size / 2)
-        drawBead(ctx, size / 2, size / 2, size * 0.35, pickColor.hex, pickColor.gradient, pickMaterial.roughness, pickMaterial.metalness, pickMaterial.transparency, pickMaterial.glossType, 0)
-        ctx.restore()
+        drawSingleHandDrawnBead(canvas, pickColor.hex, pickColor.gradient, 0)
       }
       previewRef.current = requestAnimationFrame(animate)
     }

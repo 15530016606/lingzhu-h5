@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { View, Text, Canvas } from '@tarojs/components'
 import Taro from '@tarojs/taro'
-import { renderBeadBraceletItems, renderBeadBracelet } from '@/lib/renderer'
+import { renderHandDrawnBracelet } from '@/lib/renderer'
 import { useBeadStore } from '@/lib/store'
 import { DAILY_FREE_COUNT } from '@/lib/data'
 import { getH5Canvas } from '@/lib/canvas'
@@ -40,9 +40,9 @@ const PreviewPage = () => {
         const w = isZoomed ? 380 : 320
         const h = isZoomed ? 380 : 320
         if (hasNewData) {
-          renderBeadBraceletItems(node, beads, w, h, rotationRef.current, true)
-        } else {
-          renderBeadBracelet({ canvas: node, config: beadConfig, width: w, height: h, rotation: rotationRef.current, showHalo: true })
+          renderHandDrawnBracelet(node, beads, w, h, rotationRef.current)
+        } else if (displayMaterial && displayColor) {
+          renderHandDrawnBracelet(node, [{ material: displayMaterial, color: displayColor, sizeMm: 8, id: '0' }], w, h, rotationRef.current)
         }
       }
       animRef.current = requestAnimationFrame(animate)
