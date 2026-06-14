@@ -606,57 +606,59 @@ export function renderBeadBraceletItems(
 
 // === 手绘动画风珠子 ===
 function drawBeadHandDrawn(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, hex: string, grad: string[], seed: number) {
-  // 不规则形状（用贝塞尔画轻微变形的圆）
-  const wobble = ((seed * 7.3 + 3) % 10) / 100  // 0-0.1 的不规则度
-  const rx = r * (1 + wobble)
-  const ry = r * (1 - wobble * 0.5)
-  const rot = (seed * 23.7) % 360
+  // 不规则形状（水彩笔触——明显的手绘不规则感）
+  const wobbleA = ((seed * 7.3 + 3) % 10) / 50 + 0.04    // 0.04-0.24
+  const wobbleB = ((seed * 11.7 + 7) % 10) / 50 + 0.02   // 0.02-0.22
+  const rx = r * (1 + wobbleA)
+  const ry = r * (1 + wobbleB)
+  const rot = (seed * 23.7 + 13) % 360
 
   ctx.save()
   ctx.translate(cx, cy)
   ctx.rotate(rot * Math.PI / 180)
 
-  // 第一层：水彩底色（半透明，边缘模糊）
+  // 第一层：大面积水彩晕染底色（溢出的边缘，手绘感）
   for (let layer = 0; layer < 3; layer++) {
-    const lr = r * (1 - layer * 0.08)
+    const spread = 1 + layer * 0.12
     ctx.beginPath()
-    ctx.ellipse(0, 0, lr, lr * ry / rx, 0, 0, Math.PI * 2)
-    ctx.fillStyle = hex + ['18', '20', '15'][layer]
+    ctx.ellipse(0, 0, rx * spread, ry * spread, 0, 0, Math.PI * 2)
+    ctx.fillStyle = hex + ['0C', '10', '08'][layer]
     ctx.fill()
   }
 
-  // 第二层：主体颜色
+  // 第二层：主体——斑驳水彩叠加（用两个偏移椭圆制造不均匀着色）
+  const offX = ((seed * 3.7 + 1) % 10) / 100 * r
+  const offY = ((seed * 5.3 + 2) % 10) / 100 * r
   ctx.beginPath()
-  ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2)
-  const mainGrad = ctx.createRadialGradient(-r * 0.15, -r * 0.2, 0, 0, 0, r)
+  ctx.ellipse(offX, offY, rx * 0.85, ry * 0.85, 0, 0, Math.PI * 2)
+  ctx.fillStyle = hex + '25'
+  ctx.fill()
+
+  ctx.beginPath()
+  ctx.ellipse(0, 0, rx * 0.9, ry * 0.9, 0, 0, Math.PI * 2)
+  const mainGrad = ctx.createRadialGradient(-r * 0.15, -r * 0.2, 0, 0, 0, r * 0.9)
   mainGrad.addColorStop(0, grad[1] || hex)
-  mainGrad.addColorStop(0.6, hex)
+  mainGrad.addColorStop(0.5, hex)
   mainGrad.addColorStop(1, grad[0] || hex)
   ctx.fillStyle = mainGrad
   ctx.fill()
 
-  // 第三层：水彩晕染边缘
+  // 第三层：水印般的边缘渗色（水彩边缘堆积效果，用珠子自身颜色，无黑边）
   ctx.beginPath()
-  ctx.ellipse(0, 0, rx + 2, ry + 2, 0, 0, Math.PI * 2)
-  ctx.strokeStyle = hex + '30'
-  ctx.lineWidth = 3
+  ctx.ellipse(0, 0, rx + 3, ry + 3, 0, 0, Math.PI * 2)
+  ctx.strokeStyle = hex + '15'
+  ctx.lineWidth = 5
   ctx.stroke()
 
-  // 可爱高光（两点光斑）
+  // 高光：手绘留白感（哑光白斑，不是尖锐反光）
   ctx.beginPath()
-  ctx.ellipse(-r * 0.2, -r * 0.3, r * 0.25, r * 0.18, -0.3, 0, Math.PI * 2)
-  ctx.fillStyle = 'rgba(255,255,255,0.5)'
+  ctx.ellipse(-r * 0.2, -r * 0.3, r * 0.22, r * 0.16, -0.3, 0, Math.PI * 2)
+  ctx.fillStyle = 'rgba(255,255,255,0.45)'
   ctx.fill()
 
   ctx.beginPath()
-  ctx.ellipse(-r * 0.35, -r * 0.45, r * 0.1, r * 0.08, -0.3, 0, Math.PI * 2)
-  ctx.fillStyle = 'rgba(255,255,255,0.7)'
-  ctx.fill()
-
-  // 底部小阴影（立体感）
-  ctx.beginPath()
-  ctx.ellipse(0, r * 0.7, r * 0.7, r * 0.1, 0, 0, Math.PI * 2)
-  ctx.fillStyle = 'rgba(0,0,0,0.06)'
+  ctx.ellipse(-r * 0.35, -r * 0.45, r * 0.08, r * 0.06, -0.3, 0, Math.PI * 2)
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'
   ctx.fill()
 
   ctx.restore()

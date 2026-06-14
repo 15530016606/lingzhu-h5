@@ -14,9 +14,6 @@ const IndexPage = () => {
   const [streakCount, setStreakCount] = useState(0)
   const [dailyUsed, setDailyUsed] = useState(0)
 
-  const defaultMaterial = MATERIALS[0]
-  const defaultColor = defaultMaterial.colors[0]
-
   useEffect(() => {
     setStreakCount(getStreakCount())
     setDailyUsed(dailyRecord.count)
@@ -24,6 +21,17 @@ const IndexPage = () => {
 
   useEffect(() => {
     let mounted = true
+    // 首页展示样珠：取5种不同材质+颜色，让手串看起来丰富
+    const demoBeads = [
+      { material: MATERIALS[0], color: MATERIALS[0].colors[0] }, // 菩提-檀木棕
+      { material: MATERIALS[0], color: MATERIALS[0].colors[1] }, // 菩提-琥珀黄
+      { material: MATERIALS[1], color: MATERIALS[1].colors[0] }, // 玛瑙-朱砂红
+      { material: MATERIALS[1], color: MATERIALS[1].colors[4] }, // 玛瑙-奶油白
+      { material: MATERIALS[7], color: MATERIALS[7].colors[0] }, // 琥珀-蜜蜡黄
+      { material: MATERIALS[5], color: MATERIALS[5].colors[0] }, // 绿松石-天青
+      { material: MATERIALS[2], color: MATERIALS[2].colors[1] }, // 水晶-粉晶（半透明）
+      { material: MATERIALS[0], color: MATERIALS[0].colors[2] }, // 菩提-老木色
+    ]
     // H5: 直接获取 canvas DOM 节点，不用 Taro.createSelectorQuery
     const getCanvas = () => {
       if (canvasRef.current) return canvasRef.current
@@ -36,7 +44,7 @@ const IndexPage = () => {
       const node = getCanvas()
       if (node) {
         rotationRef.current = (rotationRef.current + 0.5) % 360
-        renderHandDrawnBracelet(node, [{ material: defaultMaterial, color: defaultColor }], 300, 300, rotationRef.current)
+        renderHandDrawnBracelet(node, demoBeads, 300, 300, rotationRef.current)
       }
       animationRef.current = requestAnimationFrame(animate)
     }
