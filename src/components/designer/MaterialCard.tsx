@@ -4,10 +4,16 @@ import { BeadProduct } from '../../data/bead-products'
 interface Props {
   product: BeadProduct
   onSelect: (product: BeadProduct) => void
+  compact?: boolean
 }
 
-export default function MaterialCard({ product, onSelect }: Props) {
+export default function MaterialCard({ product, onSelect, compact }: Props) {
   const imgUrl = `/images/beads/${product.imageUrl}`
+
+  const imgH = compact ? 56 : 120
+  const infoPad = compact ? '4px 6px 6px' : '6px 8px 10px'
+  const nameSize = compact ? 11 : 13
+  const metaSize = compact ? 10 : 12
 
   return (
     <View
@@ -18,22 +24,21 @@ export default function MaterialCard({ product, onSelect }: Props) {
         flexDirection: 'column',
         backgroundColor: '#ffffff',
         border: '1px solid #e8e8e8',
-        borderRadius: 10,
+        borderRadius: 8,
         overflow: 'hidden',
         cursor: 'pointer',
       }}
     >
-      {/* 图片区 - 占卡片的 65% 高度 */}
       <View
         className="material-image"
         style={{
           width: '100%',
-          height: 130,
+          height: imgH,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: '#fafafa',
-          padding: 10,
+          padding: 6,
           overflow: 'hidden',
         }}
       >
@@ -48,23 +53,22 @@ export default function MaterialCard({ product, onSelect }: Props) {
         />
       </View>
 
-      {/* 信息区 */}
       <View
         className="material-info"
         style={{
-          padding: '6px 8px 10px',
+          padding: infoPad,
           display: 'flex',
           flexDirection: 'column',
-          gap: 4,
+          gap: 2,
         }}
       >
         <Text
           className="material-name"
           style={{
-            fontSize: 13,
+            fontSize: nameSize,
             fontWeight: 500,
             color: '#333',
-            lineHeight: 1.4,
+            lineHeight: 1.3,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
@@ -80,10 +84,10 @@ export default function MaterialCard({ product, onSelect }: Props) {
             alignItems: 'center',
           }}
         >
-          <Text style={{ fontSize: 12, color: '#888', fontWeight: 500 }}>
+          <Text style={{ fontSize: metaSize, color: '#888', fontWeight: 500 }}>
             {product.sizeMm}mm
           </Text>
-          <Text style={{ fontSize: 12, color: '#999' }}>
+          <Text style={{ fontSize: metaSize, color: '#999' }}>
             ¥{product.price.toFixed(2)}
           </Text>
         </View>

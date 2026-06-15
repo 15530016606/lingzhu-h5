@@ -46,6 +46,16 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder 
   const beadsRef = useRef(beads)
   beadsRef.current = beads
   const removingRef = useRef<Set<number>>(new Set())
+  // 配饰旋转偏移量（每次点击 +45deg）
+  const rotationOffsets = useRef<Map<number, number>>(new Map())
+
+  const handleAccessoryRotate = useCallback((index: number) => {
+    const current = rotationOffsets.current.get(index) || 0
+    rotationOffsets.current.set(index, current + 45)
+    // 强制刷新（通过更新一个计数器）
+    setRotateTick(t => t + 1)
+  }, [])
+  const [rotateTick, setRotateTick] = useState(0)
 
   // 触发移除动画，延迟执行
   const handleRemoveWithAnim = useCallback((index: number) => {
@@ -161,12 +171,7 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder 
       document.removeEventListener('pointermove', onPointerMove)
       document.removeEventListener('pointerup', onPointerUp)
     }
-  }, [beads.length, onReorder]) // beads.length 变化时重建监听器
-
-  const handleClick = useCallback((e: any, index: number) => {
-    if (dragRef.current.active) return
-    onRemove(index)
-  }, [onRemove])
+  }, [onReorder, beads.length]) // beads.length 变化时重建监听器
 
   const count = beads.length
   const minDim = Math.min(dims.w, dims.h)
@@ -238,19 +243,25 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder 
               style={{
                 position: 'absolute', width: bSize, height: bSize,
                 top: '50%', left: '50%',
-                borderRadius: bead.type === 'accessory' ? 4 : '50%',
+                borderRadius: bead.type === 'accessory' ? '4px' : '50%',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'grab',
                 overflow: bead.type === 'accessory' ? 'visible' : 'hidden',
-                transform: `translate(-50%, -50%) translate(${bx.toFixed(4)}px, ${by.toFixed(4)}px) rotate(${rotation.toFixed(2)}deg)`,
+                transform: `translate(-50%, -50%) translate(${bx.toFixed(4)}px, ${by.toFixed(4)}px) rotate(${(rotation + (rotationOffsets.current.get(i) || 0)).toFixed(2)}deg)`,
                 zIndex: isNew ? 100 : i + 2,
-                boxShadow: cssVars['--bead-shadow'],
+                boxShadow: bead.type === 'accessory' ? 'none' : cssVars['--bead-shadow'],
                 transition: 'transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s, opacity 0.24s',
                 touchAction: 'none', transformOrigin: 'center center',
                 marginLeft: 0, marginTop: 0, willChange: 'transform', userSelect: 'none',
                 ...cssVars,
               } as any}
-              onClick={() => handleRemoveWithAnim(i)}
+              onClick={() => {
+                if (bead.type === 'accessory') {
+                  handleAccessoryRotate(i)
+                } else {
+                  handleRemoveWithAnim(i)
+                }
+              }}
             >
               <View className="bead-light-layer" style={{
                 position: 'absolute', inset: 0, pointerEvents: 'none',
