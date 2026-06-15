@@ -11,32 +11,34 @@ page {
 :root,
 page,
 root-portal {
-  /* 青春元气色系 — 暖白底 + 珊瑚粉 */
-  --bg-primary: #FFF5F5;
-  --bg-card: #FFFFFF;
-  --bg-card-alt: #FFF0F0;
-  --bg-canvas: #1A1030;
+  /* 统一正式色板 — 灰底 + 深蓝 + 金色 */
+  --bg-page: #f5f5f5;
+  --bg-card: #ffffff;
+  --bg-card-alt: #fafafa;
 
-  --text-primary: #2D1B14;
-  --text-secondary: #8B6B6B;
-  --text-muted: #C4A0A0;
+  --primary: #2c3e50;
+  --primary-light: #3a5a7a;
+  --accent: #c8a96e;
+  --accent-light: #dcc48a;
 
-  --accent: #FF6B6B;
-  --accent-light: #FF9A9E;
-  --accent-dark: #E05555;
-  --accent-secondary: #4ECDC4;
+  --text-primary: #1a1a2e;
+  --text-secondary: #666666;
+  --text-muted: #999999;
 
-  --border: #FFE0E0;
-  --border-light: #FFF0F0;
+  --border: #e8e8e8;
+  --border-light: #f0f0f0;
+
+  --danger: #c0392b;
+  --success: #27ae60;
 
   /* shadcn 兼容 */
-  --background: var(--bg-primary);
+  --background: var(--bg-page);
   --foreground: var(--text-primary);
   --card: var(--bg-card);
   --card-foreground: var(--text-primary);
   --popover: var(--bg-card);
   --popover-foreground: var(--text-primary);
-  --primary: var(--accent);
+  --primary: var(--primary);
   --primary-foreground: #FFFFFF;
   --secondary: var(--bg-card-alt);
   --secondary-foreground: var(--text-secondary);
@@ -44,25 +46,11 @@ root-portal {
   --muted-foreground: var(--text-muted);
   --accent: var(--accent);
   --accent-foreground: #FFFFFF;
-  --destructive: var(--accent-dark);
+  --destructive: var(--danger);
   --destructive-foreground: #FFFFFF;
   --border: var(--border);
   --input: var(--border);
   --ring: var(--accent);
-  --sidebar: var(--bg-gradient-mid);
-  --sidebar-foreground: var(--text-primary);
-  --sidebar-primary: var(--accent);
-  --sidebar-primary-foreground: var(--bg-primary);
-  --sidebar-accent: var(--bg-gradient-end);
-  --sidebar-accent-foreground: var(--text-primary);
-  --sidebar-border: var(--border-default);
-  --sidebar-ring: var(--accent);
-  --surface: var(--bg-gradient-mid);
-  --code: var(--surface);
-  --code-highlight: var(--bg-gradient-end);
-  --code-number: var(--text-muted);
-  --selection: var(--accent);
-  --selection-foreground: var(--bg-primary);
   --tw-shadow: 0 0 #0000;
   --tw-shadow-color: initial;
   --tw-shadow-alpha: 100%;

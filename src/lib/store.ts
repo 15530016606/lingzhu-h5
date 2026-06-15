@@ -157,7 +157,9 @@ export const useBeadStore = create<BeadStore>()(
       currentDesign: [],
       ropeColor: 'rgba(180,180,180,0.6)',
       addToDesign: (product) =>
-        set((state) => ({ currentDesign: [...state.currentDesign, product] })),
+        set((state) => ({
+          currentDesign: [...state.currentDesign, { ...product, _key: `inst-${Date.now()}-${Math.random().toString(36).slice(2, 6)}` }]
+        })),
       removeFromDesign: (index) =>
         set((state) => ({ currentDesign: state.currentDesign.filter((_, i) => i !== index) })),
       reorderDesign: (fromIndex, toIndex) =>
@@ -168,6 +170,13 @@ export const useBeadStore = create<BeadStore>()(
           return { currentDesign: arr }
         }),
       clearDesign: () => set({ currentDesign: [] }),
+      setDesign: (products: BeadProduct[]) =>
+        set({
+          currentDesign: products.map((p) => ({
+            ...p,
+            _key: `inst-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          })),
+        }),
       setRopeColor: (color) => set({ ropeColor: color }),
 
       fortune: null,

@@ -7,21 +7,32 @@ interface Props {
   ropeColor: string
   onRemove: (index: number) => void
   onReorder?: (fromIndex: number, toIndex: number) => void
+  compact?: boolean      // 紧凑模式：珠子缩小
 }
 
 const ROPE_WIDTH = 3
 const ORBIT_RATIO = 0.32
 
-function beadSizeFromProduct(p: BeadProduct): number {
+function beadSizeFromProduct(p: BeadProduct, compact?: boolean): number {
   const mm = p.sizeMm || 6
+  if (compact) {
+    // 紧凑模式：适应 16 颗在 110px 小容器不重叠
+    if (mm <= 6) return 12
+    if (mm <= 8) return 14
+    if (mm <= 10) return 16
+    return 18
+  }
   if (mm <= 6) return 33
   if (mm <= 8) return 44
   if (mm <= 10) return 50
   return 56
 }
 
-function shadowFromAngle(angle: number, base: number) {
+function shadowFromAngle(angle: number, base: number, compact?: boolean) {
   const s = Math.abs(Math.sin(angle))
+  if (compact) {
+    return `${(2 + s * 2).toFixed(2)}px ${(2 + s * 3).toFixed(2)}px ${(3 + s * 3).toFixed(2)}px rgba(0,0,0,${(base * 0.5).toFixed(3)})`
+  }
   return `${(6 + s * 5.33).toFixed(2)}px ${(6 + s * 8).toFixed(2)}px ${(8 + s * 7.6).toFixed(2)}px rgba(0,0,0,${base.toFixed(3)})`
 }
 
@@ -37,11 +48,10 @@ function highlightProps(angle: number, beadSize: number) {
 }
 
 /** 环形拖拽：全部监听器挂在 ring 上，不需要 document 级事件 */
-export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder }: Props) {
+export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder, compact }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const ringRef = useRef<HTMLDivElement>(null)
   const [dims, setDims] = useState({ w: 375, h: 400 })
-  const [scale, setScale] = useState(1)
   const dragRef = useRef({ index: -1, active: false, startX: 0, startY: 0 })
   const beadsRef = useRef(beads)
   beadsRef.current = beads
@@ -95,15 +105,7 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder 
     return () => observer.disconnect()
   }, [])
 
-  useEffect(() => {
-    const minDim = Math.min(dims.w, dims.h)
-    const orbitR2 = Math.min(140, minDim * 0.32)
-    const ropeSize = orbitR2 * 2
-    const needed = ropeSize + ROPE_WIDTH * 2 + 44
-    const maxFit = Math.min(dims.w, dims.h)
-    const s = needed > 0 && maxFit > 0 ? Math.min(1, maxFit / needed * 0.92) : 1
-    setScale(s)
-  }, [dims])
+  // 自适应计算已完成（见下面的 render 逻辑）
 
   // 全部原生 pointer events 挂在 ring 上 + document 用于 move/up
   useEffect(() => {
@@ -173,10 +175,30 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder 
     }
   }, [onReorder, beads.length]) // beads.length 变化时重建监听器
 
+  // 自适应：根据珠子数量和容器大小计算轨道半径和缩放
   const count = beads.length
   const minDim = Math.min(dims.w, dims.h)
-  const orbitR = Math.min(140, minDim * ORBIT_RATIO)
+  const avgBeadSize = count > 0
+    ? beads.reduce((s, b) => s + beadSizeFromProduct(b, compact), 0) / count
+    : 33
+
+  // 需要的最小轨道周长 = 珠子直径总和 × 1.3（30%间距）
+  const neededCirc = count > 0 ? count * avgBeadSize * 1.3 : 0
+  const idealOrbitR = neededCirc / (2 * Math.PI)
+
+  // 容器允许的最大轨道半径
+  const maxOrbitByContainer = minDim * 0.38
+  const maxOrbitGlobal = compact ? 100 : 140
+
+  // 实际轨道半径：取三者中的合理值
+  const orbitR = count > 1
+    ? Math.min(maxOrbitGlobal, Math.max(idealOrbitR, 50), maxOrbitByContainer)
+    : Math.min(maxOrbitGlobal, maxOrbitByContainer * 0.6)
+
   const ropeSize = orbitR * 2
+  const neededTotal = ropeSize + ROPE_WIDTH * 2 + (compact ? 36 : 56)
+  const maxFit = Math.min(dims.w, dims.h)
+  const scale = neededTotal > 0 && maxFit > 0 ? Math.min(1, maxFit / neededTotal * 0.92) : 1
 
   return (
     <View
@@ -217,16 +239,16 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder 
           const by = Math.sin(angle) * orbitR
           const rotation = (angle * 180) / Math.PI
           const isNew = i === count - 1 && count >= 1
-          const bSize = beadSizeFromProduct(bead)
+          const bSize = beadSizeFromProduct(bead, compact)
           const hl = highlightProps(angle, bSize)
 
           const cssVars = {
             '--bead-x': `${bx.toFixed(4)}px`,
             '--bead-y': `${by.toFixed(4)}px`,
             '--bead-rotation': `${rotation.toFixed(2)}deg`,
-            '--bead-shadow': shadowFromAngle(angle, 0.31),
-            '--bead-shadow-hover': shadowFromAngle(angle, 0.35),
-            '--bead-shadow-drag': shadowFromAngle(angle, 0.38),
+            '--bead-shadow': shadowFromAngle(angle, 0.31, compact),
+            '--bead-shadow-hover': shadowFromAngle(angle, 0.35, compact),
+            '--bead-shadow-drag': shadowFromAngle(angle, 0.38, compact),
             '--bead-highlight-dot-width': `${hl.dotW.toFixed(2)}px`,
             '--bead-highlight-dot-height': `${hl.dotH.toFixed(2)}px`,
             '--bead-highlight-dot-rotation': `${hl.dotRotation.toFixed(2)}deg`,
@@ -237,7 +259,7 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder 
 
           return (
             <View
-              key={`${bead.id}-${i}`}
+              key={bead._key || bead.id}
               className={`bead-item${isNew ? ' bead-adding bead-fly-in' : ''}${bead.type === 'accessory' ? ' bead-accessory' : ''}`}
               data-index={i}
               style={{

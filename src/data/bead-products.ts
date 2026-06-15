@@ -3,6 +3,7 @@
 
 export interface BeadProduct {
   id: string
+  _key?: string           // 实例唯一键（添加时自动生成）
   name: string
   categoryId: string
   sizeMm: number

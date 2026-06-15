@@ -1,10 +1,46 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { View, Text, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+import BeadPreviewRing from '@/components/designer/BeadPreviewRing'
 import { useBeadStore } from '@/lib/store'
 import { MATERIALS } from '@/lib/data'
+import { BEAD_PRODUCTS } from '@/data/bead-products'
 
 const currentYear = new Date().getFullYear()
+
+/* 映射旧材质ID到真实商品ID */
+const MATERIAL_BEAD_MAP: Record<string, number[]> = {
+  jade: [153, 155, 158],
+  crystal: [0, 1, 2],
+  gilt: [131, 130, 88],
+  agate: [79, 80],
+  bodhi: [146, 147],
+}
+
+/** 从两个推荐物料生成 16 颗标准手串 */
+function makeCoupleBracelet(
+  b1: { materialId: string; colorIndex: number },
+  b2: { materialId: string; colorIndex: number },
+): any[] {
+  const ids: number[] = []
+  const push = (m: { materialId: string; colorIndex: number }) => {
+    const options = MATERIAL_BEAD_MAP[m.materialId]
+    if (!options || options.length === 0) return
+    const idx = options[Math.min(m.colorIndex, options.length - 1)]
+    for (let j = 0; j < 8; j++) ids.push(idx)
+  }
+  push(b1)
+  push(b2)
+  while (ids.length < 16) ids.push(ids[0] ?? 0)
+  return ids.slice(0, 16).map((idx) => {
+    const p = BEAD_PRODUCTS[idx]
+    if (!p) return null
+    return {
+      ...p,
+      _key: `cp-${idx}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    }
+  }).filter(Boolean)
+}
 
 const CouplePage = () => {
   const { setMaterial, setColor, setGameMode, resetConfig } = useBeadStore()
@@ -56,37 +92,85 @@ const CouplePage = () => {
     Taro.navigateTo({ url: '/pages/preview/index' })
   }
 
+  /* 预览用的真实珠子 — 16 颗标准手串 */
+  const previewBeads = useMemo(() => {
+    if (!result) return []
+    return makeCoupleBracelet(result.bead1, result.bead2)
+  }, [result])
+
   // 出生日期选择器
   const DatePicker = ({ value, onChange }: { value: { year: number; month: number; day: number }; onChange: (v: any) => void }) => (
-    <View className="flex flex-row gap-2 mb-4">
-      <View className="flex-1">
-        <Text className="block text-xs text-[#C4A0A0] mb-2">年</Text>
-        <ScrollView scrollX className="rounded-xl border border-[#FFE0E0] bg-[#FFFFFF]" style={{ height: '120px' }}>
-          <View className="flex flex-col">
+    <View style={{ display: 'flex', flexDirection: 'row', gap: 8, marginBottom: 16 }}>
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontSize: 11, color: '#999', marginBottom: 6 }}>年</Text>
+        <ScrollView scrollX style={{ borderRadius: 10, border: '1px solid #e8e8e8', backgroundColor: '#ffffff', height: 110 }}>
+          <View style={{ display: 'flex', flexDirection: 'column' }}>
             {Array.from({ length: 80 }, (_, i) => currentYear - i).map(y => (
-              <View key={y} className={`py-2 px-4 interactive ${value.year === y ? 'bg-[#FF6B6B]/10' : ''}`} onClick={() => onChange({ ...value, year: y })}>
-                <Text className={`block text-sm ${value.year === y ? 'text-[#FF6B6B] font-bold' : 'text-[#2D1B14]'}`}>{y}</Text>
+              <View
+                key={y}
+                style={{
+                  padding: '6px 12px',
+                  cursor: 'pointer',
+                  backgroundColor: value.year === y ? 'rgba(44,62,80,0.08)' : 'transparent',
+                }}
+                onClick={() => onChange({ ...value, year: y })}
+              >
+                <Text style={{ fontSize: 12, color: value.year === y ? '#2c3e50' : '#1a1a2e', fontWeight: value.year === y ? 600 : 400 }}>
+                  {y}
+                </Text>
               </View>
             ))}
           </View>
         </ScrollView>
       </View>
-      <View className="flex-1">
-        <Text className="block text-xs text-[#C4A0A0] mb-2">月</Text>
-        <View className="flex flex-wrap gap-1">
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontSize: 11, color: '#999', marginBottom: 6 }}>月</Text>
+        <View style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
           {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
-            <View key={m} className={`w-10 h-10 rounded-lg flex items-center justify-center interactive ${value.month === m ? 'bg-[#FF6B6B]/10 border border-[#FF6B6B]' : 'border border-[#FFE0E0] bg-[#FFFFFF]'}`} onClick={() => onChange({ ...value, month: m })}>
-              <Text className={`block text-xs ${value.month === m ? 'text-[#FF6B6B]' : 'text-[#2D1B14]'}`}>{m}月</Text>
+            <View
+              key={m}
+              style={{
+                width: 40,
+                height: 36,
+                borderRadius: 8,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                backgroundColor: value.month === m ? '#2c3e50' : '#ffffff',
+                border: value.month === m ? 'none' : '1px solid #e8e8e8',
+              }}
+              onClick={() => onChange({ ...value, month: m })}
+            >
+              <Text style={{ fontSize: 11, color: value.month === m ? '#ffffff' : '#1a1a2e', fontWeight: value.month === m ? 600 : 400 }}>
+                {m}月
+              </Text>
             </View>
           ))}
         </View>
       </View>
-      <View className="flex-1">
-        <Text className="block text-xs text-[#C4A0A0] mb-2">日</Text>
-        <View className="flex flex-wrap gap-1">
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontSize: 11, color: '#999', marginBottom: 6 }}>日</Text>
+        <View style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
           {Array.from({ length: 31 }, (_, i) => i + 1).map(d => (
-            <View key={d} className={`w-10 h-10 rounded-lg flex items-center justify-center interactive ${value.day === d ? 'bg-[#FF6B6B]/10 border border-[#FF6B6B]' : 'border border-[#FFE0E0] bg-[#FFFFFF]'}`} onClick={() => onChange({ ...value, day: d })}>
-              <Text className={`block text-xs ${value.day === d ? 'text-[#FF6B6B]' : 'text-[#2D1B14]'}`}>{d}</Text>
+            <View
+              key={d}
+              style={{
+                width: 40,
+                height: 36,
+                borderRadius: 8,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                backgroundColor: value.day === d ? '#2c3e50' : '#ffffff',
+                border: value.day === d ? 'none' : '1px solid #e8e8e8',
+              }}
+              onClick={() => onChange({ ...value, day: d })}
+            >
+              <Text style={{ fontSize: 11, color: value.day === d ? '#ffffff' : '#1a1a2e', fontWeight: value.day === d ? 600 : 400 }}>
+                {d}
+              </Text>
             </View>
           ))}
         </View>
@@ -96,77 +180,120 @@ const CouplePage = () => {
 
   if (loading) {
     return (
-      <View className="min-h-screen bg-[#FFF5F5] flex items-center justify-center px-6">
-        <View className="flex flex-col items-center">
-          <Text className="block text-2xl mb-4">合</Text>
-          <Text className="block text-base text-[#8B6B6B] text-center">八字合盘中...</Text>
-          <Text className="block text-xs text-[#C4A0A0] mt-3 text-center">AI 正在分析生肖、五行、命理匹配度</Text>
+      <View style={{ minHeight: '100vh', backgroundColor: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px' }}>
+        <View style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Text style={{ fontSize: 22, marginBottom: 16, color: '#2c3e50' }}>合</Text>
+          <Text style={{ fontSize: 14, color: '#666', textAlign: 'center' }}>八字合盘中...</Text>
+          <Text style={{ fontSize: 12, color: '#999', marginTop: 8, textAlign: 'center' }}>AI 正在分析生肖、五行、命理匹配度</Text>
         </View>
       </View>
     )
   }
 
   if (result) {
-    const m1 = MATERIALS.find(m => m.id === result.bead1.materialId) || MATERIALS[0]
-    const c1 = m1.colors[Math.min(result.bead1.colorIndex, m1.colors.length - 1)]
-    const m2 = MATERIALS.find(m => m.id === result.bead2.materialId) || MATERIALS[0]
-    const c2 = m2.colors[Math.min(result.bead2.colorIndex, m2.colors.length - 1)]
-    const scoreColor = result.score >= 80 ? '#FF6B6B' : result.score >= 60 ? '#8B6B6B' : '#C4A0A0'
+    const scoreColor = result.score >= 80 ? '#2c3e50' : result.score >= 60 ? '#666' : '#999'
 
     return (
-      <ScrollView className="h-screen bg-[#FFF5F5]" scrollY>
-        <View className="px-6 pt-6 pb-10 flex flex-col items-center">
+      <ScrollView scrollY style={{ height: '100vh', backgroundColor: '#f5f5f5' }}>
+        <View style={{ padding: '24px 16px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           {/* 组合名 */}
-          <Text className="block text-2xl font-bold text-[#FF6B6B] mb-1 text-center">{result.comboName}</Text>
-          <Text className="block text-sm text-[#8B6B6B] mb-6">缘分合盘结果</Text>
+          <Text style={{ fontSize: 22, fontWeight: 700, color: '#c8a96e', marginBottom: 2, textAlign: 'center' }}>
+            {result.comboName}
+          </Text>
+          <Text style={{ fontSize: 13, color: '#666', marginBottom: 20 }}>缘分合盘结果</Text>
 
-          {/* 双珠并排 */}
-          <View className="flex flex-row items-center gap-6 mb-6">
-            <View className="flex flex-col items-center">
-              <View className="w-20 h-20 rounded-full border-2 border-[#FF6B6B]/30 flex items-center justify-center bg-[#FFFFFF]">
-                <View className="w-16 h-16 rounded-full" style={{ background: `radial-gradient(circle at 35% 30%, ${c1.gradient[1]}, ${c1.hex})`, boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.3)' }} />
+          {/* 双珠预览 — 用 BeadPreviewRing */}
+          <View
+            style={{
+              width: 160,
+              height: 110,
+              borderRadius: 12,
+              border: '1px solid #e8e8e8',
+              backgroundColor: '#ffffff',
+              marginBottom: 16,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {previewBeads.length > 0 ? (
+              <View style={{ width: '100%', height: '100%', maxWidth: 130 }}>
+                <BeadPreviewRing
+                  beads={previewBeads}
+                  ropeColor="rgba(180,180,180,0.6)"
+                  onRemove={() => {}}
+                  compact
+                />
               </View>
-              <Text className="block text-xs text-[#2D1B14] mt-2">{c1.name}{m1.name}</Text>
-              <Text className="block text-[10px] text-[#C4A0A0]">{p1.name || '你'}</Text>
-            </View>
-            <Text className="text-3xl text-[#FF6B6B]">+</Text>
-            <View className="flex flex-col items-center">
-              <View className="w-20 h-20 rounded-full border-2 border-[#96E0D0]/30 flex items-center justify-center bg-[#FFFFFF]">
-                <View className="w-16 h-16 rounded-full" style={{ background: `radial-gradient(circle at 35% 30%, ${c2.gradient[1]}, ${c2.hex})`, boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.3)' }} />
-              </View>
-              <Text className="block text-xs text-[#2D1B14] mt-2">{c2.name}{m2.name}</Text>
-              <Text className="block text-[10px] text-[#C4A0A0]">{p2.name || 'TA'}</Text>
-            </View>
+            ) : (
+              <Text style={{ fontSize: 11, color: '#999' }}>暂无预览</Text>
+            )}
           </View>
 
           {/* 缘分分数 */}
-          <View className="w-32 h-32 rounded-full flex items-center justify-center border-2 mb-6" style={{ borderColor: scoreColor }}>
-            <View className="flex flex-col items-center">
-              <Text className="block text-[10px] text-[#C4A0A0]">缘分指数</Text>
-              <Text className="block text-5xl font-bold" style={{ color: scoreColor }}>{result.score}</Text>
+          <View
+            style={{
+              width: 120,
+              height: 120,
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '2px solid',
+              borderColor: scoreColor,
+              marginBottom: 20,
+              backgroundColor: '#ffffff',
+            }}
+          >
+            <View style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Text style={{ fontSize: 10, color: '#999' }}>缘分指数</Text>
+              <Text style={{ fontSize: 36, fontWeight: 700, color: scoreColor }}>{result.score}</Text>
             </View>
           </View>
 
-          {/* 八字信息 */}
-          <View className="flex flex-row gap-3 mb-4 w-full">
-            <View className="flex-1 rounded-xl border border-[#FFE0E0] p-3" style={{ background: 'linear-gradient(135deg, #FFFFFF 0%, #FFF5F5 100%)' }}>
-              <Text className="block text-[10px] text-[#C4A0A0] mb-1">{p1.name || '你'}</Text>
-              <Text className="block text-xs text-[#8B6B6B]">{p1.year}年 · 生肖{zodiac(p1.year)}</Text>
+          {/* 个人信息 */}
+          <View style={{ display: 'flex', flexDirection: 'row', gap: 10, marginBottom: 16, width: '100%' }}>
+            <View style={{ flex: 1, borderRadius: 10, border: '1px solid #e8e8e8', padding: 10, backgroundColor: '#ffffff' }}>
+              <Text style={{ fontSize: 10, color: '#999', marginBottom: 4 }}>{p1.name || '你'}</Text>
+              <Text style={{ fontSize: 12, color: '#666' }}>{p1.year}年 · 生肖{zodiac(p1.year)}</Text>
             </View>
-            <View className="flex-1 rounded-xl border border-[#FFE0E0] p-3" style={{ background: 'linear-gradient(135deg, #FFFFFF 0%, #FFF5F5 100%)' }}>
-              <Text className="block text-[10px] text-[#C4A0A0] mb-1">{p2.name || 'TA'}</Text>
-              <Text className="block text-xs text-[#8B6B6B]">{p2.year}年 · 生肖{zodiac(p2.year)}</Text>
+            <View style={{ flex: 1, borderRadius: 10, border: '1px solid #e8e8e8', padding: 10, backgroundColor: '#ffffff' }}>
+              <Text style={{ fontSize: 10, color: '#999', marginBottom: 4 }}>{p2.name || 'TA'}</Text>
+              <Text style={{ fontSize: 12, color: '#666' }}>{p2.year}年 · 生肖{zodiac(p2.year)}</Text>
             </View>
           </View>
 
           {/* 缘分分析 */}
-          <View className="w-full rounded-2xl border border-[#FFE0E0] p-5 mb-6" style={{ background: 'linear-gradient(135deg, #FFFFFF 0%, #FFF5F5 100%)' }}>
-            <Text className="block text-xs text-[#FF6B6B] font-medium mb-2">缘分详解</Text>
-            <Text className="block text-sm text-[#8B6B6B] leading-relaxed">{result.reading}</Text>
+          <View
+            style={{
+              width: '100%',
+              borderRadius: 12,
+              border: '1px solid #e8e8e8',
+              padding: 14,
+              marginBottom: 20,
+              backgroundColor: '#ffffff',
+            }}
+          >
+            <Text style={{ fontSize: 11, color: '#c8a96e', fontWeight: 500, marginBottom: 6 }}>缘分详解</Text>
+            <Text style={{ fontSize: 13, color: '#666', lineHeight: 1.6 }}>{result.reading}</Text>
           </View>
 
-          <View className="w-full py-4 rounded-xl flex items-center justify-center interactive" style={{ background: 'linear-gradient(135deg, #FF6B6B 0%, #FF9A9E 100%)' }} onClick={applyResult}>
-            <Text className="block text-base font-bold text-[#FFFFFF]">使用此组合 · 预览手串</Text>
+          <View
+            style={{
+              width: '100%',
+              padding: '14px 0',
+              borderRadius: 12,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              backgroundColor: '#2c3e50',
+            }}
+            onClick={applyResult}
+          >
+            <Text style={{ fontSize: 15, fontWeight: 600, color: '#ffffff' }}>
+              使用此组合 · 预览手串
+            </Text>
           </View>
         </View>
       </ScrollView>
@@ -174,24 +301,24 @@ const CouplePage = () => {
   }
 
   return (
-    <View className="min-h-screen bg-[#FFF5F5] px-6 py-6 flex flex-col">
-      <Text className="block text-3xl font-bold text-[#2D1B14] mb-2">缘分编</Text>
-      <Text className="block text-base text-[#8B6B6B] mb-6">
+    <View style={{ minHeight: '100vh', backgroundColor: '#f5f5f5', padding: '24px 16px', display: 'flex', flexDirection: 'column' }}>
+      <Text style={{ fontSize: 22, fontWeight: 700, color: '#1a1a2e', marginBottom: 4 }}>缘分编</Text>
+      <Text style={{ fontSize: 14, color: '#666', marginBottom: 20 }}>
         {step === 'p1' ? '输入你的生辰信息' : '输入 TA 的生辰信息'}
       </Text>
 
       {/* 姓名 */}
-      <Text className="block text-sm font-medium text-[#2D1B14] mb-2">称呼</Text>
-      <View className="rounded-xl border border-[#FFE0E0] bg-[#FFFFFF] px-4 py-3 mb-4">
+      <Text style={{ fontSize: 13, fontWeight: 500, color: '#1a1a2e', marginBottom: 6 }}>称呼</Text>
+      <View style={{ borderRadius: 10, border: '1px solid #e8e8e8', backgroundColor: '#ffffff', padding: '10px 14px', marginBottom: 16 }}>
         <input
-          className="w-full bg-transparent text-base text-[#2D1B14] outline-none"
+          style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', color: '#1a1a2e', fontSize: 14 }}
           placeholder={step === 'p1' ? '你的名字' : 'TA的名字'}
           value={step === 'p1' ? p1.name : p2.name}
           onInput={(e: any) => {
             const val = e.target?.value || ''
             step === 'p1' ? setP1({ ...p1, name: val }) : setP2({ ...p2, name: val })
           }}
-          style={{ background: 'transparent', border: 'none', outline: 'none', color: '#2D1B14', fontSize: '16px' }}
+          style={{ background: 'transparent', border: 'none', outline: 'none', color: '#1a1a2e', fontSize: '14px' }}
         />
       </View>
 
@@ -203,13 +330,21 @@ const CouplePage = () => {
       )}
 
       {/* 确认按钮 */}
-      <View className="mt-auto pt-4">
+      <View style={{ marginTop: 'auto', paddingTop: 16 }}>
         <View
-          className="w-full py-4 rounded-xl flex items-center justify-center interactive"
-          style={{ background: 'linear-gradient(135deg, #FF6B6B 0%, #FF9A9E 100%)' }}
+          style={{
+            width: '100%',
+            padding: '14px 0',
+            borderRadius: 12,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            backgroundColor: '#2c3e50',
+          }}
           onClick={step === 'p1' ? submitP1 : submitBoth}
         >
-          <Text className="block text-base font-bold text-[#FFFFFF]">
+          <Text style={{ fontSize: 15, fontWeight: 600, color: '#ffffff' }}>
             {step === 'p1' ? '下一步 · 输入TA的信息' : '开始合盘 · 测缘分'}
           </Text>
         </View>

@@ -1,8 +1,10 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { View, Text, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+import BeadPreviewRing from '@/components/designer/BeadPreviewRing'
 import { useBeadStore } from '@/lib/store'
 import { MATERIALS, recommendBeadCount } from '@/lib/data'
+import { BEAD_PRODUCTS } from '@/data/bead-products'
 
 const QUESTIONS = [
   { q: '周末你更想怎么过？', dim: 'EI',
@@ -82,6 +84,36 @@ const MBTI_LABELS: Record<string, string> = {
   ESFP: '表演者 · 快乐的表演家',
 }
 
+/* 映射旧材质ID到真实商品ID */
+const MATERIAL_BEAD_MAP: Record<string, number[]> = {
+  jade: [153, 155, 158],    // 和田玉, 碧玉
+  crystal: [0, 1, 2],       // 白水晶
+  gilt: [131, 130, 88],     // 金发晶, 金曜石
+  agate: [79, 80],          // 红玛瑙
+  bodhi: [146, 147],        // 檀木, 绿檀
+}
+
+/** 从推荐物料生成 16 颗标准手串 */
+function makeFullBracelet(materials: { materialId: string; colorIndex: number }[]): any[] {
+  const productIds: number[] = []
+  materials.forEach((m, i) => {
+    const options = MATERIAL_BEAD_MAP[m.materialId]
+    if (!options || options.length === 0) return
+    const idx = options[Math.min(i, options.length - 1)]
+    // 每种物料放 4-6 颗
+    const count = materials.length <= 2 ? 8 : Math.max(4, Math.floor(16 / materials.length))
+    for (let j = 0; j < count; j++) productIds.push(idx)
+  })
+  // 补齐或截断到 16 颗
+  while (productIds.length < 16) productIds.push(productIds[0] ?? 0)
+  const result = productIds.slice(0, 16).map((idx) => {
+    const p = BEAD_PRODUCTS[idx]
+    if (!p) return null
+    return { ...p, _key: `rec-${idx}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}` }
+  })
+  return result.filter(Boolean)
+}
+
 const QuizPage = () => {
   const [step, setStep] = useState(0)
   const [answers, setAnswers] = useState<string[]>([])
@@ -150,14 +182,20 @@ const QuizPage = () => {
     Taro.navigateTo({ url: '/pages/preview/index' })
   }
 
+  /* 生成预览用真实珠子 */
+  const previewBeads = useMemo(() => {
+    if (!result?.beads) return []
+    return makeFullBracelet(result.beads)
+  }, [result])
+
   // Loading
   if (loading) {
     return (
-      <View className="min-h-screen bg-[#FFF5F5] flex items-center justify-center px-6">
-        <View className="flex flex-col items-center">
-          <Text className="block text-2xl mb-4">...</Text>
-          <Text className="block text-base text-[#8B6B6B] text-center">正在分析你的性格…</Text>
-          <Text className="block text-xs text-[#C4A0A0] mt-2 mt-4">AI 正在为你设计专属手串</Text>
+      <View style={{ minHeight: '100vh', backgroundColor: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px' }}>
+        <View style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Text style={{ fontSize: 22, marginBottom: 16, color: '#2c3e50' }}>...</Text>
+          <Text style={{ fontSize: 14, color: '#666', textAlign: 'center' }}>正在分析你的性格...</Text>
+          <Text style={{ fontSize: 12, color: '#999', marginTop: 12 }}>AI 正在为你设计专属手串</Text>
         </View>
       </View>
     )
@@ -166,45 +204,89 @@ const QuizPage = () => {
   // Result
   if (result) {
     return (
-      <ScrollView className="h-screen bg-[#FFF5F5]" scrollY>
-        <View className="px-6 pt-6 pb-10">
-          <Text className="block text-3xl font-bold text-[#2D1B14] mb-1">你的性格报告</Text>
-
-          {/* MBTI */}
-          <View className="rounded-2xl border border-[#FFE0E0] p-5 mb-4 mt-4" style={{ background: 'linear-gradient(135deg, #FFFFFF 0%, #FFF5F5 100%)' }}>
-            <View className="flex flex-row items-center gap-3 mb-2">
-              <Text className="block text-4xl font-bold text-[#FF6B6B]">{result.mbti}</Text>
-              <View className="flex-1">
-                <Text className="block text-sm font-medium text-[#2D1B14]">{result.mbtiDesc}</Text>
-              </View>
+      <ScrollView scrollY style={{ height: '100vh', backgroundColor: '#f5f5f5' }}>
+        <View style={{ padding: '24px 16px 32px' }}>
+          {/* MBTI 标签 */}
+          <View
+            style={{
+              borderRadius: 12,
+              border: '1px solid #e8e8e8',
+              padding: 16,
+              marginBottom: 16,
+              backgroundColor: '#ffffff',
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 12,
+            }}
+          >
+            <Text style={{ fontSize: 28, fontWeight: 700, color: '#2c3e50' }}>{result.mbti}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 13, fontWeight: 600, color: '#1a1a2e' }}>{result.mbtiDesc}</Text>
             </View>
           </View>
 
-          <Text className="block text-base font-medium text-[#2D1B14] mb-3 mt-4">手串方案 · {result.beadCount}颗</Text>
+          {/* 手串方案预览 — 与自由编相同效果 */}
+          <Text style={{ fontSize: 14, fontWeight: 600, color: '#1a1a2e', marginBottom: 10 }}>
+            手串方案 · {result.beadCount}颗
+          </Text>
+
+          <View
+            style={{
+              borderRadius: 12,
+              border: '1px solid #e8e8e8',
+              padding: 12,
+              marginBottom: 12,
+              backgroundColor: '#ffffff',
+              height: 160,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {previewBeads.length > 0 ? (
+              <View style={{ width: '100%', height: '100%', maxWidth: 180 }}>
+                <BeadPreviewRing
+                  beads={previewBeads}
+                  ropeColor="rgba(180,180,180,0.6)"
+                  onRemove={() => {}}
+                  compact
+                />
+              </View>
+            ) : (
+              <Text style={{ fontSize: 13, color: '#999' }}>暂无预览</Text>
+            )}
+          </View>
 
           {/* 排列方式 */}
-          <View className="rounded-2xl border border-[#FFE0E0] p-4 mb-4" style={{ background: 'linear-gradient(135deg, #FFFFFF 0%, #FFF5F5 100%)' }}>
-            <Text className="block text-sm text-[#8B6B6B]">{result.arrangement}</Text>
+          <View
+            style={{
+              borderRadius: 12,
+              border: '1px solid #e8e8e8',
+              padding: 12,
+              marginBottom: 20,
+              backgroundColor: '#ffffff',
+            }}
+          >
+            <Text style={{ fontSize: 12, color: '#666' }}>{result.arrangement}</Text>
           </View>
 
-          {/* 珠子缩略图条 */}
-          <ScrollView scrollX className="mb-4" style={{ height: '50px' }}>
-            <View className="flex flex-row gap-1.5 items-center px-1" style={{ height: '46px' }}>
-              {result.beads.map((b: any, i: number) => {
-                const material = MATERIALS.find(m => m.id === b.materialId) || MATERIALS[0]
-                const color = material.colors[Math.min(b.colorIndex, material.colors.length - 1)]
-                return (
-                  <View key={i} className="w-8 h-8 rounded-full flex-shrink-0 border border-[#FFE0E0]" style={{
-                    background: `radial-gradient(circle at 35% 30%, ${color.gradient[1]}, ${color.hex})`,
-                  }} />
-                )
-              })}
-            </View>
-          </ScrollView>
-
-          <View className="w-full py-4 rounded-xl flex items-center justify-center interactive"
-            style={{ background: 'linear-gradient(135deg, #FF6B6B 0%, #FF9A9E 100%)' }} onClick={applyResult}>
-            <Text className="block text-base font-bold text-[#FFFFFF]">使用此方案 · 预览手串</Text>
+          <View
+            style={{
+              width: '100%',
+              padding: '14px 0',
+              borderRadius: 12,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              backgroundColor: '#2c3e50',
+            }}
+            onClick={applyResult}
+          >
+            <Text style={{ fontSize: 15, fontWeight: 600, color: '#ffffff' }}>
+              使用此方案 · 预览手串
+            </Text>
           </View>
         </View>
       </ScrollView>
@@ -214,21 +296,39 @@ const QuizPage = () => {
   // Quiz
   const q = QUESTIONS[step]
   return (
-    <View className="min-h-screen bg-[#FFF5F5] px-6 py-6 flex flex-col">
-      <Text className="block text-3xl font-bold text-[#2D1B14] mb-2">性格测试</Text>
-      <Text className="block text-sm text-[#8B6B6B] mb-1">8道题了解你的性格，AI 设计专属手串</Text>
-      <Text className="block text-xs text-[#C4A0A0] mb-6">第 {step + 1}/{QUESTIONS.length} 题</Text>
+    <View style={{ minHeight: '100vh', backgroundColor: '#f5f5f5', padding: '24px 16px', display: 'flex', flexDirection: 'column' }}>
+      <Text style={{ fontSize: 22, fontWeight: 700, color: '#1a1a2e', marginBottom: 4 }}>性格测试</Text>
+      <Text style={{ fontSize: 13, color: '#666', marginBottom: 2 }}>8道题了解你的性格，AI 设计专属手串</Text>
+      <Text style={{ fontSize: 11, color: '#999', marginBottom: 20 }}>第 {step + 1}/{QUESTIONS.length} 题</Text>
 
-      <View className="w-full h-1 bg-[#FFE0E0] rounded-full mb-8">
-        <View className="h-full bg-[#FF6B6B] rounded-full" style={{ width: `${((step + 1) / QUESTIONS.length) * 100}%` }} />
+      <View style={{ width: '100%', height: 4, backgroundColor: '#e8e8e8', borderRadius: 2, marginBottom: 24 }}>
+        <View
+          style={{
+            height: '100%',
+            backgroundColor: '#2c3e50',
+            borderRadius: 2,
+            width: `${((step + 1) / QUESTIONS.length) * 100}%`,
+          }}
+        />
       </View>
 
-      <Text className="block text-lg font-medium text-[#2D1B14] mb-6">{q.q}</Text>
+      <Text style={{ fontSize: 16, fontWeight: 500, color: '#1a1a2e', marginBottom: 20 }}>{q.q}</Text>
 
-      <View className="flex flex-col gap-3">
+      <View style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {q.options.map((opt, i) => (
-          <View key={i} className="w-full rounded-xl border border-[#FFE0E0] p-4 interactive" style={{ background: 'linear-gradient(135deg, #FFFFFF 0%, #FFF5F5 100%)' }} onClick={() => selectAnswer(opt.text, opt.trait)}>
-            <Text className="block text-base text-[#2D1B14]">{opt.text}</Text>
+          <View
+            key={i}
+            style={{
+              width: '100%',
+              borderRadius: 12,
+              border: '1px solid #e8e8e8',
+              padding: 14,
+              cursor: 'pointer',
+              backgroundColor: '#ffffff',
+            }}
+            onClick={() => selectAnswer(opt.text, opt.trait)}
+          >
+            <Text style={{ fontSize: 14, color: '#1a1a2e' }}>{opt.text}</Text>
           </View>
         ))}
       </View>
