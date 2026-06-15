@@ -1,25 +1,36 @@
 import { useState, useMemo } from 'react'
-import { View, Text, ScrollView } from '@tarojs/components'
-import { BeadProduct, BEAD_PRODUCTS, BEAD_CATEGORIES, getProductsByCategory } from '../../data/bead-products'
+import { View, Text } from '@tarojs/components'
+import { BeadProduct, BEAD_PRODUCTS, getProductsByCategory, getCategories } from '../../data/bead-products'
 import MaterialCard from './MaterialCard'
 import CategorySidebar from './CategorySidebar'
 
 interface Props {
   onAddBead: (product: BeadProduct) => void
-  currentCount: number
 }
 
 type TabType = 'beads' | 'accessories'
 
 export default function MaterialPanel({ onAddBead }: Props) {
-  const [activeTab] = useState<TabType>('beads')
+  const [activeTab, setActiveTab] = useState<TabType>('beads')
   const [activeCategory, setActiveCategory] = useState('all')
 
-  const products = useMemo(() => {
-    return getProductsByCategory(activeCategory)
-  }, [activeCategory])
+  // 切换 tab 时重置分类
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab)
+    setActiveCategory('all')
+  }
 
-  const totalCount = BEAD_PRODUCTS.length
+  // 当前 tab 的品类列表
+  const categories = useMemo(() => getCategories(activeTab === 'accessories' ? 'accessory' : 'bead'), [activeTab])
+
+  // 当前显示的产物
+  const products = useMemo(() => {
+    return getProductsByCategory(activeCategory, activeTab === 'accessories' ? 'accessory' : 'bead')
+  }, [activeCategory, activeTab])
+
+  const totalCount = activeTab === 'beads'
+    ? BEAD_PRODUCTS.filter(p => p.type === 'bead').length
+    : BEAD_PRODUCTS.filter(p => p.type === 'accessory').length
 
   return (
     <View
@@ -35,21 +46,12 @@ export default function MaterialPanel({ onAddBead }: Props) {
         backgroundColor: '#ffffff',
         borderTop: '1px solid #e8e8e8',
         boxShadow: 'rgba(0,0,0,0.04) 0px -1px 0px 0px',
-        // 移动端: 40vh
-        height: '40vh',
-        maxHeight: 400,
+        height: '48vh',
+        maxHeight: 480,
       }}
     >
       {/* 标签栏 */}
-      <View
-        className="type-toolbar"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          padding: '4px 12px 10px',
-          gap: 10,
-        }}
-      >
+      <View className="type-toolbar" style={{ display: 'flex', alignItems: 'center', padding: '4px 12px 10px', gap: 10 }}>
         <View className="type-tabs" style={{ display: 'flex', gap: 8 }}>
           <View
             className="type-tab"
@@ -60,7 +62,9 @@ export default function MaterialPanel({ onAddBead }: Props) {
               backgroundColor: activeTab === 'beads' ? '#ffffff' : '#f9f9f9',
               border: '1px solid #e0e0e0',
               borderRadius: 16,
+              cursor: 'pointer',
             }}
+            onClick={() => handleTabChange('beads')}
           >
             珠子
           </View>
@@ -69,11 +73,13 @@ export default function MaterialPanel({ onAddBead }: Props) {
             style={{
               padding: '6px 16px',
               fontSize: 14,
-              color: '#999',
-              backgroundColor: '#f9f9f9',
+              color: activeTab === 'accessories' ? '#000' : '#999',
+              backgroundColor: activeTab === 'accessories' ? '#ffffff' : '#f9f9f9',
               border: '1px solid #e0e0e0',
               borderRadius: 16,
+              cursor: 'pointer',
             }}
+            onClick={() => handleTabChange('accessories')}
           >
             配饰
           </View>
@@ -101,39 +107,18 @@ export default function MaterialPanel({ onAddBead }: Props) {
         </View>
       </View>
 
-      {/* 内容区：类别侧栏 + 网格 */}
-      <View
-        className="materials-content"
-        style={{
-          display: 'flex',
-          flex: 1,
-          overflow: 'hidden',
-        }}
-      >
+      {/* 内容区 */}
+      <View className="materials-content" style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         {/* 左: 类别侧栏 */}
         <CategorySidebar
+          categories={categories}
           activeCategory={activeCategory}
           onSelect={setActiveCategory}
         />
 
         {/* 右: 材料网格 */}
-        <View
-          className="materials-grid-container"
-          style={{
-            flex: 1,
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            padding: 8,
-          }}
-        >
-          <View
-            className="materials-grid"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: 8,
-            }}
-          >
+        <View className="materials-grid-container" style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: 8 }}>
+          <View className="materials-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
             {products.map((product) => (
               <MaterialCard
                 key={`${product.id}-${product.sizeMm}`}
@@ -142,9 +127,7 @@ export default function MaterialPanel({ onAddBead }: Props) {
               />
             ))}
           </View>
-
-          {/* 底部占位 */}
-          <View style={{ height: 8 }} />
+          <View style={{ height: 12 }} />
         </View>
       </View>
     </View>

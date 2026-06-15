@@ -45,6 +45,27 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder 
   const dragRef = useRef({ index: -1, active: false, startX: 0, startY: 0 })
   const beadsRef = useRef(beads)
   beadsRef.current = beads
+  const removingRef = useRef<Set<number>>(new Set())
+
+  // 触发移除动画，延迟执行
+  const handleRemoveWithAnim = useCallback((index: number) => {
+    if (dragRef.current.active) return
+    if (removingRef.current.has(index)) return
+    removingRef.current.add(index)
+    const ring = ringRef.current
+    if (ring) {
+      const bead = ring.querySelector(`.bead-item[data-index="${index}"]`) as HTMLElement
+      if (bead) {
+        bead.classList.add('removing')
+        bead.style.transition = 'none'
+        bead.style.animation = 'none'
+      }
+    }
+    setTimeout(() => {
+      removingRef.current.delete(index)
+      onRemove(index)
+    }, 250)
+  }, [onRemove])
 
   useEffect(() => {
     const el = containerRef.current
@@ -212,13 +233,15 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder 
           return (
             <View
               key={`${bead.id}-${i}`}
-              className={`bead-item${isNew ? ' bead-adding bead-fly-in' : ''}`}
+              className={`bead-item${isNew ? ' bead-adding bead-fly-in' : ''}${bead.type === 'accessory' ? ' bead-accessory' : ''}`}
               data-index={i}
               style={{
                 position: 'absolute', width: bSize, height: bSize,
-                top: '50%', left: '50%', borderRadius: '50%',
+                top: '50%', left: '50%',
+                borderRadius: bead.type === 'accessory' ? 4 : '50%',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'grab', overflow: 'hidden',
+                cursor: 'grab',
+                overflow: bead.type === 'accessory' ? 'visible' : 'hidden',
                 transform: `translate(-50%, -50%) translate(${bx.toFixed(4)}px, ${by.toFixed(4)}px) rotate(${rotation.toFixed(2)}deg)`,
                 zIndex: isNew ? 100 : i + 2,
                 boxShadow: cssVars['--bead-shadow'],
@@ -227,7 +250,7 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder 
                 marginLeft: 0, marginTop: 0, willChange: 'transform', userSelect: 'none',
                 ...cssVars,
               } as any}
-              onClick={(e: any) => handleClick(e, i)}
+              onClick={() => handleRemoveWithAnim(i)}
             >
               <View className="bead-light-layer" style={{
                 position: 'absolute', inset: 0, pointerEvents: 'none',
@@ -245,11 +268,13 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder 
               </View>
               <Image
                 src={`/images/beads/${bead.imageUrl}`}
-                mode="aspectFill"
+                mode="aspectFit"
                 style={{
-                  width: '100%', height: '100%', objectFit: 'cover',
-                  borderRadius: '50%', position: 'relative', zIndex: 1,
+                  width: '100%', height: '100%', objectFit: 'contain',
+                  borderRadius: bead.type === 'accessory' ? 0 : '50%',
+                  position: 'relative', zIndex: 1,
                   pointerEvents: 'none',
+                  backgroundColor: bead.type === 'accessory' ? 'transparent' : '#f5f5f5',
                 }}
               />
             </View>

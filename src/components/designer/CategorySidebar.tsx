@@ -1,14 +1,15 @@
 import { View, Text, ScrollView } from '@tarojs/components'
-import { BEAD_CATEGORIES, BeadCategory, getCategoryName } from '../../data/bead-products'
+import { BeadCategory, getCategoryName } from '../../data/bead-products'
 
 interface Props {
+  categories: BeadCategory[]
   activeCategory: string
   onSelect: (categoryId: string) => void
 }
 
-export default function CategorySidebar({ activeCategory, onSelect }: Props) {
-  const allCategory: BeadCategory = { id: 'all', name: '全部', count: BEAD_CATEGORIES.reduce((s, c) => s + c.count, 0) }
-  const categories = [allCategory, ...BEAD_CATEGORIES]
+export default function CategorySidebar({ categories, activeCategory, onSelect }: Props) {
+  const allCategory: BeadCategory = { id: 'all', name: '全部', count: categories.reduce((s, c) => s + c.count, 0) }
+  const list = [allCategory, ...categories]
 
   return (
     <View
@@ -22,11 +23,8 @@ export default function CategorySidebar({ activeCategory, onSelect }: Props) {
         borderRight: '1px solid #e0e0e0',
       }}
     >
-      <ScrollView
-        scrollY
-        style={{ height: '100%' }}
-      >
-        {categories.map((cat) => {
+      <ScrollView scrollY style={{ height: '100%' }}>
+        {list.map((cat) => {
           const isActive = cat.id === activeCategory
           return (
             <View

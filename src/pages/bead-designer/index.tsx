@@ -88,7 +88,7 @@ export default function BeadDesignerPage() {
         </View>
       </View>
 
-      <MaterialPanel onAddBead={handleAddBead} currentCount={currentDesign.length} />
+      <MaterialPanel onAddBead={handleAddBead} />
     </View>
   )
 }
