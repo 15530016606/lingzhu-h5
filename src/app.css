@@ -186,3 +186,364 @@ image {
   transform: scale(0.96);
   opacity: 0.9;
 }
+
+/* ==== 珠了个珠模式 CSS（完全复刻） ==== */
+
+@property --bead-x {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --bead-y {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --bead-rotation {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.bracelet-preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.bracelet-ring {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.5s;
+}
+
+.bracelet-ring.has-beads {
+  animation: auto ease 0s 1 normal none running none;
+}
+
+.rope-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  box-sizing: content-box;
+  z-index: 1;
+}
+
+.bead-item {
+  position: absolute;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s, opacity 0.2s;
+  border-width: medium;
+  border-style: none;
+  border-color: currentcolor;
+  border-image: initial;
+  overflow: hidden;
+  box-shadow: var(--bead-shadow, 6px 6px 14px rgba(0, 0, 0, .3));
+  top: 50%;
+  left: 50%;
+  touch-action: none;
+  transform-origin: center center;
+  margin-left: 0px;
+  margin-top: 0px;
+  will-change: transform;
+  z-index: 1;
+}
+
+.bead-light-layer {
+  position: absolute;
+  inset: 0px;
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 2;
+}
+
+.bead-highlight-dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  pointer-events: none;
+  width: var(--bead-highlight-dot-width, 11px);
+  height: var(--bead-highlight-dot-height, 6px);
+  transform: translate(-50%,-50%) translate(var(--bead-highlight-dot-x, -6px),var(--bead-highlight-dot-y, -6px)) rotate(var(--bead-highlight-dot-rotation, 0deg));
+  background: radial-gradient(ellipse at center,rgba(255,255,255,var(--bead-highlight-dot-alpha, .95)) 0% 58%,rgba(255,255,255,calc(var(--bead-highlight-dot-alpha, .95) * .36)) 84%,#fff0);
+  filter: blur(0.1px);
+  box-shadow: rgba(255, 255, 255, 0.28) 0px 0px 0.9px;
+}
+
+.bead-item:hover {
+  box-shadow: var(--bead-shadow-hover, 8px 8px 18px rgba(0, 0, 0, .35));
+  z-index: 10;
+  transform: translate(-50%,-50%) translate(var(--bead-x),var(--bead-y)) rotate(var(--bead-rotation)) scale(1.05);
+}
+
+.bead-item:active {
+  cursor: grabbing;
+}
+
+.bead-item.dragging {
+  cursor: grabbing;
+  box-shadow: var(--bead-shadow-drag, 10px 10px 22px rgba(0, 0, 0, .38));
+  transition: none !important;
+  animation: auto ease 0s 1 normal none running none !important;
+  z-index: 200 !important;
+}
+
+.bead-item.removing {
+  opacity: 0;
+  box-shadow: none;
+  transition: 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transform: translate(-50%,-50%) translate(var(--bead-x),var(--bead-y)) rotate(var(--bead-rotation)) scale(.1) !important;
+}
+
+.bead-item.bead-entry-pending {
+  opacity: 0;
+  pointer-events: none;
+  animation: auto ease 0s 1 normal none running none !important;
+  transition: none !important;
+}
+
+.bead-item.bead-adding {
+  animation: 0.95s cubic-bezier(0.18, 0.78, 0.24, 1) 0s 1 normal none running beadAdd;
+  z-index: 100;
+}
+
+.bead-item.bead-fly-in {
+  z-index: 100;
+  animation: 0.95s cubic-bezier(0.18, 0.78, 0.24, 1) 0s 1 normal none running beadFlyIn !important;
+  transition: none !important;
+}
+
+@keyframes beadAdd {
+  0% {
+    transform: translate(-50%,-50%) translate(var(--bead-x),var(--bead-y)) rotate(var(--bead-rotation)) scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(-50%,-50%) translate(var(--bead-x),var(--bead-y)) rotate(var(--bead-rotation)) scale(1.14);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%,-50%) translate(var(--bead-x),var(--bead-y)) rotate(var(--bead-rotation)) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes beadFlyIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translateY(400px) rotate(0deg) scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%,-50%) translate(var(--bead-x),var(--bead-y)) rotate(var(--bead-rotation)) scale(1);
+  }
+}
+
+.bead-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* 材料面板 */
+.materials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0px, 1fr));
+  gap: 8px;
+}
+
+.material-card {
+  background: rgb(255, 255, 255);
+  border: 1px solid rgb(224, 224, 224);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: 0.3s;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+}
+
+.material-card:hover {
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  transform: translateY(-2px);
+}
+
+.material-card:active {
+  transform: scale(0.97);
+  box-shadow: rgba(0, 0, 0, 0.14) 0px 2px 6px;
+}
+
+.material-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.material-used-badge {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  z-index: 3;
+  min-width: 10px;
+  color: rgb(204, 204, 204);
+  font-size: 12px;
+  line-height: 1;
+  text-align: center;
+  font-weight: 600;
+  text-shadow: rgba(255, 255, 255, 0.72) 0px 1px 1px;
+}
+
+.material-image {
+  width: 100%;
+  height: 60px;
+  background: rgb(255, 255, 255);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 8px;
+}
+
+.material-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.material-info {
+  padding: 4px 6px 8px;
+  flex: 1 1 0%;
+  display: flex;
+  flex-direction: column;
+}
+
+.material-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgb(51, 51, 51);
+  margin-bottom: 4px;
+  line-height: 17px;
+  overflow: hidden;
+  text-align: center;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.material-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  margin-bottom: 4px;
+}
+
+.material-meta .size {
+  font-size: 11px;
+  color: rgb(102, 102, 102);
+  font-weight: 500;
+}
+
+.material-meta .price {
+  font-size: 11px;
+  color: rgb(153, 153, 153);
+}
+
+.material-stock {
+  font-size: 10px;
+  color: rgb(255, 152, 0);
+  font-weight: 500;
+}
+
+.material-stock.warning {
+  color: rgb(255, 152, 0);
+}
+
+.material-stock.out-of-stock {
+  color: rgb(244, 67, 54);
+}
+
+.category-sidebar {
+  background: rgb(249, 249, 249);
+  border-right: 1px solid rgb(224, 224, 224);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  min-height: 0px;
+}
+
+.category-list {
+  flex: 1 1 0%;
+  min-height: 0px;
+  overflow: hidden auto;
+  padding-bottom: 30px;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+
+.category-item {
+  width: 100%;
+  padding: 12px 10px;
+  border-width: medium medium 1px;
+  border-style: none none solid;
+  border-color: currentcolor currentcolor rgb(240, 240, 240);
+  border-image: initial;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.category-item.active {
+  background: rgb(255, 255, 255);
+  color: rgb(0, 0, 0);
+}
+
+.category-item.active::before {
+  content: '';
+  display: block;
+  width: 5px;
+  height: 20px;
+  background: var(--accent, #ff4400);
+  position: absolute;
+  inset: 0px;
+  margin: auto auto auto 0px;
+}
+
+.category-item.active .category-name {
+  color: rgb(0, 0, 0);
+}
+
+.category-name {
+  font-size: 14px;
+  white-space: nowrap;
+  color: rgb(153, 153, 153);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import { Material, MaterialColor, Accessory, BeadConfig, Fortune, DailyRecord, SignInRecord, getDailyFortune, DAILY_FREE_COUNT, BeadItem, RopeType, ROPE_TYPES, Charm, BEAD_SIZES_MM, recommendBeadCount } from './data'
+import { BeadProduct, calcWristSize, calcTotalPrice } from '../data/bead-products'
 
 type GameMode = 'free' | 'wish' | 'couple'
 
@@ -33,6 +34,15 @@ interface BeadStore {
   addCharm: (charm: Charm) => void
   removeCharm: (index: number) => void
   resetBeads: () => void
+
+  // V3 自由编 Designer（珠了个珠模式）
+  currentDesign: BeadProduct[]
+  ropeColor: string
+  addToDesign: (product: BeadProduct) => void
+  removeFromDesign: (index: number) => void
+  reorderDesign: (fromIndex: number, toIndex: number) => void
+  clearDesign: () => void
+  setRopeColor: (color: string) => void
 
   // 运势
   fortune: Fortune | null
@@ -142,6 +152,23 @@ export const useBeadStore = create<BeadStore>()(
         set((state) => ({ charms: state.charms.filter((_, i) => i !== index) })),
 
       resetBeads: () => set({ beads: [], charms: [], rope: ROPE_TYPES[0] }),
+
+      // V3 自由编 Designer
+      currentDesign: [],
+      ropeColor: 'rgba(180,180,180,0.6)',
+      addToDesign: (product) =>
+        set((state) => ({ currentDesign: [...state.currentDesign, product] })),
+      removeFromDesign: (index) =>
+        set((state) => ({ currentDesign: state.currentDesign.filter((_, i) => i !== index) })),
+      reorderDesign: (fromIndex, toIndex) =>
+        set((state) => {
+          const arr = [...state.currentDesign]
+          const [item] = arr.splice(fromIndex, 1)
+          arr.splice(toIndex, 0, item)
+          return { currentDesign: arr }
+        }),
+      clearDesign: () => set({ currentDesign: [] }),
+      setRopeColor: (color) => set({ ropeColor: color }),
 
       fortune: null,
       generateFortune: () =>

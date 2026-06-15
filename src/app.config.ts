@@ -1,6 +1,7 @@
 export default defineAppConfig({
   pages: [
     'pages/index/index',
+    'pages/bead-designer/index',
     'pages/material/index',
     'pages/color/index',
     'pages/accessory/index',
