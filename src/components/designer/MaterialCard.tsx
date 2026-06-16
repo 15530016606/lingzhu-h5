@@ -46,9 +46,8 @@ export default function MaterialCard({ product, onSelect, compact }: Props) {
           src={imgUrl}
           mode="aspectFit"
           style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
+            width: '85%',
+            height: '85%',
           }}
         />
       </View>

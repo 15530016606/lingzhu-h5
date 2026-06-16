@@ -42,6 +42,7 @@ interface BeadStore {
   removeFromDesign: (index: number) => void
   reorderDesign: (fromIndex: number, toIndex: number) => void
   clearDesign: () => void
+  setDesign: (products: BeadProduct[]) => void
   setRopeColor: (color: string) => void
 
   // 运势

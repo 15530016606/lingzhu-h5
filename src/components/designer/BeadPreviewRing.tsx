@@ -8,6 +8,7 @@ interface Props {
   onRemove: (index: number) => void
   onReorder?: (fromIndex: number, toIndex: number) => void
   compact?: boolean      // 紧凑模式：珠子缩小
+  stagger?: boolean      // 所有珠子依次入场动画
 }
 
 const ROPE_WIDTH = 3
@@ -16,11 +17,11 @@ const ORBIT_RATIO = 0.32
 function beadSizeFromProduct(p: BeadProduct, compact?: boolean): number {
   const mm = p.sizeMm || 6
   if (compact) {
-    // 紧凑模式：适应 16 颗在 110px 小容器不重叠
-    if (mm <= 6) return 12
-    if (mm <= 8) return 14
-    if (mm <= 10) return 16
-    return 18
+    // 紧凑模式：适应 16 颗在小容器，珠子相对绳子比例协调
+    if (mm <= 6) return 10
+    if (mm <= 8) return 12
+    if (mm <= 10) return 14
+    return 16
   }
   if (mm <= 6) return 33
   if (mm <= 8) return 44
@@ -48,7 +49,7 @@ function highlightProps(angle: number, beadSize: number) {
 }
 
 /** 环形拖拽：全部监听器挂在 ring 上，不需要 document 级事件 */
-export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder, compact }: Props) {
+export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder, compact, stagger }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const ringRef = useRef<HTMLDivElement>(null)
   const [dims, setDims] = useState({ w: 375, h: 400 })
@@ -239,6 +240,7 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder,
           const by = Math.sin(angle) * orbitR
           const rotation = (angle * 180) / Math.PI
           const isNew = i === count - 1 && count >= 1
+          const shouldAnimate = stagger ? true : isNew
           const bSize = beadSizeFromProduct(bead, compact)
           const hl = highlightProps(angle, bSize)
 
@@ -260,7 +262,7 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder,
           return (
             <View
               key={bead._key || bead.id}
-              className={`bead-item${isNew ? ' bead-adding bead-fly-in' : ''}${bead.type === 'accessory' ? ' bead-accessory' : ''}`}
+              className={`bead-item${shouldAnimate ? ' bead-adding bead-fly-in' : ''}${bead.type === 'accessory' ? ' bead-accessory' : ''}`}
               data-index={i}
               style={{
                 position: 'absolute', width: bSize, height: bSize,
@@ -270,11 +272,12 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder,
                 cursor: 'grab',
                 overflow: bead.type === 'accessory' ? 'visible' : 'hidden',
                 transform: `translate(-50%, -50%) translate(${bx.toFixed(4)}px, ${by.toFixed(4)}px) rotate(${(rotation + (rotationOffsets.current.get(i) || 0)).toFixed(2)}deg)`,
-                zIndex: isNew ? 100 : i + 2,
+                zIndex: shouldAnimate ? 100 : i + 2,
                 boxShadow: bead.type === 'accessory' ? 'none' : cssVars['--bead-shadow'],
                 transition: 'transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s, opacity 0.24s',
                 touchAction: 'none', transformOrigin: 'center center',
                 marginLeft: 0, marginTop: 0, willChange: 'transform', userSelect: 'none',
+                animationDelay: stagger ? `${i * 40}ms` : '0s',
                 ...cssVars,
               } as any}
               onClick={() => {

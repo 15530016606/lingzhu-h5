@@ -6,6 +6,9 @@ export default defineAppConfig({
     'pages/color/index',
     'pages/accessory/index',
     'pages/preview/index',
+    'pages/checkout/index',
+    'pages/color-theme/index',
+    'pages/favorites/index',
     'pages/result/index',
     'pages/signin/index',
     'pages/wish/index',
@@ -16,9 +19,9 @@ export default defineAppConfig({
     'pages/quiz/index',
   ],
   window: {
-    backgroundTextStyle: 'dark',
-    navigationBarBackgroundColor: '#0D0D1A',
+    backgroundTextStyle: 'light',
+    navigationBarBackgroundColor: '#ffffff',
     navigationBarTitleText: '灵珠手作',
-    navigationBarTextStyle: 'white'
+    navigationBarTextStyle: 'black'
   }
 })

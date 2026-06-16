@@ -8,7 +8,7 @@ import { calcWristSize, calcTotalPrice, getWristStatus } from '@/data/bead-produ
 
 export default function BeadDesignerPage() {
   const { currentDesign, addToDesign, removeFromDesign, reorderDesign, clearDesign, ropeColor } = useBeadStore()
-  const [panelPct, setPanelPct] = useState(100) // 0=展开, 100=收起
+  const [panelPct, setPanelPct] = useState(55) // 55=半展开（默认看到材料）, 0=全展开, 100=收起
 
   const wristSize = useMemo(() => calcWristSize(currentDesign), [currentDesign])
   const totalPrice = useMemo(() => calcTotalPrice(currentDesign), [currentDesign])
@@ -135,7 +135,7 @@ export default function BeadDesignerPage() {
       </View>
 
       {/* 选材面板 */}
-      <MaterialPanel onAddBead={handleAddBead} onSlideChange={setPanelPct} />
+      <MaterialPanel onAddBead={handleAddBead} onSlideChange={setPanelPct} defaultPct={55} />
     </View>
   )
 }

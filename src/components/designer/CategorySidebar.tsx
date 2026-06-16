@@ -48,7 +48,7 @@ export default function CategorySidebar({ categories, activeCategory, onSelect }
                   fontWeight: isActive ? 500 : 400,
                 }}
               >
-                {getCategoryName(cat.id)}
+                {cat.id === 'all' ? '所有材料' : getCategoryName(cat.id)}
               </Text>
             </View>
           )

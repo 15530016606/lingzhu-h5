@@ -8,13 +8,21 @@ import { BEAD_PRODUCTS } from '@/data/bead-products'
 
 const currentYear = new Date().getFullYear()
 
-/* 映射旧材质ID到真实商品ID */
+/* 映射API返回的材质ID到真实商品索引 */
 const MATERIAL_BEAD_MAP: Record<string, number[]> = {
-  jade: [153, 155, 158],
-  crystal: [0, 1, 2],
-  gilt: [131, 130, 88],
-  agate: [79, 80],
   bodhi: [146, 147],
+  agate: [79, 80],
+  crystal: [0, 1, 2],
+  jade: [153, 155],
+  dzi: [165, 163],
+  gilt: [131, 130, 88],
+  walnut: [142, 143],
+  amber: [172, 173],
+  coral: [166, 168],
+  lapis: [167, 170],
+  turquoise: [177, 178],
+  beeswax: [174],
+  obsidian: [96, 99],
 }
 
 /** 从两个推荐物料生成 16 颗标准手串 */
@@ -61,21 +69,31 @@ const CouplePage = () => {
     if (!p2.name.trim()) return
     setLoading(true)
     Taro.request({
-      url: '/api/fortune-ai/couple',
+      url: 'http://localhost:3000/api/fortune-ai/couple',
       method: 'POST',
       data: { person1: p1, person2: p2 },
+      timeout: 15000,
     }).then(res => {
-      setResult(res.data?.data)
+      const data = res.data?.data
+      if (data) {
+        setResult(data)
+      } else {
+        useLocalFallback()
+      }
       setLoading(false)
     }).catch(() => {
-      setResult({
-        score: 78,
-        reading: '两人的缘分指数中等偏上。生肖相合，五行互补，若能互相理解和包容，感情会更加深厚。',
-        bead1: { materialId: 'jade', colorIndex: 0 },
-        bead2: { materialId: 'crystal', colorIndex: 2 },
-        comboName: '缘定三生',
-      })
+      useLocalFallback()
       setLoading(false)
+    })
+  }
+
+  const useLocalFallback = () => {
+    setResult({
+      score: 78,
+      reading: '两人的缘分指数中等偏上。生肖相合，五行互补，若能互相理解和包容，感情会更加深厚。',
+      bead1: { materialId: 'jade', colorIndex: 0 },
+      bead2: { materialId: 'crystal', colorIndex: 2 },
+      comboName: '缘定三生',
     })
   }
 

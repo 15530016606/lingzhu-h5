@@ -1,3 +1,3 @@
 export default definePageConfig({
-  navigationBarTitleText: '许愿编'
+  navigationBarTitleText: '心选编'
 })

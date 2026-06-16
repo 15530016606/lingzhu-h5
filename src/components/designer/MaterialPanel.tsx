@@ -9,6 +9,7 @@ import { useBeadStore } from '@/lib/store'
 interface Props {
   onAddBead: (product: BeadProduct) => void
   onSlideChange?: (pct: number) => void
+  defaultPct?: number    // 默认展开百分比（0=全展开，100=全收起）
 }
 
 type TabType = 'beads' | 'accessories'
@@ -16,14 +17,14 @@ type TabType = 'beads' | 'accessories'
 const PANEL_H = 400
 const HANDLE_H = 36
 
-export default function MaterialPanel({ onAddBead, onSlideChange }: Props) {
+export default function MaterialPanel({ onAddBead, onSlideChange, defaultPct = 100 }: Props) {
   const { ropeColor, setRopeColor } = useBeadStore()
   const [activeTab, setActiveTab] = useState<TabType>('beads')
   const [activeCategory, setActiveCategory] = useState('all')
   const contentRef = useRef<HTMLDivElement>(null)
 
-  const [slidePct, setSlidePct] = useState(100)
-  const dragState = useRef({ active: false, startY: 0, startPct: 100, totalDy: 0 })
+  const [slidePct, setSlidePct] = useState(defaultPct)
+  const dragState = useRef({ active: false, startY: 0, startPct: defaultPct, totalDy: 0 })
   const slidePctRef = useRef(slidePct)
   slidePctRef.current = slidePct
   const maxSlidePx = PANEL_H - HANDLE_H

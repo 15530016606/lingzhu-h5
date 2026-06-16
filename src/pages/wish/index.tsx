@@ -32,8 +32,8 @@ const WishPage = () => {
 
   return (
     <View className="min-h-screen bg-[#FFF5F5] px-6 py-6 flex flex-col">
-      <Text className="block text-4xl font-bold text-[#2D1B14] mb-2">许愿编</Text>
-      <Text className="block text-base text-[#8B6B6B] mb-6">选择一个愿望，系统为你搭配最合适的珠子</Text>
+      <Text className="block text-4xl font-bold text-[#2D1B14] mb-2">心选编</Text>
+      <Text className="block text-base text-[#8B6B6B] mb-6">完成测试题，系统为你推荐最合适的珠子</Text>
 
       <ScrollView className="flex-1" scrollY>
         <View className="grid grid-cols-3 gap-4 pb-8">

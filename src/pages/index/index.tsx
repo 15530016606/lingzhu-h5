@@ -97,6 +97,7 @@ function SampleBraceletCard({
             ropeColor={sample.ropeColor}
             onRemove={() => {}}
             compact
+            stagger
           />
         </View>
       </View>
@@ -134,8 +135,9 @@ const IndexPage = () => {
   const goToFree = () => Taro.navigateTo({ url: '/pages/bead-designer/index' })
   const goToWish = () => Taro.navigateTo({ url: '/pages/quiz/index' })
   const goToCouple = () => Taro.navigateTo({ url: '/pages/couple/index' })
+  const goToColorTheme = () => Taro.navigateTo({ url: '/pages/color-theme/index' })
   const goToSignIn = () => Taro.navigateTo({ url: '/pages/signin/index' })
-  const goToFavorites = () => Taro.showToast({ title: '收藏功能开发中', icon: 'none' })
+  const goToFavorites = () => Taro.navigateTo({ url: '/pages/favorites/index' })
 
   const handleSampleSelect = useCallback(
     (pattern: number[], ropeColor: string) => {
@@ -160,6 +162,8 @@ const IndexPage = () => {
       <View
         style={{
           backgroundColor: '#ffffff',
+          marginHorizontal: 16,
+          borderRadius: 16,
           padding: '20px 0 14px',
           display: 'flex',
           flexDirection: 'column',
@@ -185,13 +189,16 @@ const IndexPage = () => {
           scrollX
           showsHorizontalScrollIndicator={false}
           style={{ width: '100%' }}
+          enhanced
+          showScrollbar={false}
         >
           <View
             style={{
               display: 'flex',
               flexDirection: 'row',
               gap: 10,
-              paddingHorizontal: 16,
+              paddingLeft: 24,
+              paddingRight: 24,
               paddingBottom: 4,
             }}
           >
@@ -255,12 +262,22 @@ const IndexPage = () => {
         </View>
       </View>
 
-      {/* ===== 三个入口 ===== */}
+      {/* ===== 四个入口：2x2 网格 ===== */}
       <ScrollView scrollY style={{ flex: 1, padding: '0 16px' }}>
-        <View style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingBottom: 16 }}>
+        <View
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: 10,
+            paddingTop: 12,
+            paddingBottom: 16,
+          }}
+        >
           {/* 自由编 */}
           <View
             style={{
+              width: 'calc(50% - 5px)',
               backgroundColor: '#ffffff',
               borderRadius: 12,
               border: '1px solid #e8e8e8',
@@ -271,51 +288,35 @@ const IndexPage = () => {
           >
             <View
               style={{
-                padding: 14,
+                padding: '20px 10px 16px',
                 display: 'flex',
-                flexDirection: 'row',
+                flexDirection: 'column',
                 alignItems: 'center',
-                gap: 12,
+                gap: 8,
               }}
             >
               <View
                 style={{
-                  width: 40,
-                  height: 40,
+                  width: 44,
+                  height: 44,
                   borderRadius: '50%',
                   backgroundColor: 'rgba(44,62,80,0.08)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  flexShrink: 0,
                 }}
               >
-                <Text style={{ fontSize: 16, color: '#2c3e50' }}>编</Text>
+                <Text style={{ fontSize: 18, color: '#2c3e50' }}>编</Text>
               </View>
-              <View style={{ flex: 1, minWidth: 0 }}>
-                <Text style={{ fontSize: 14, fontWeight: 600, color: '#1a1a2e' }}>
-                  自由编
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 11,
-                    color: '#999',
-                    marginTop: 1,
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                >
-                  从 206 种珠子中自由搭配，编出你的专属手串
-                </Text>
-              </View>
-              <Text style={{ fontSize: 14, color: '#ccc', flexShrink: 0 }}>›</Text>
+              <Text style={{ fontSize: 14, fontWeight: 600, color: '#1a1a2e' }}>自由编</Text>
+              <Text style={{ fontSize: 11, color: '#999', lineHeight: 1.4, textAlign: 'center' }}>206 种珠子自由搭配</Text>
             </View>
           </View>
 
-          {/* 许愿编 */}
+          {/* 心选编 */}
           <View
             style={{
+              width: 'calc(50% - 5px)',
               backgroundColor: '#ffffff',
               borderRadius: 12,
               border: '1px solid #e8e8e8',
@@ -326,70 +327,35 @@ const IndexPage = () => {
           >
             <View
               style={{
-                padding: 14,
+                padding: '20px 10px 16px',
                 display: 'flex',
-                flexDirection: 'row',
+                flexDirection: 'column',
                 alignItems: 'center',
-                gap: 12,
+                gap: 8,
               }}
             >
               <View
                 style={{
-                  width: 40,
-                  height: 40,
+                  width: 44,
+                  height: 44,
                   borderRadius: '50%',
                   backgroundColor: 'rgba(200,169,110,0.15)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  flexShrink: 0,
                 }}
               >
-                <Text style={{ fontSize: 16, color: '#c8a96e' }}>愿</Text>
+                <Text style={{ fontSize: 18, color: '#c8a96e' }}>心</Text>
               </View>
-              <View style={{ flex: 1, minWidth: 0 }}>
-                <View
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 6,
-                  }}
-                >
-                  <Text style={{ fontSize: 14, fontWeight: 600, color: '#1a1a2e' }}>
-                    许愿编
-                  </Text>
-                  <View
-                    style={{
-                      padding: '1px 6px',
-                      borderRadius: 8,
-                      backgroundColor: 'rgba(200,169,110,0.12)',
-                      border: '1px solid rgba(200,169,110,0.3)',
-                    }}
-                  >
-                    <Text style={{ fontSize: 10, color: '#c8a96e' }}>NEW</Text>
-                  </View>
-                </View>
-                <Text
-                  style={{
-                    fontSize: 11,
-                    color: '#999',
-                    marginTop: 1,
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                >
-                  选愿望，系统自动推荐珠子组合
-                </Text>
-              </View>
-              <Text style={{ fontSize: 14, color: '#ccc', flexShrink: 0 }}>›</Text>
+              <Text style={{ fontSize: 14, fontWeight: 600, color: '#1a1a2e' }}>心选编</Text>
+              <Text style={{ fontSize: 11, color: '#999', lineHeight: 1.4, textAlign: 'center' }}>测试性格，推荐珠子</Text>
             </View>
           </View>
 
           {/* 缘分编 */}
           <View
             style={{
+              width: 'calc(50% - 5px)',
               backgroundColor: '#ffffff',
               borderRadius: 12,
               border: '1px solid #e8e8e8',
@@ -400,47 +366,70 @@ const IndexPage = () => {
           >
             <View
               style={{
-                padding: 14,
+                padding: '20px 10px 16px',
                 display: 'flex',
-                flexDirection: 'row',
+                flexDirection: 'column',
                 alignItems: 'center',
-                gap: 12,
+                gap: 8,
               }}
             >
               <View
                 style={{
-                  width: 40,
-                  height: 40,
+                  width: 44,
+                  height: 44,
                   borderRadius: '50%',
                   backgroundColor: 'rgba(44,62,80,0.08)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  flexShrink: 0,
                 }}
               >
-                <Text style={{ fontSize: 16, color: '#2c3e50' }}>缘</Text>
+                <Text style={{ fontSize: 18, color: '#2c3e50' }}>缘</Text>
               </View>
-              <View style={{ flex: 1, minWidth: 0 }}>
-                <Text style={{ fontSize: 14, fontWeight: 600, color: '#1a1a2e' }}>
-                  缘分编
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 11,
-                    color: '#999',
-                    marginTop: 1,
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                >
-                  双人合珠，测试缘分指数
-                </Text>
-              </View>
-              <Text style={{ fontSize: 14, color: '#ccc', flexShrink: 0 }}>›</Text>
+              <Text style={{ fontSize: 14, fontWeight: 600, color: '#1a1a2e' }}>缘分编</Text>
+              <Text style={{ fontSize: 11, color: '#999', lineHeight: 1.4, textAlign: 'center' }}>双人合珠测缘分</Text>
             </View>
           </View>
+
+          {/* 色系编 */}
+          <View
+            style={{
+              width: 'calc(50% - 5px)',
+              backgroundColor: '#ffffff',
+              borderRadius: 12,
+              border: '1px solid #e8e8e8',
+              overflow: 'hidden',
+              cursor: 'pointer',
+            }}
+            onClick={goToColorTheme}
+          >
+            <View
+              style={{
+                padding: '20px 10px 16px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 8,
+              }}
+            >
+              <View
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: '50%',
+                  backgroundColor: '#2c3e50',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Text style={{ fontSize: 18, color: '#c8a96e' }}>色</Text>
+              </View>
+              <Text style={{ fontSize: 14, fontWeight: 600, color: '#1a1a2e' }}>色系编</Text>
+              <Text style={{ fontSize: 11, color: '#999', lineHeight: 1.4, textAlign: 'center' }}>选色系，系统配珠</Text>
+            </View>
+          </View>
+        </View>
 
           {/* 底部双按钮 */}
           <View style={{ display: 'flex', flexDirection: 'row', gap: 10, marginTop: 2 }}>
@@ -477,7 +466,6 @@ const IndexPage = () => {
               <Text style={{ fontSize: 13, color: '#666' }}>我的收藏</Text>
             </View>
           </View>
-        </View>
 
         {/* 底部文案 */}
         <View
