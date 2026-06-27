@@ -49,11 +49,8 @@ export default function CheckoutPage() {
     localStorage.setItem('orders', JSON.stringify(orders))
 
     setSubmitting(false)
-    Taro.showToast({ title: '下单成功！', icon: 'success' })
-    setTimeout(() => {
-      clearDesign()
-      Taro.navigateBack()
-    }, 1500)
+    // 跳转到支付确认页
+    Taro.navigateTo({ url: `/pages/payment/index?orderId=${order.id}&total=${totalPrice}&method=${paymentMethod}` })
   }
 
   if (currentDesign.length === 0) {

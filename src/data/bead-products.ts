@@ -114,7 +114,7 @@ export const BEAD_PRODUCTS: BeadProduct[] = (productsRaw as any[]).map((item, in
   categoryId: CATEGORY_MAP[item.name] || 'other',
   sizeMm: parseFloat(item.size.replace('mm', '')),
   price: parseFloat(item.price.replace('¥', '')),
-  imageUrl: item.img.replace('.png-cover2', '.png'),
+  imageUrl: `${index}.png`,
   type: ACCESSORY_NAMES.has(item.name) ? 'accessory' : 'bead',
 }))
 

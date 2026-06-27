@@ -4,10 +4,15 @@ import { AppService } from '@/app.service';
 import { FortuneModule } from '@/fortune/fortune.module';
 import { SignInModule } from '@/signin/signin.module';
 import { FortuneAiModule } from '@/fortune-ai/fortune-ai.module';
+import { ProductsModule } from '@/products/products.module';
+import { AdminModule } from '@/admin/admin.module';
+import { RawMaterialsController } from '@/raw-materials/raw-materials.controller';
+import { RawMaterialsService } from '@/raw-materials/raw-materials.service';
+import { UserController, UserService } from '@/raw-materials/user.controller';
 
 @Module({
-  imports: [FortuneModule, SignInModule, FortuneAiModule],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [FortuneModule, SignInModule, FortuneAiModule, ProductsModule, AdminModule],
+  controllers: [AppController, RawMaterialsController, UserController],
+  providers: [AppService, RawMaterialsService, UserService],
 })
 export class AppModule {}

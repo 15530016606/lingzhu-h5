@@ -9,6 +9,7 @@ export default defineAppConfig({
     'pages/checkout/index',
     'pages/color-theme/index',
     'pages/favorites/index',
+    'pages/payment/index',
     'pages/result/index',
     'pages/signin/index',
     'pages/wish/index',

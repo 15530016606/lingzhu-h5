@@ -5,6 +5,7 @@ import MaterialCard from './MaterialCard'
 import CategorySidebar from './CategorySidebar'
 import RopeSelector from './RopeSelector'
 import { useBeadStore } from '@/lib/store'
+import { api } from '@/lib/api'
 
 interface Props {
   onAddBead: (product: BeadProduct) => void
@@ -12,7 +13,7 @@ interface Props {
   defaultPct?: number    // 默认展开百分比（0=全展开，100=全收起）
 }
 
-type TabType = 'beads' | 'accessories'
+type TabType = 'beads' | 'accessories' | 'ore'
 
 const PANEL_H = 400
 const HANDLE_H = 36
@@ -21,7 +22,59 @@ export default function MaterialPanel({ onAddBead, onSlideChange, defaultPct = 1
   const { ropeColor, setRopeColor } = useBeadStore()
   const [activeTab, setActiveTab] = useState<TabType>('beads')
   const [activeCategory, setActiveCategory] = useState('all')
+  const [apiProducts, setApiProducts] = useState<BeadProduct[] | null>(null)
+  const [loading, setLoading] = useState(false)
   const contentRef = useRef<HTMLDivElement>(null)
+
+  // 从 API 加载产品
+  useEffect(() => {
+    setLoading(true)
+    api.getProducts({ limit: 200 })
+      .then(res => {
+        if (res?.data) {
+          const mapped: BeadProduct[] = res.data.map((item: any) => ({
+            id: `bead-${item.id}`,
+            name: item.name,
+            categoryId: item.category || 'other',
+            sizeMm: item.size ? parseFloat(item.size.replace('mm', '')) : 8,
+            price: item.price / 100,
+            imageUrl: item.imageUrl,
+            type: item.type,
+          }))
+          setApiProducts(mapped)
+        }
+      })
+      .catch(() => {
+        // API 出错时使用本地数据
+        setApiProducts(null)
+      })
+      .finally(() => setLoading(false))
+  }, [])
+
+  // 使用 API 数据或 fallback 到本地数据
+  const activeProducts = apiProducts || BEAD_PRODUCTS
+
+  // 根据当前标签和分类筛选
+  const filteredProducts = useMemo(() => {
+    const type = activeTab === 'accessories' ? 'accessory' : 'bead'
+    if (activeCategory === 'all') {
+      return activeProducts.filter(p => p.type === type)
+    }
+    return activeProducts.filter(p => p.type === type && p.categoryId === activeCategory)
+  }, [activeProducts, activeCategory, activeTab])
+
+  // 从产品列表提取分类
+  const categories = useMemo(() => {
+    const map = new Map<string, { name: string; count: number }>()
+    const type = activeTab === 'accessories' ? 'accessory' : 'bead'
+    activeProducts.filter(p => p.type === type).forEach(p => {
+      if (!map.has(p.categoryId)) {
+        map.set(p.categoryId, { name: p.name, count: 0 })
+      }
+      map.get(p.categoryId)!.count++
+    })
+    return [{ id: 'all', name: '全部', count: activeProducts.filter(p => p.type === type).length }, ...Array.from(map.entries()).map(([id, info]) => ({ id, name: info.name, count: info.count }))]
+  }, [activeProducts, activeTab])
 
   const [slidePct, setSlidePct] = useState(defaultPct)
   const dragState = useRef({ active: false, startY: 0, startPct: defaultPct, totalDy: 0 })
@@ -84,12 +137,6 @@ export default function MaterialPanel({ onAddBead, onSlideChange, defaultPct = 1
     setActiveCategory('all')
     if (slidePct > 50) setSlidePct(0)
   }
-
-  const categories = useMemo(() => getCategories(activeTab === 'accessories' ? 'accessory' : 'bead'), [activeTab])
-  const products = useMemo(() => getProductsByCategory(activeCategory, activeTab === 'accessories' ? 'accessory' : 'bead'), [activeCategory, activeTab])
-  const totalCount = activeTab === 'beads'
-    ? BEAD_PRODUCTS.filter(p => p.type === 'bead').length
-    : BEAD_PRODUCTS.filter(p => p.type === 'accessory').length
 
   return (
     <View
@@ -155,29 +202,45 @@ export default function MaterialPanel({ onAddBead, onSlideChange, defaultPct = 1
                   backgroundColor: activeTab === 'accessories' ? '#ffffff' : '#f9f9f9',
                   border: '1px solid #e0e0e0', borderRadius: 14, cursor: 'pointer',
                 }}>配饰</View>
+              <View onClick={() => handleTabChange('ore')}
+                style={{
+                  padding: '4px 12px', fontSize: 13,
+                  color: activeTab === 'ore' ? '#000' : '#999',
+                  backgroundColor: activeTab === 'ore' ? '#ffffff' : '#f9f9f9',
+                  border: '1px solid #e0e0e0', borderRadius: 14, cursor: 'pointer',
+                }}>矿石</View>
             </View>
             <View style={{
               marginLeft: 'auto', padding: '4px 10px', backgroundColor: '#f7f7f8',
               border: '1px solid #e4e4e7', borderRadius: 14, fontSize: 12, color: '#6b7280',
             }}>
-              <Text style={{ fontSize: 11 }}>筛选 {totalCount}</Text>
+              <Text style={{ fontSize: 11 }}>筛选 {filteredProducts.length}</Text>
             </View>
           </View>
 
-          {/* 分类 + 网格 */}
-          <View style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
-            <CategorySidebar categories={categories} activeCategory={activeCategory} onSelect={setActiveCategory} />
-            <View style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '4px 6px' }}>
-              <View className="materials-grid" style={{
-                display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6,
-              }}>
-                {products.map((p) => (
-                  <MaterialCard key={`${p.id}-${p.sizeMm}`} product={p} onSelect={onAddBead} compact />
-                ))}
+          {/* 分类 + 网格（珠子/配饰标签） */}
+          {activeTab !== 'ore' && (
+            <View style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
+              <CategorySidebar categories={categories} activeCategory={activeCategory} onSelect={setActiveCategory} />
+              <View style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '4px 6px' }}>
+                <View className="materials-grid" style={{
+                  display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6,
+                }}>
+                  {filteredProducts.map((p) => (
+                    <MaterialCard key={`${p.id}-${p.sizeMm}`} product={p} onSelect={onAddBead} compact />
+                  ))}
+                </View>
+                <View style={{ height: 12 }} />
               </View>
-              <View style={{ height: 12 }} />
             </View>
-          </View>
+          )}
+
+          {/* 矿石标签内容（暂为占位） */}
+          {activeTab === 'ore' && (
+            <View style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ fontSize: 14, color: '#999' }}>矿石系统开发中...</Text>
+            </View>
+          )}
         </>
       )}
     </View>

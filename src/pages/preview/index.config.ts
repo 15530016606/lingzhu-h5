@@ -1,3 +1,3 @@
 export default definePageConfig({
-  navigationBarTitleText: '3D预览'
+  navigationBarTitleText: '确认订单'
 })

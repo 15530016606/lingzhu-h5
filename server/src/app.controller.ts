@@ -8,6 +8,11 @@ import * as path from 'path';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  @Get()
+  root(@Res() res: Response) {
+    res.redirect('/admin');
+  }
+
   @Get('hello')
   getHello(): { status: string; data: string } {
     return {
