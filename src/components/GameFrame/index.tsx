@@ -3,6 +3,7 @@ import { View } from '@tarojs/components'
 
 interface GameFrameProps {
   src: string
+  scene: string
   onWin?: (score: number) => void
   onLose?: () => void
   onReady?: () => void
@@ -16,7 +17,7 @@ interface GameFrameProps {
  *   window.parent.postMessage({ type: 'gameWin', score: N }, '*')
  *   window.parent.postMessage({ type: 'gameLose' }, '*')
  */
-export default function GameFrame({ src, onWin, onLose, onReady, style }: GameFrameProps) {
+export default function GameFrame({ src, scene, onWin, onLose, onReady, style }: GameFrameProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
   useEffect(() => {
@@ -49,7 +50,7 @@ export default function GameFrame({ src, onWin, onLose, onReady, style }: GameFr
     }}>
       <iframe
         ref={iframeRef}
-        src={src}
+        src={`${src}?scene=${scene}`}
         style={{
           width: '100%',
           height: '100%',

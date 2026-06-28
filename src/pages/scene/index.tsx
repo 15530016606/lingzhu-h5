@@ -166,6 +166,7 @@ export default function ScenePage() {
         <View style={{ flex: 1 }}>
           <GameFrame
             src={`/games/${currentGame.id}/index.html`}
+            scene={source}
             onWin={handleIframeWin}
             onLose={handleIframeLose}
           />

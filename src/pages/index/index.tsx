@@ -4,7 +4,7 @@ import Taro from '@tarojs/taro'
 import { BEAD_PRODUCTS } from '@/data/bead-products'
 import BeadPreviewRing from '@/components/designer/BeadPreviewRing'
 import { theme } from '@/lib/theme'
-import { preloadSounds, startBGM, resumeAudio } from '@/lib/sound'
+import { preloadSounds, resumeAudio } from '@/lib/sound'
 import { getGemCount } from '@/lib/backpack'
 const BASE_URL = 'http://localhost:3000'
 async function api(path: string, options?: RequestInit) {
@@ -44,7 +44,6 @@ export default function IndexPage() {
 
   useEffect(() => {
     preloadSounds()
-    startBGM()
     api('/user/raw-materials').then(d => Array.isArray(d) && setCnt(d.filter((x: any) => x.count > 0).length))
   }, [])
 
