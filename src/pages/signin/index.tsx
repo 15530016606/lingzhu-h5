@@ -53,7 +53,7 @@ export default function SignInPage() {
           placeholder='手机号码'
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          style={{ width: '100%', padding: '14px 16px', background: theme.bgInput, borderRadius: theme.radiusBtn, marginBottom: 12, fontSize: 14, color: theme.textPrimary, border: 'none', outline: 'none', boxSizing: 'border-box' }}
+          style={{ width: '100%', padding: '14px 16px', background: '#f5f0e8', borderRadius: theme.radiusBtn, marginBottom: 12, fontSize: 14, color: theme.textPrimary, border: 'none', outline: 'none', boxSizing: 'border-box' }}
         />
 
         {/* Password input */}
@@ -62,7 +62,7 @@ export default function SignInPage() {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          style={{ width: '100%', padding: '14px 16px', background: theme.bgInput, borderRadius: theme.radiusBtn, marginBottom: 20, fontSize: 14, color: theme.textPrimary, border: 'none', outline: 'none', boxSizing: 'border-box' }}
+          style={{ width: '100%', padding: '14px 16px', background: '#f5f0e8', borderRadius: theme.radiusBtn, marginBottom: 20, fontSize: 14, color: theme.textPrimary, border: 'none', outline: 'none', boxSizing: 'border-box' }}
         />
 
         {/* Login button */}
