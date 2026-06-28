@@ -5,6 +5,7 @@ import BeadPreviewRing from '@/components/designer/BeadPreviewRing'
 import { theme } from '@/lib/theme'
 import { preloadSounds, resumeAudio } from '@/lib/sound'
 import { getGemCount } from '@/lib/backpack'
+import { getInventory } from '@/lib/inventory'
 const BASE_URL = 'http://localhost:3000'
 async function api(path: string, options?: RequestInit) {
   const res = await fetch(`${BASE_URL}/api${path}`, { ...options, headers: { 'Content-Type': 'application/json', ...options?.headers } })
@@ -40,6 +41,8 @@ export default function IndexPage() {
   const [cl, setCl] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [cnt, setCnt] = useState(0)
+  const bpCount = getGemCount()
+  const beadCount = getInventory().reduce((s, i) => s + i.count, 0)
 
   useEffect(() => {
     preloadSounds()
@@ -85,7 +88,10 @@ export default function IndexPage() {
           </div>
         </div>
 
-        {/* 采集源 2x3 网格 */}
+        {/* 三模块：采集 → 加工 → 串珠 */}
+        <span style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary, marginBottom: 10, display: 'block' }}>灵珠手作</span>
+
+        {/* 模块1：采集源 */}
         <span style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary, marginBottom: 10 }}>选择采集源</span>
         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 }}>
           {SOURCES.map(src => (
@@ -96,6 +102,50 @@ export default function IndexPage() {
               <span style={{ fontSize: 12, fontWeight: 600, color: theme.textPrimary, textAlign: 'center' }}>{src.name}</span>
             </div>
           ))}
+        </div>
+
+        {/* 模块2：加工 */}
+        <div onClick={() => go('/pages/processing/index')} style={{
+          marginBottom: 12, padding: '16px', borderRadius: theme.radiusCard,
+          background: theme.bgCard, border: `1px solid ${theme.borderLight}`,
+          boxShadow: `0 2px 8px ${theme.shadow}`, cursor: 'pointer', touchAction: 'manipulation',
+          display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12,
+        }}>
+          <div style={{
+            width: 44, height: 44, borderRadius: 12,
+            background: '#ffd54f22', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{ fontSize: 22 }}>⚒️</span>
+          </div>
+          <div style={{ flex: 1 }}>
+            <span style={{ fontSize: 14, fontWeight: 600, color: theme.textPrimary }}>加工</span>
+            <span style={{ fontSize: 11, color: theme.textSecondary, display: 'block', marginTop: 2 }}>
+              背包有 {bpCount} 种原料可加工
+            </span>
+          </div>
+          <span style={{ fontSize: 16, color: theme.border }}>›</span>
+        </div>
+
+        {/* 模块3：穿手串 */}
+        <div onClick={() => go('/pages/designer/index')} style={{
+          marginBottom: 20, padding: '16px', borderRadius: theme.radiusCard,
+          background: theme.bgCard, border: `1px solid ${theme.borderLight}`,
+          boxShadow: `0 2px 8px ${theme.shadow}`, cursor: 'pointer', touchAction: 'manipulation',
+          display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12,
+        }}>
+          <div style={{
+            width: 44, height: 44, borderRadius: 12,
+            background: '#d4a57422', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{ fontSize: 22 }}>📿</span>
+          </div>
+          <div style={{ flex: 1 }}>
+            <span style={{ fontSize: 14, fontWeight: 600, color: theme.textPrimary }}>穿手串</span>
+            <span style={{ fontSize: 11, color: theme.textSecondary, display: 'block', marginTop: 2 }}>
+              {beadCount > 0 ? `已有 ${beadCount} 颗珠子可用` : '还没有珠子，先去采集加工'}
+            </span>
+          </div>
+          <span style={{ fontSize: 16, color: theme.border }}>›</span>
         </div>
 
         {/* 手串灵感（折叠展示，只显示前 2 组） */}
