@@ -3,6 +3,8 @@ export default defineAppConfig({
     'pages/index/index',
     'pages/workshop/index',
     'pages/checkout/index',
+    'pages/signin/index',
+    'pages/register/index',
     'pages/collection/index',
   ],
   window: {
