@@ -1,37 +1,38 @@
-// 灵珠手作 — 暖色调设计系统
-// 与柴犬 GIF 呼应：暖琥珀色 + 米白 + 陶土
+// 灵珠手作 — 暖色调 + 动物系卡片样式
+// 卡片风格参考 animal-island-ui（奶油底色 + 米色边框 + 20px 圆角）
 
 export const theme = {
   // 主色（暖琥珀 — 与柴犬毛色呼应）
-  primary: '#d4a574',       // 暖琥珀 — 主按钮/选中态
-  primaryDark: '#c4956a',   // 深琥珀 — hover
-  primaryLight: '#f0e0d0',  // 浅琥珀 — 选中背景
+  primary: '#d4a574',
+  primaryDark: '#c4956a',
+  primaryLight: '#f0e0d0',
 
   // 背景
-  bgPage: '#f7f5ef',        // 暖白米色 — 页面背景
-  bgCard: '#ffffff',        // 纯白 — 卡片背景
-  bgInput: '#f0ede6',       // 浅米 — 输入框背景
+  bgPage: '#f8f8f0',          // animal-island-ui 页面底
+  bgCard: 'rgb(247,243,223)', // animal-island-ui 奶油卡片
+  bgWhite: '#ffffff',
+  bgInput: '#f0ede6',
 
   // 文字
-  textPrimary: '#4a3f35',   // 暖深褐 — 标题/正文
-  textBody: '#6b5d4f',      // 暖中褐 — 正文
-  textSecondary: '#9a8a7a', // 暖浅褐 — 辅助文字
-  textDisabled: '#c4b8a8',  // 暖灰 — 禁用
+  textPrimary: '#794f27',     // animal-island-ui 标题/按钮文字
+  textBody: '#725d42',        // animal-island-ui 正文
+  textSecondary: '#9f927d',   // animal-island-ui 辅助
+  textDisabled: '#c4b89e',    // animal-island-ui 禁用/边框
 
   // 强调
-  accent: '#c9a87c',        // 沙金色 — 点缀/收藏/稀有
-  accentLight: '#e8dcc8',   // 浅沙金 — 标签
-  error: '#d4827a',         // 柔红 — 错误/失败
-  success: '#8fb88a',       // 柔绿 — 成功
+  accent: '#c9a87c',
+  accentLight: '#e8dcc8',
+  error: '#e05a5a',
+  success: '#6fba2c',
 
   // 边框与阴影
-  border: '#e5ddd5',        // 浅暖灰 — 边框
-  borderLight: '#f0eae3',   // 更浅 — 卡片边框
-  shadow: 'rgba(90, 74, 58, 0.08)',  // 暖调阴影
+  border: '#c4b89e',          // animal-island-ui 边框
+  borderLight: '#d4c9b4',
+  shadow: '0 3px 10px rgba(61,52,40,0.10)',  // animal-island-ui 柔和阴影
 
   // 圆角
-  radiusBtn: 25,     // pill 按钮
-  radiusCard: 16,    // 卡片
-  radiusSmall: 10,   // 小元素
-  radiusTag: 6,      // 标签
+  radiusBtn: 25,
+  radiusCard: 20,             // animal-island-ui 卡片圆角
+  radiusSmall: 12,
+  radiusTag: 6,
 } as const
