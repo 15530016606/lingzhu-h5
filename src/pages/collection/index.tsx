@@ -1,105 +1,117 @@
 import { useEffect, useState } from 'react'
 import { View, Text, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+import { theme } from '@/lib/theme'
+import { getInventory, BeadItem } from '@/lib/inventory'
 
-const BASE_URL = process.env.TARO_APP_API_BASE || ''
-
-async function api(path: string, options?: RequestInit) {
-  const res = await fetch(`${BASE_URL}/api${path}`, {
-    ...options,
-    headers: { 'Content-Type': 'application/json' },
-  })
-  return res.json()
+const COLORS: Record<string, { bg: string; color: string; label: string }> = {
+  white: { bg: '#a0c4ff88', color: '#a0c4ff', label: '水晶' },
+  purple: { bg: '#b388ff88', color: '#b388ff', label: '紫晶' },
+  pink: { bg: '#ff80ab88', color: '#ff80ab', label: '粉晶' },
+  gold: { bg: '#ffd54f88', color: '#ffd54f', label: '发晶' },
+  green: { bg: '#69f0ae88', color: '#69f0ae', label: '绿幽灵' },
+  blue: { bg: '#40c4ff88', color: '#40c4ff', label: '海蓝宝' },
+  jade_green: { bg: '#90c89088', color: '#90c890', label: '翡翠' },
+  jade_white: { bg: '#d4c8a088', color: '#d4c8a0', label: '白玉' },
+  wood_root: { bg: '#b8987088', color: '#b89870', label: '木料' },
+  bark: { bg: '#a0886088', color: '#a08860', label: '树皮' },
+  fruit_seed: { bg: '#d4a07088', color: '#d4a070', label: '果种' },
+  fruit_pulp: { bg: '#d4886088', color: '#d48860', label: '果肉' },
+  shell: { bg: '#a8c8e088', color: '#a8c8e0', label: '贝壳' },
+  pebble: { bg: '#a0988888', color: '#a09888', label: '卵石' },
+  artificial_clay: { bg: '#c0a88888', color: '#c0a888', label: '黏土' },
+  artificial_resin: { bg: '#d4b89888', color: '#d4b898', label: '树脂' },
 }
 
-type Source = { id: string; name: string; icon: string }
-type Material = { id: string; name: string; sourceId: string; rarity: string; imageUrl: string }
-
-const RARITY_COLORS: Record<string, string> = {
-  common: '#8e9eab', uncommon: '#5ba3e6', rare: '#c8a96e', legendary: '#e74c3c',
-}
-const RARITY_LABELS: Record<string, string> = {
-  common: '普通', uncommon: '稀有', rare: '珍品', legendary: '传说',
-}
+const QUALITY_ORDER = ['稀有', '普通', '粗糙']
+const QUALITY_COLORS: Record<string, string> = { 稀有: '#ffd54f', 普通: '#a0c4ff', 粗糙: '#c4b89e' }
 
 export default function CollectionPage() {
-  const [sources, setSources] = useState<Source[]>([])
-  const [materialsBySource, setMaterialsBySource] = useState<Record<string, Material[]>>({})
-  const [userMaterials, setUserMaterials] = useState<Set<string>>(new Set())
+  const [beads, setBeads] = useState<BeadItem[]>([])
 
   useEffect(() => {
-    Promise.all([
-      api('/raw-materials/sources'),
-      api('/raw-materials'),
-    ]).then(([sourcesData, materialsData]) => {
-      const srcs = sourcesData as Source[]
-      setSources(srcs)
-
-      const grouped: Record<string, Material[]> = {}
-      for (const mat of materialsData as Material[]) {
-        if (!grouped[mat.sourceId]) grouped[mat.sourceId] = []
-        grouped[mat.sourceId].push(mat)
-      }
-      setMaterialsBySource(grouped)
-    })
+    setBeads(getInventory())
   }, [])
 
+  // 按原料类型分组
+  const grouped: Record<string, BeadItem[]> = {}
+  beads.forEach(b => {
+    if (!grouped[b.material]) grouped[b.material] = []
+    grouped[b.material].push(b)
+  })
+
   return (
-    <View style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
-      <View style={{ backgroundColor: '#2c3e50', padding: '12px 16px', display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-        <Text onClick={() => Taro.navigateBack()} style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)', marginRight: 12, cursor: 'pointer' }}>←</Text>
-        <Text style={{ fontSize: 16, fontWeight: 600, color: '#ffffff' }}>珠子图鉴</Text>
+    <View style={{ minHeight: '100vh', background: theme.bgPage }}>
+      <View style={{
+        padding: '14px 16px', background: theme.bgCard, borderBottom: `1px solid ${theme.borderLight}`,
+        display: 'flex', flexDirection: 'row', alignItems: 'center',
+      }}>
+        <Text onClick={() => Taro.navigateBack()} style={{ fontSize: 16, color: theme.textSecondary, marginRight: 12, cursor: 'pointer' }}>‹</Text>
+        <Text style={{ fontSize: 16, fontWeight: 600, color: theme.textPrimary }}>我的珠子图鉴</Text>
+        <View style={{ flex: 1 }} />
+        <Text style={{ fontSize: 11, color: theme.textSecondary }}>共 {beads.reduce((s, b) => s + b.count, 0)} 颗</Text>
       </View>
 
-      <ScrollView scrollY style={{ flex: 1, padding: '12px 16px' }}>
-        {sources.map((source) => {
-          const mats = materialsBySource[source.id] || []
-          const collected = 0 // todo: 接入已收集数据
-          return (
-            <View key={source.id} style={{ marginBottom: 16 }}>
-              {/* 采集源标题 */}
-              <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-                <Text style={{ fontSize: 20, marginRight: 8 }}>{source.icon}</Text>
-                <Text style={{ fontSize: 15, fontWeight: 600, color: '#2c3e50' }}>{source.name}</Text>
-                <View style={{ flex: 1 }} />
-                <Text style={{ fontSize: 11, color: '#ccc' }}>{collected}/{mats.length}</Text>
-              </View>
-
-              {/* 材料网格 */}
-              <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                {mats.map((mat) => (
-                  <View key={mat.id} style={{
-                    width: 'calc(25% - 6px)', padding: 8,
-                    backgroundColor: '#ffffff', borderRadius: 8,
-                    border: '1px solid #e8e8e8',
-                    display: 'flex', flexDirection: 'column', alignItems: 'center',
-                    gap: 4,
-                  }}>
-                    <View style={{
-                      width: 44, height: 44, borderRadius: 8,
-                      backgroundColor: '#f5f5f5',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 10, color: '#ccc', overflow: 'hidden',
+      <ScrollView scrollY style={{ flex: 1, padding: '16px' }}>
+        {Object.entries(grouped).length === 0 ? (
+          <View style={{ padding: 60, alignItems: 'center' }}>
+            <Text style={{ fontSize: 48, opacity: 0.15 }}>📿</Text>
+            <Text style={{ fontSize: 13, color: theme.textDisabled, textAlign: 'center', marginTop: 12 }}>
+              还没有收集到珠子{'\n'}先去采集加工吧
+            </Text>
+          </View>
+        ) : (
+          Object.entries(grouped).map(([material, items]) => {
+            const cfg = COLORS[material] || { bg: '#99999988', color: '#999', label: material }
+            return (
+              <View key={material} style={{ marginBottom: 16 }}>
+                <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 6 }}>
+                  <View style={{ width: 8, height: 8, borderRadius: 4, background: cfg.color }} />
+                  <Text style={{ fontSize: 12, fontWeight: 600, color: theme.textPrimary }}>{cfg.label}</Text>
+                  <Text style={{ fontSize: 10, color: theme.textSecondary }}>
+                    {items.reduce((s, i) => s + i.count, 0)} 颗
+                  </Text>
+                </View>
+                <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                  {items.map(item => (
+                    <View key={item.id} style={{
+                      width: 'calc(33.33% - 6px)', padding: '10px 6px 8px',
+                      background: theme.bgCard, borderRadius: 12,
+                      border: `1px solid ${theme.borderLight}`,
+                      display: 'flex', flexDirection: 'column', alignItems: 'center',
+                      gap: 4,
                     }}>
-                      {mat.imageUrl
-                        ? <img src={`/images/beads/${mat.imageUrl}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        : '📦'
-                      }
+                      <View style={{
+                        width: 40, height: 40, borderRadius: '50%',
+                        background: `radial-gradient(circle at 35% 30%, ${cfg.bg}, ${cfg.color})`,
+                        boxShadow: `0 2px 8px ${cfg.color}44`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        <Text style={{ fontSize: 12, color: '#fff', fontWeight: 700 }}>
+                          {item.name.charAt(0)}
+                        </Text>
+                      </View>
+                      <Text style={{ fontSize: 10, color: theme.textPrimary, textAlign: 'center', lineHeight: 1.2 }}>
+                        {item.name}
+                      </Text>
+                      <View style={{
+                        padding: '1px 6px', borderRadius: 6,
+                        background: (QUALITY_COLORS[item.quality] || '#c4b89e') + '33',
+                      }}>
+                        <Text style={{ fontSize: 8, color: QUALITY_COLORS[item.quality] || '#c4b89e', fontWeight: 600 }}>
+                          {item.quality}
+                        </Text>
+                      </View>
+                      <Text style={{ fontSize: 9, color: theme.textSecondary }}>
+                        x{item.count}
+                      </Text>
                     </View>
-                    <Text style={{ fontSize: 10, color: '#666', textAlign: 'center', lineHeight: 1.2 }}>{mat.name}</Text>
-                    <Text style={{
-                      fontSize: 8, padding: '1px 4px', borderRadius: 3,
-                      color: '#fff',
-                      backgroundColor: RARITY_COLORS[mat.rarity] || '#999',
-                    }}>
-                      {RARITY_LABELS[mat.rarity] || mat.rarity}
-                    </Text>
-                  </View>
-                ))}
+                  ))}
+                </View>
               </View>
-            </View>
-          )
-        })}
+            )
+          })
+        )}
       </ScrollView>
     </View>
   )
