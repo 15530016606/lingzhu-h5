@@ -128,7 +128,7 @@ export default function IndexPage() {
         {/* ====== 游戏核心区 ====== */}
 
         {/* 每日盲盒 */}
-        <View onClick={claim} style={{ marginBottom: 14, padding: 18, background: 'linear-gradient(135deg, #8db5a4 0%, #9db9a5 100%)', borderRadius: theme.radiusCard, display: 'flex', flexDirection: 'row', alignItems: 'center', cursor: 'pointer' }}>
+        <View onClick={claim} style={{ marginBottom: 14, padding: 18, background: 'linear-gradient(135deg, #d4a574 0%, #c9a87c 100%)', borderRadius: theme.radiusCard, display: 'flex', flexDirection: 'row', alignItems: 'center', cursor: 'pointer' }}>
           <View style={{ width: 54, height: 54, borderRadius: 14, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: 16 }}>
             <Text style={{ fontSize: 11, fontWeight: 700, color: '#fff', textAlign: 'center', lineHeight: 1.3 }}>{cl?.success ? '已领' : loading ? '...' : '每日'}</Text>
           </View>
