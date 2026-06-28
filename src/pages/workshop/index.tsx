@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import { View, Text, ScrollView, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { theme } from '@/lib/theme'
@@ -36,7 +36,16 @@ export default function Workshop() {
   const [result, setResult] = useState<any>(null)
 
   useEffect(() => {
-    api('/raw-materials/sources').then(d => Array.isArray(d) && setSources(d))
+    api('/raw-materials/sources').then((d: any[]) => {
+      if (!Array.isArray(d)) return
+      setSources(d)
+      // 检查 URL 参数，预选采集源
+      const params = Taro.getCurrentInstance().router?.params
+      if (params?.source) {
+        const found = d.find((s: any) => s.id === params.source)
+        if (found) pickSrc(found)
+      }
+    })
     api('/user/raw-materials').then(d => Array.isArray(d) && setInv(d.filter((x: any) => x.count > 0)))
   }, [])
 

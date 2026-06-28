@@ -162,6 +162,29 @@ export default function IndexPage() {
           </View>
         </View>
 
+        {/* ====== 六大采集源入口 ====== */}
+        <View style={{ marginBottom: 20 }}>
+          <Text style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary, marginBottom: 12 }}>选择采集源</Text>
+          <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
+            {[
+              { id: 'crystal', name: '水晶矿场', desc: '开采水晶原矿', color: '#e8d0f0', label: 'CR' },
+              { id: 'jade', name: '玉石矿场', desc: '开采玉石原石', color: '#d0e8d0', label: 'JD' },
+              { id: 'forest', name: '森林', desc: '收集木材树根', color: '#d0e0c0', label: 'FR' },
+              { id: 'orchard', name: '果园', desc: '采摘果实种子', color: '#f0e0c0', label: 'OR' },
+              { id: 'beach', name: '河床海岸', desc: '拾取卵石贝壳', color: '#c0d8e8', label: 'BC' },
+              { id: 'workshop', name: '工坊', desc: '制胚烧制琉璃', color: '#e8d8c0', label: 'WS' },
+            ].map(src => (
+              <View key={src.id} onClick={() => go(`/pages/workshop/index?source=${src.id}`)} style={{ width: 'calc(50% - 6px)', padding: '12px', background: theme.bgCard, borderRadius: theme.radiusCard, border: `1px solid ${theme.borderLight}`, cursor: 'pointer', boxShadow: `0 2px 8px ${theme.shadow}` }}>
+                <View style={{ width: 100, height: 80, borderRadius: 10, background: src.color, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+                  <Text style={{ fontSize: 20, fontWeight: 700, color: 'rgba(0,0,0,0.2)' }}>{src.label}</Text>
+                </View>
+                <Text style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary, marginBottom: 2 }}>{src.name}</Text>
+                <Text style={{ fontSize: 10, color: theme.textSecondary }}>{src.desc}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
         {/* ====== 下方灵感区：按运势/心愿分类排行 ====== */}
         <View style={{ marginBottom: 8 }}>
           <Text style={{ fontSize: 14, fontWeight: 600, color: theme.textPrimary, marginBottom: 4 }}>手串灵感</Text>
