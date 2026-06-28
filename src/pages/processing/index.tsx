@@ -5,6 +5,7 @@ import { theme } from '@/lib/theme'
 import { SCENES } from '@/pages/scene/configs'
 import { playSound, playRareSound, preloadSounds, resumeAudio } from '@/lib/sound'
 import { addToBackpack, getBackpack } from '@/lib/backpack'
+import { addBead } from '@/lib/inventory'
 
 const KF = `
 @keyframes bar-shake {0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
@@ -129,6 +130,9 @@ export default function ProcessingPage() {
         if (bp[idx].count <= 0) bp.splice(idx, 1)
         Taro.setStorageSync('lingzhu_backpack', JSON.stringify(bp))
       }
+
+      // 保存到本地珠子库存
+      addBead(beadName, material, quality)
 
       // 尝试调用后端 API 保存珠子
       api('/user/me/inventory/add', {
