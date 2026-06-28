@@ -202,11 +202,16 @@ export default function ProcessingPage() {
       </div>
 
       {/* 按钮 */}
-      {phase === 'ready' && <div onClick={startMove} onTouchEnd={startMove} style={{ padding: '12px 36px', borderRadius: 25,
-        background: `linear-gradient(135deg,${mc.g},${mc.c})`, cursor: 'pointer', boxShadow: `0 4px 14px ${mc.g}55`, touchAction: 'manipulation' }}>
+      {phase === 'ready' && <div onClick={startMove} onTouchEnd={startMove}
+        onMouseDown={e => { (e.target as HTMLElement).style.transform = 'scale(0.94)' }}
+        onMouseUp={e => { (e.target as HTMLElement).style.transform = 'scale(1)' }}
+        style={{ padding: '12px 36px', borderRadius: 25,
+        background: `linear-gradient(135deg,${mc.g},${mc.c})`, cursor: 'pointer', boxShadow: `0 4px 14px ${mc.g}55`, touchAction: 'manipulation',
+        transition: 'transform 0.15s' }}>
         <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>开始 {proc.steps[step]}</span>
       </div>}
-      {phase === 'moving' && <div onClick={tapBar} onTouchEnd={tapBar} style={{ padding: '12px 36px', borderRadius: 25,
+      {phase === 'moving' && <div onClick={tapBar} onTouchEnd={tapBar}
+        style={{ padding: '12px 36px', borderRadius: 25,
         background: `linear-gradient(135deg,${mc.g},${cfg.accentColor})`, cursor: 'pointer', boxShadow: `0 4px 14px ${mc.g}55`,
         animation: 'bar-glow 0.6s ease infinite', touchAction: 'manipulation' }}>
         <span style={{ fontSize: 14, fontWeight: 700, color: '#fff', letterSpacing: 2 }}>{proc.steps[step]}</span>
