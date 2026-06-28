@@ -1,5 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
-import { View, Text, ScrollView } from '@tarojs/components'
+import { lazy, Suspense, useCallback, useState } from 'react'
 import Taro from '@tarojs/taro'
 import { SCENES, GameEntry } from './configs'
 import { theme } from '@/lib/theme'
@@ -90,66 +89,66 @@ export default function ScenePage() {
   // 游戏选择界面
   if (phase === 'select') {
     return (
-      <View style={{ minHeight: '100vh', background: cfg.bgColor }}>
-        <ScrollView scrollY style={{ flex: 1, padding: '16px 16px 0' }}>
+      <div style={{ minHeight: '100vh', background: cfg.bgColor, overflowY: 'auto' }}>
+        <div style={{ padding: '16px 16px 0' }}>
           {/* 场景头部 */}
-          <View style={{
+          <div style={{
             height: 140, borderRadius: 16, overflow: 'hidden', marginBottom: 16,
             background: `url(${cfg.sceneImage}) center/cover no-repeat`,
             display: 'flex', alignItems: 'flex-end', padding: 16,
+            position: 'relative',
           }}>
-            <View style={{
+            <div style={{
               background: 'linear-gradient(transparent, rgba(0,0,0,0.5))',
               position: 'absolute', inset: 0,
             }} />
-            <View style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <View style={{ width: 44, height: 44, borderRadius: 12, overflow: 'hidden', border: '2px solid rgba(255,255,255,0.3)' }}>
+            <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, overflow: 'hidden', border: '2px solid rgba(255,255,255,0.3)' }}>
                 <img src={cfg.characterGif} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              </View>
-              <View>
-                <Text style={{ fontSize: 18, fontWeight: 700, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>{cfg.name}</Text>
-                <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)' }}>{cfg.subtitle}</Text>
-              </View>
-            </View>
-          </View>
+              </div>
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>{cfg.name}</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)' }}>{cfg.subtitle}</div>
+              </div>
+            </div>
+          </div>
 
-          <Text style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary, marginBottom: 12 }}>选择游戏开始采集</Text>
+          <div style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary, marginBottom: 12 }}>选择游戏开始采集</div>
 
           {/* 游戏卡片列表 */}
-          {cfg.games.map((game, i) => (
-            <View key={game.id} onClick={() => startGame(game)} onTouchEnd={() => startGame(game)}
+          {cfg.games.map((game) => (
+            <div key={game.id}
+              onClick={() => startGame(game)}
               style={{
                 marginBottom: 10, padding: '14px 16px', borderRadius: theme.radiusCard,
                 background: theme.bgCard, border: `1px solid ${theme.borderLight}`,
                 boxShadow: `0 2px 8px ${theme.shadow}`,
                 display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12,
-                cursor: 'pointer',
+                cursor: 'pointer', touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent',
               }}
             >
-              <View style={{
+              <div style={{
                 width: 44, height: 44, borderRadius: 12,
                 background: cfg.accentColor + '22',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <Text style={{ fontSize: 22 }}>{game.icon}</Text>
-              </View>
-              <View style={{ flex: 1 }}>
-                <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Text style={{ fontSize: 14, fontWeight: 600, color: theme.textPrimary }}>{game.name}</Text>
-                  <View style={{
-                    padding: '1px 6px', borderRadius: 6,
+                <span style={{ fontSize: 22 }}>{game.icon}</span>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: theme.textPrimary }}>{game.name}</span>
+                  <span style={{
+                    padding: '1px 6px', borderRadius: 6, fontSize: 8, color: '#fff',
                     background: game.type === 'react' ? '#7c4dff' : cfg.accentColor,
-                  }}>
-                    <Text style={{ fontSize: 8, color: '#fff' }}>{game.type === 'react' ? '经典' : '新'}</Text>
-                  </View>
-                </View>
-                <Text style={{ fontSize: 11, color: theme.textSecondary, marginTop: 2 }}>{game.desc}</Text>
-              </View>
-              <Text style={{ fontSize: 16, color: theme.border }}>›</Text>
-            </View>
+                  }}>{game.type === 'react' ? '经典' : '新'}</span>
+                </div>
+                <div style={{ fontSize: 11, color: theme.textSecondary, marginTop: 2 }}>{game.desc}</div>
+              </div>
+              <span style={{ fontSize: 16, color: theme.border }}>›</span>
+            </div>
           ))}
-        </ScrollView>
-      </View>
+        </div>
+      </div>
     )
   }
 
