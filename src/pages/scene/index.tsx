@@ -113,7 +113,7 @@ export default function ScenePage() {
 
           {/* 游戏卡片列表 */}
           {cfg.games.map((game, i) => (
-            <View key={game.id} onClick={() => startGame(game)}
+            <View key={game.id} onClick={() => startGame(game)} onTouchEnd={() => startGame(game)}
               style={{
                 marginBottom: 10, padding: '14px 16px', borderRadius: theme.radiusCard,
                 background: theme.bgCard, border: `1px solid ${theme.borderLight}`,
@@ -158,7 +158,7 @@ export default function ScenePage() {
           padding: '8px 14px', display: 'flex', flexDirection: 'row', alignItems: 'center',
           background: '#111', borderBottom: '1px solid #222',
         }}>
-          <Text onClick={() => setPhase('select')} style={{ fontSize: 13, color: '#888', cursor: 'pointer' }}>‹ 返回</Text>
+          <Text onClick={() => setPhase('select')} onTouchEnd={() => setPhase('select')} style={{ fontSize: 13, color: '#888', cursor: 'pointer' }}>‹ 返回</Text>
           <Text style={{ flex: 1, textAlign: 'center', fontSize: 13, color: '#ccc', fontWeight: 600 }}>{currentGame.name}</Text>
           <View style={{ width: 40 }} />
         </View>
@@ -200,13 +200,13 @@ export default function ScenePage() {
           </Text>
           {(gameResult as any).collected ? (
             <View style={{ display: 'flex', flexDirection: 'row', gap: 10, marginTop: 6 }}>
-              <View onClick={goHome} style={{
+              <View onClick={goHome} onTouchEnd={goHome} style={{
                 padding: '8px 20px', borderRadius: 20, border: `1px solid ${theme.border}`,
                 cursor: 'pointer',
               }}>
                 <Text style={{ fontSize: 12, color: theme.textPrimary }}>返回首页</Text>
               </View>
-              <View onClick={playAgain} style={{
+              <View onClick={playAgain} onTouchEnd={playAgain} style={{
                 padding: '8px 20px', borderRadius: 20,
                 background: `linear-gradient(135deg, ${cfg.accentColor}, ${cfg.accentColor}dd)`,
                 cursor: 'pointer',
@@ -215,7 +215,7 @@ export default function ScenePage() {
               </View>
             </View>
           ) : (
-            <View onClick={handleCollect} style={{
+            <View onClick={handleCollect} onTouchEnd={handleCollect} style={{
               marginTop: 8, padding: '10px 36px', borderRadius: 25,
               background: `linear-gradient(135deg, ${cfg.accentColor}, ${cfg.accentColor}cc)`,
               cursor: 'pointer', boxShadow: `0 3px 10px ${cfg.accentColor}44`,
