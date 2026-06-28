@@ -1,406 +1,210 @@
 import { useCallback, useEffect, useState } from 'react'
-import { View, Text, ScrollView } from '@tarojs/components'
+import { View, Text, ScrollView, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+import { theme } from '@/lib/theme'
 
-const BASE_URL = process.env.TARO_APP_API_BASE || ''
-
+const BASE_URL = 'http://localhost:3000'
 async function api(path: string, options?: RequestInit) {
-  const res = await fetch(`${BASE_URL}/api${path}`, {
-    ...options,
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-  })
+  const res = await fetch(`${BASE_URL}/api${path}`, { ...options, headers: { 'Content-Type': 'application/json', ...options?.headers } })
   return res.json()
 }
 
 type Step = 'source' | 'material' | 'process' | 'result'
-
 type Source = { id: string; name: string; icon: string; description: string }
 type Material = { id: string; name: string; sourceId: string; rarity: string; processMs: number; imageUrl: string }
 
-const RARITY_COLORS: Record<string, string> = {
-  common: '#8e9eab',
-  uncommon: '#5ba3e6',
-  rare: '#c8a96e',
-  legendary: '#e74c3c',
-}
-const RARITY_LABELS: Record<string, string> = {
-  common: '普通', uncommon: '稀有', rare: '珍品', legendary: '传说',
+const RARITY_COLORS: Record<string, string> = { common: theme.border, uncommon: '#7db8d4', rare: theme.accent, legendary: theme.error }
+const RARITY_LABELS: Record<string, string> = { common: '普通', uncommon: '稀有', rare: '珍品', legendary: '传说' }
+const STEP_KEYS = ['source', 'material', 'process', 'result']
+const STEP_LABELS = ['选源', '选料', '加工', '完成']
+
+const SOURCE_ICONS: Record<string, string> = {
+  crystal: 'cr', jade: 'jd', forest: 'fr', orchard: 'or', beach: 'bc', workshop: 'ws',
 }
 
-const STEP_CONFIGS = [
-  { key: 'source', label: '选择采集源' },
-  { key: 'material', label: '选择原料' },
-  { key: 'process', label: '加工中' },
-  { key: 'result', label: '完成' },
-]
-
-/* ── 加工动画 keyframes 注入 ── */
-const ANIM_KEYFRAMES = `
-@keyframes anim-cut {
-  0% { transform: scale(1) rotate(0deg); opacity: 1; }
-  25% { transform: scale(0.9) rotate(10deg); opacity: 0.9; }
-  50% { transform: scale(1.1) rotate(-5deg); opacity: 1; }
-  75% { transform: scale(0.95) rotate(5deg); opacity: 0.95; }
-  100% { transform: scale(1) rotate(0deg); opacity: 1; }
-}
-@keyframes anim-grind {
-  0% { transform: rotate(0deg) scale(1); }
-  33% { transform: rotate(120deg) scale(0.8); }
-  66% { transform: rotate(240deg) scale(1.1); }
-  100% { transform: rotate(360deg) scale(1); }
-}
-@keyframes anim-polish {
-  0% { filter: brightness(1); transform: scale(1); }
-  50% { filter: brightness(1.5); transform: scale(1.05); }
-  100% { filter: brightness(1); transform: scale(1); }
-}
-@keyframes anim-fade-in {
-  from { opacity: 0; transform: scale(0.5); }
-  to { opacity: 1; transform: scale(1); }
-}
-@keyframes anim-shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-8px); }
-  75% { transform: translateX(8px); }
-}
+const ANIM = `
+@keyframes cut-a { 0%{transform:scale(1)} 25%{transform:scale(.9) rotate(8deg)} 50%{transform:scale(1.1)rotate(-5deg)} 75%{transform:scale(.95)rotate(5deg)} 100%{transform:scale(1)} }
+@keyframes grind-a { 0%{transform:rotate(0deg)} 33%{transform:rotate(120deg)} 66%{transform:rotate(240deg)} 100%{transform:rotate(360deg)} }
+@keyframes polish-a { 0%{filter:brightness(1)} 50%{filter:brightness(1.4)} 100%{filter:brightness(1)} }
+@keyframes fade-in { from{opacity:0;transform:scale(.5)} to{opacity:1;transform:scale(1)} }
 `
 
+const btn = { background: theme.primary, borderRadius: theme.radiusBtn, padding: '12px 24px', display: 'flex' as any, alignItems: 'center' as any, justifyContent: 'center' as any, cursor: 'pointer' }
+
 export default function Workshop() {
-  const [currentStep, setCurrentStep] = useState<Step>('source')
+  const [step, setStep] = useState<Step>('source')
   const [sources, setSources] = useState<Source[]>([])
   const [materials, setMaterials] = useState<Material[]>([])
-  const [selectedSource, setSelectedSource] = useState<Source | null>(null)
-  const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null)
-  const [inventory, setInventory] = useState<any[]>([])
-  const [processPhase, setProcessPhase] = useState<'idle' | 'cut' | 'grind' | 'polish'>('idle')
-  const [processResult, setProcessResult] = useState<any>(null)
-  const [animDuration, setAnimDuration] = useState(2000)
+  const [selSource, setSelSource] = useState<Source | null>(null)
+  const [selMat, setSelMat] = useState<Material | null>(null)
+  const [inv, setInv] = useState<any[]>([])
+  const [phase, setPhase] = useState<'idle' | 'cut' | 'grind' | 'polish'>('idle')
+  const [result, setResult] = useState<any>(null)
 
-  // Load sources + inventory on mount
   useEffect(() => {
-    api('/raw-materials/sources').then((data) => {
-      if (Array.isArray(data)) setSources(data)
-    })
-    api('/user/raw-materials').then((data) => {
-      if (Array.isArray(data)) setInventory(data.filter((x: any) => x.count > 0))
-    })
+    api('/raw-materials/sources').then(d => { if (Array.isArray(d)) setSources(d) })
+    api('/user/raw-materials').then(d => { if (Array.isArray(d)) setInv(d.filter((x: any) => x.count > 0)) })
   }, [])
 
-  // Source selection
-  const selectSource = useCallback(async (source: Source) => {
-    setSelectedSource(source)
-    setCurrentStep('material')
-    const data = await api(`/raw-materials?sourceId=${source.id}`)
-    if (Array.isArray(data)) setMaterials(data)
+  const pickSource = useCallback(async (s: Source) => {
+    setSelSource(s); setStep('material')
+    const d = await api(`/raw-materials?sourceId=${s.id}`)
+    if (Array.isArray(d)) setMaterials(d)
   }, [])
 
-  // Material selection → start processing
-  const selectMaterial = useCallback((material: Material) => {
-    setSelectedMaterial(material)
-    setCurrentStep('process')
-    setProcessPhase('cut')
-    setAnimDuration(material.processMs || 7000)
-
-    // Phase progression: cut → grind → polish
-    const phaseDuration = (material.processMs || 7000) / 3
-    setTimeout(() => setProcessPhase('grind'), phaseDuration)
-    setTimeout(() => setProcessPhase('polish'), phaseDuration * 2)
-    setTimeout(() => runProcess(material.id), material.processMs || 7000)
+  const pickMat = useCallback((m: Material) => {
+    setSelMat(m); setStep('process'); setPhase('cut')
+    const dur = m.processMs || 7000, pd = dur / 3
+    setTimeout(() => setPhase('grind'), pd)
+    setTimeout(() => setPhase('polish'), pd * 2)
+    setTimeout(() => runProcess(m.id), dur)
   }, [])
 
-  const runProcess = async (materialTypeId: string) => {
-    const result = await api('/user/process', {
-      method: 'POST',
-      body: JSON.stringify({ materialTypeId }),
-    })
-    setProcessResult(result)
-    setCurrentStep('result')
-    // Refresh inventory
-    api('/user/raw-materials').then((data) => {
-      if (Array.isArray(data)) setInventory(data.filter((x: any) => x.count > 0))
-    })
+  const runProcess = async (id: string) => {
+    const r = await api('/user/process', { method: 'POST', body: JSON.stringify({ materialTypeId: id }) })
+    setResult(r); setStep('result')
+    api('/user/raw-materials').then(d => { if (Array.isArray(d)) setInv(d.filter((x: any) => x.count > 0)) })
   }
 
-  const reset = () => {
-    setCurrentStep('source')
-    setSelectedSource(null)
-    setSelectedMaterial(null)
-    setProcessPhase('idle')
-    setProcessResult(null)
-  }
-
-  const goToHome = () => Taro.navigateBack()
+  const reset = () => { setStep('source'); setSelSource(null); setSelMat(null); setPhase('idle'); setResult(null) }
+  const goBack = () => Taro.navigateBack()
 
   return (
-    <View style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
-      <style>{ANIM_KEYFRAMES}</style>
+    <View style={{ minHeight: '100vh', background: theme.bgPage }}>
+      <style>{ANIM}</style>
 
-      {/* 顶部导航 + 步骤指示器 */}
-      <View style={{ backgroundColor: '#2c3e50', padding: '12px 16px' }}>
-        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-          <Text onClick={goToHome} style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)', marginRight: 12, cursor: 'pointer' }}>←</Text>
-          <Text style={{ fontSize: 16, fontWeight: 600, color: '#ffffff' }}>工作室</Text>
+      {/* Header */}
+      <View style={{ background: theme.textPrimary, padding: '12px 16px' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8, display: 'flex' }}>
+          <Text onClick={goBack} style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)', marginRight: 12, cursor: 'pointer' }}>←</Text>
+          <Text style={{ fontSize: 15, fontWeight: 600, color: '#fff' }}>工作室</Text>
           <View style={{ flex: 1 }} />
-          <Text onClick={reset} style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', cursor: 'pointer' }}>重置</Text>
+          <Text onClick={reset} style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', cursor: 'pointer' }}>重置</Text>
         </View>
-        {/* 步骤进度条 */}
         <View style={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
-          {STEP_CONFIGS.map((s, i) => {
-            const stepOrder = ['source', 'material', 'process', 'result']
-            const currentIdx = stepOrder.indexOf(currentStep)
-            const isActive = i <= currentIdx
+          {STEP_LABELS.map((l, i) => {
+            const cur = STEP_KEYS.indexOf(step), active = i <= cur
             return (
-              <View key={s.key} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                <View style={{
-                  width: '100%', height: 3, borderRadius: 2,
-                  backgroundColor: isActive ? '#c8a96e' : 'rgba(255,255,255,0.15)',
-                }} />
-                <Text style={{ fontSize: 10, color: isActive ? '#c8a96e' : 'rgba(255,255,255,0.4)' }}>
-                  {s.label}
-                </Text>
+              <View key={l} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                <View style={{ width: '100%', height: 2, borderRadius: 1, background: active ? theme.primary : 'rgba(255,255,255,0.12)' }} />
+                <Text style={{ fontSize: 9, color: active ? theme.primary : 'rgba(255,255,255,0.3)' }}>{l}</Text>
               </View>
             )
           })}
         </View>
       </View>
 
-      {/* 库存栏 */}
-      {inventory.length > 0 && (
-        <View style={{
-          margin: '8px 12px', padding: '6px 10px', backgroundColor: '#ffffff',
-          borderRadius: 8, border: '1px solid #e8e8e8',
-          display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6, overflowX: 'auto',
-        }}>
-          <Text style={{ fontSize: 10, color: '#999', whiteSpace: 'nowrap' }}>库存:</Text>
-          {inventory.map((item) => (
-            <View key={item.materialTypeId} style={{
-              padding: '2px 6px', borderRadius: 6,
-              backgroundColor: '#f0f0f0', fontSize: 10,
-              whiteSpace: 'nowrap',
-            }}>
-              {item.name} x{item.count}
-            </View>
+      {/* Inventory bar */}
+      {inv.length > 0 && (
+        <View style={{ margin: 8, padding: '6px 10px', background: theme.bgCard, borderRadius: theme.radiusSmall, border: `1px solid ${theme.borderLight}`, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6, overflowX: 'auto' }}>
+          <Text style={{ fontSize: 9, color: theme.textSecondary, whiteSpace: 'nowrap' }}>库存:</Text>
+          {inv.map((i: any) => (
+            <View key={i.materialTypeId} style={{ padding: '2px 6px', borderRadius: theme.radiusTag, background: theme.primaryLight, fontSize: 9, whiteSpace: 'nowrap' }}>{i.name} x{i.count}</View>
           ))}
         </View>
       )}
 
-      {/* 主内容 */}
       <ScrollView scrollY style={{ flex: 1, padding: '12px 16px' }}>
-        {/* Step 1: 选择采集源 */}
-        {currentStep === 'source' && (
+        {/* Step 1: Sources */}
+        {step === 'source' && (
           <View>
-            <Text style={{ fontSize: 16, fontWeight: 600, color: '#2c3e50', marginBottom: 12 }}>
-              从哪里采集原料？
-            </Text>
-            {sources.map((source) => (
-              <View
-                key={source.id}
-                onClick={() => selectSource(source)}
-                style={{
-                  padding: '14px 16px', marginBottom: 10,
-                  backgroundColor: '#ffffff', borderRadius: 12,
-                  border: '1px solid #e8e8e8', cursor: 'pointer',
-                  display: 'flex', flexDirection: 'row', alignItems: 'center',
-                }}
-              >
-                <Text style={{ fontSize: 28, marginRight: 14 }}>{source.icon}</Text>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 15, fontWeight: 600, color: '#2c3e50' }}>{source.name}</Text>
-                  <Text style={{ fontSize: 11, color: '#999', marginTop: 2 }}>{source.description}</Text>
-                </View>
-                <Text style={{ fontSize: 16, color: '#ccc' }}>→</Text>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* Step 2: 选择原料 */}
-        {currentStep === 'material' && selectedSource && (
-          <View>
-            <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-              <Text onClick={() => setCurrentStep('source')} style={{ fontSize: 14, color: '#999', cursor: 'pointer', marginRight: 6 }}>← 返回</Text>
-              <Text style={{ fontSize: 16, fontWeight: 600, color: '#2c3e50' }}>
-                {selectedSource.icon} {selectedSource.name}
-              </Text>
-            </View>
-            {materials.map((mat) => (
-              <View
-                key={mat.id}
-                onClick={() => selectMaterial(mat)}
-                style={{
-                  padding: '12px 14px', marginBottom: 8,
-                  backgroundColor: '#ffffff', borderRadius: 10,
-                  border: '1px solid #e8e8e8', cursor: 'pointer',
-                  display: 'flex', flexDirection: 'row', alignItems: 'center',
-                }}
-              >
-                <View style={{
-                  width: 44, height: 44, borderRadius: 8, marginRight: 12,
-                  backgroundColor: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 10, color: '#999', overflow: 'hidden',
-                }}>
-                  {mat.imageUrl
-                    ? <img src={`/images/beads/${mat.imageUrl}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    : '📦'
-                  }
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: 14, fontWeight: 500, color: '#2c3e50' }}>{mat.name}</Text>
-                  <Text style={{
-                    fontSize: 10, marginTop: 2,
-                    color: RARITY_COLORS[mat.rarity] || '#999',
-                  }}>
-                    {RARITY_LABELS[mat.rarity] || mat.rarity}
-                  </Text>
-                </View>
-                <Text style={{ fontSize: 10, color: '#ccc' }}>{(mat.processMs / 1000).toFixed(0)}s</Text>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* Step 3: 加工动画 */}
-        {currentStep === 'process' && selectedMaterial && (
-          <View style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 40 }}>
-            <Text style={{ fontSize: 14, color: '#999', marginBottom: 16 }}>
-              {processPhase === 'cut' ? '切割中...' : processPhase === 'grind' ? '打磨中...' : '抛光中...'}
-            </Text>
-
-            {/* 加工动画容器 */}
-            <View style={{
-              width: 120, height: 120, borderRadius: '50%',
-              backgroundColor: '#ffffff', border: '3px solid #e8e8e8',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              marginBottom: 20,
-              animation: processPhase === 'cut' ? `anim-cut 0.6s ease-in-out infinite`
-                : processPhase === 'grind' ? `anim-grind 0.5s linear infinite`
-                : processPhase === 'polish' ? `anim-polish 0.8s ease-in-out infinite`
-                : 'none',
-            }}>
-              <Text style={{ fontSize: 40 }}>
-                {processPhase === 'cut' ? '✂️' : processPhase === 'grind' ? '💎' : '✨'}
-              </Text>
-            </View>
-
-            {/* 加工信息 */}
-            <Text style={{ fontSize: 15, fontWeight: 600, color: '#2c3e50', marginBottom: 4 }}>
-              {selectedMaterial.name}
-            </Text>
-            <Text style={{ fontSize: 12, color: '#999', textAlign: 'center', lineHeight: 1.5, marginBottom: 16 }}>
-              三段加工: 切割→打磨→抛光{'\n'}每步有失败概率，成功后获得珠子
-            </Text>
-
-            {/* 阶段指示 */}
-            <View style={{ display: 'flex', flexDirection: 'row', gap: 8 }}>
-              {['cut', 'grind', 'polish'].map((phase) => {
-                const phaseOrder = ['cut', 'grind', 'polish']
-                const isDone = phaseOrder.indexOf(processPhase) >= phaseOrder.indexOf(phase)
-                const isCurrent = processPhase === phase
-                return (
-                  <View key={phase} style={{
-                    padding: '4px 10px', borderRadius: 10,
-                    backgroundColor: isCurrent ? '#2c3e50' : isDone ? '#c8a96e' : '#e8e8e8',
-                  }}>
-                    <Text style={{ fontSize: 10, color: isDone ? '#ffffff' : '#999' }}>
-                      {phase === 'cut' ? '切割' : phase === 'grind' ? '打磨' : '抛光'}
-                    </Text>
+            <Text style={{ fontSize: 15, fontWeight: 600, color: theme.textPrimary, marginBottom: 12 }}>从哪里采集原料?</Text>
+            {/* 2x3 grid */}
+            <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+              {sources.map(s => (
+                <View key={s.id} onClick={() => pickSource(s)} style={{ width: 'calc(50% - 5px)', padding: '14px 12px', background: theme.bgCard, borderRadius: theme.radiusCard, border: `1px solid ${theme.borderLight}`, cursor: 'pointer', boxShadow: `0 2px 6px ${theme.shadow}` }}>
+                  <View style={{ width: 32, height: 32, borderRadius: 8, background: theme.primaryLight, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+                    <Text style={{ fontSize: 10, fontWeight: 700, color: theme.primaryDark }}>{SOURCE_ICONS[s.id] || '?'}</Text>
                   </View>
-                )
+                  <Text style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary, marginBottom: 2 }}>{s.name}</Text>
+                  <Text style={{ fontSize: 10, color: theme.textSecondary, lineHeight: 1.4 }} numberOfLines={2}>{s.description}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* Step 2: Materials */}
+        {step === 'material' && selSource && (
+          <View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12, display: 'flex' }}>
+              <Text onClick={() => setStep('source')} style={{ fontSize: 13, color: theme.textSecondary, cursor: 'pointer', marginRight: 8 }}>← 返回</Text>
+              <Text style={{ fontSize: 15, fontWeight: 600, color: theme.textPrimary }}>{selSource.name}</Text>
+            </View>
+            {materials.map(m => (
+              <View key={m.id} onClick={() => pickMat(m)} style={{ padding: '10px 12px', marginBottom: 8, background: theme.bgCard, borderRadius: theme.radiusCard, border: `1px solid ${theme.borderLight}`, display: 'flex', flexDirection: 'row', alignItems: 'center', cursor: 'pointer' }}>
+                <View style={{ width: 40, height: 40, borderRadius: theme.radiusSmall, marginRight: 10, background: theme.bgPage, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                  {m.imageUrl ? <Image src={`/images/beads/${m.imageUrl}`} style={{ width: '100%', height: '100%' }} mode='aspectFit' /> : <Text style={{ fontSize: 9, color: theme.textDisabled }}>img</Text>}
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 13, fontWeight: 500, color: theme.textPrimary }}>{m.name}</Text>
+                  <View style={{ flexDirection: 'row', gap: 4, marginTop: 2 }}>
+                    <Text style={{ fontSize: 9, padding: '1px 5px', borderRadius: theme.radiusTag, color: '#fff', background: RARITY_COLORS[m.rarity] || theme.textSecondary }}>{RARITY_LABELS[m.rarity] || m.rarity}</Text>
+                    <Text style={{ fontSize: 9, color: theme.textDisabled }}>{(m.processMs / 1000).toFixed(0)}s</Text>
+                  </View>
+                </View>
+                <Text style={{ fontSize: 14, color: theme.border }}>→</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Step 3: Processing */}
+        {step === 'process' && selMat && (
+          <View style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 40 }}>
+            <Text style={{ fontSize: 13, color: theme.textSecondary, marginBottom: 16 }}>{phase === 'cut' ? '切割中' : phase === 'grind' ? '打磨中' : '抛光中'}</Text>
+            <View style={{
+              width: 100, height: 100, borderRadius: '50%', background: theme.bgCard, border: `3px solid ${theme.borderLight}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16,
+              animation: phase === 'cut' ? 'cut-a .6s ease-in-out infinite' : phase === 'grind' ? 'grind-a .5s linear infinite' : phase === 'polish' ? 'polish-a .8s ease-in-out infinite' : 'none',
+            }}>
+              <Text style={{ fontSize: 11, color: theme.textSecondary, fontWeight: 700 }}>{phase === 'cut' ? '切' : phase === 'grind' ? '磨' : '光'}</Text>
+            </View>
+            <Text style={{ fontSize: 14, fontWeight: 600, color: theme.textPrimary, marginBottom: 4 }}>{selMat.name}</Text>
+            <Text style={{ fontSize: 11, color: theme.textSecondary, textAlign: 'center', lineHeight: 1.5, marginBottom: 16 }}>三段加工 切割 / 打磨 / 抛光</Text>
+            <View style={{ display: 'flex', flexDirection: 'row', gap: 6 }}>
+              {['cut', 'grind', 'polish'].map(p => {
+                const idx = ['cut', 'grind', 'polish'], cur = phase === p, done = idx.indexOf(phase) >= idx.indexOf(p)
+                return <View key={p} style={{ padding: '3px 10px', borderRadius: theme.radiusTag, background: cur ? theme.textPrimary : done ? theme.primary : theme.border }}>
+                  <Text style={{ fontSize: 9, color: done ? '#fff' : theme.textDisabled }}>{p === 'cut' ? '切割' : p === 'grind' ? '打磨' : '抛光'}</Text>
+                </View>
               })}
             </View>
           </View>
         )}
 
-        {/* Step 4: 加工结果 */}
-        {currentStep === 'result' && processResult && (
+        {/* Step 4: Result */}
+        {step === 'result' && result && (
           <View style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 20 }}>
-            {/* 结果图标 */}
-            <View style={{
-              width: 80, height: 80, borderRadius: '50%',
-              backgroundColor: processResult.success ? '#c8a96e' : '#e8e8e8',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              marginBottom: 16,
-              animation: 'anim-fade-in 0.5s ease-out',
-            }}>
-              <Text style={{ fontSize: 36 }}>
-                {processResult.success ? '🎉' : '💔'}
-              </Text>
+            <View style={{ width: 72, height: 72, borderRadius: '50%', background: result.success ? theme.primary : theme.border, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14, animation: 'fade-in .5s ease-out' }}>
+              <Text style={{ fontSize: 20, color: '#fff', fontWeight: 700 }}>{result.success ? 'OK' : '--'}</Text>
             </View>
-
-            {/* 结果文字 */}
-            {processResult.success && (
+            {result.success ? (
               <View style={{ textAlign: 'center', marginBottom: 20 }}>
-                <Text style={{ fontSize: 18, fontWeight: 600, color: '#2c3e50', marginBottom: 4 }}>
-                  加工成功!
-                </Text>
-                <Text style={{ fontSize: 13, color: '#666' }}>
-                  获得: {processResult.materialType}
-                </Text>
+                <Text style={{ fontSize: 16, fontWeight: 700, color: theme.textPrimary, marginBottom: 4 }}>加工成功!</Text>
+                <Text style={{ fontSize: 12, color: theme.textBody }}>获得: {result.materialType}</Text>
+              </View>
+            ) : (
+              <View style={{ textAlign: 'center', marginBottom: 20 }}>
+                <Text style={{ fontSize: 16, fontWeight: 700, color: theme.textDisabled, marginBottom: 4 }}>加工失败</Text>
+                {result.step && <Text style={{ fontSize: 11, color: theme.textSecondary, marginBottom: 4 }}>在{result.step === 'cut' ? '切割' : result.step === 'grind' ? '打磨' : '抛光'}阶段失败了</Text>}
+                <Text style={{ fontSize: 11, color: theme.error }}>获得废料</Text>
               </View>
             )}
-
-            {!processResult.success && (
-              <View style={{ textAlign: 'center', marginBottom: 20 }}>
-                <Text style={{ fontSize: 18, fontWeight: 600, color: '#999', marginBottom: 4 }}>
-                  加工失败
-                </Text>
-                {processResult.step && (
-                  <Text style={{ fontSize: 12, color: '#999', marginBottom: 4 }}>
-                    在「{processResult.step === 'cut' ? '切割' : processResult.step === 'grind' ? '打磨' : '抛光'}」阶段失败了
-                  </Text>
-                )}
-                <Text style={{ fontSize: 12, color: '#c8a96e' }}>
-                  获得废料: {processResult.wasteType}
-                </Text>
-              </View>
-            )}
-
-            {/* 操作按钮 */}
-            <View style={{ display: 'flex', flexDirection: 'row', gap: 12, marginTop: 8 }}>
-              <View
-                onClick={reset}
-                style={{
-                  padding: '10px 24px', borderRadius: 20,
-                  backgroundColor: '#2c3e50', cursor: 'pointer',
-                }}
-              >
-                <Text style={{ fontSize: 14, fontWeight: 600, color: '#ffffff' }}>
-                  继续加工
-                </Text>
-              </View>
-              <View
-                onClick={goToHome}
-                style={{
-                  padding: '10px 24px', borderRadius: 20,
-                  backgroundColor: '#ffffff', border: '1px solid #e8e8e8', cursor: 'pointer',
-                }}
-              >
-                <Text style={{ fontSize: 14, color: '#666' }}>
-                  返回首页
-                </Text>
-              </View>
+            <View style={{ display: 'flex', flexDirection: 'row', gap: 10, marginTop: 8 }}>
+              <View onClick={reset} style={btn}><Text style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>继续加工</Text></View>
+              <View onClick={goBack} style={{ padding: '12px 24px', borderRadius: theme.radiusBtn, background: theme.bgCard, border: `1px solid ${theme.border}`, cursor: 'pointer' }}><Text style={{ fontSize: 13, color: theme.textBody }}>返回首页</Text></View>
             </View>
-
-            {/* 今日战绩 */}
-            <View style={{
-              marginTop: 24, width: '100%', padding: 14,
-              backgroundColor: '#ffffff', borderRadius: 12,
-              border: '1px solid #e8e8e8',
-            }}>
-              <Text style={{ fontSize: 13, fontWeight: 600, color: '#2c3e50', marginBottom: 8 }}>我的原料库存</Text>
-              {inventory.length === 0 ? (
-                <Text style={{ fontSize: 12, color: '#ccc', textAlign: 'center', padding: '16px 0' }}>
-                  还没有原料，去首页领每日盲盒吧
-                </Text>
+            <View style={{ marginTop: 20, width: '100%', padding: 14, background: theme.bgCard, borderRadius: theme.radiusCard, border: `1px solid ${theme.borderLight}` }}>
+              <Text style={{ fontSize: 12, fontWeight: 600, color: theme.textPrimary, marginBottom: 8 }}>原料库存</Text>
+              {inv.length === 0 ? (
+                <Text style={{ fontSize: 11, color: theme.textDisabled, textAlign: 'center', padding: '12px 0' }}>还没有原料 去首页领每日盲盒</Text>
               ) : (
-                <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                  {inventory.map((item) => (
-                    <View key={item.materialTypeId} style={{
-                      padding: '6px 10px', borderRadius: 8, backgroundColor: '#f5f5f5',
-                      display: 'flex', flexDirection: 'column', alignItems: 'center',
-                    }}>
-                      <Text style={{ fontSize: 11, color: '#2c3e50' }}>{item.name}</Text>
-                      <Text style={{ fontSize: 10, color: '#999' }}>x{item.count}</Text>
+                <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                  {inv.map((i: any) => (
+                    <View key={i.materialTypeId} style={{ padding: '4px 8px', borderRadius: theme.radiusTag, background: theme.bgPage }}>
+                      <Text style={{ fontSize: 10, color: theme.textPrimary }}>{i.name}</Text>
+                      <Text style={{ fontSize: 9, color: theme.textSecondary }}>x{i.count}</Text>
                     </View>
                   ))}
                 </View>
