@@ -181,4 +181,30 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me/inventory') async inventory(@Req() req: any) { return this.s.getInventory(req.user.userId); }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('me/inventory/add') async addInventory(@Req() req: any, @Body() b: { materialType: string; productName: string; quality: string }) {
+    const db = getDb();
+    const uid = req.user.userId;
+
+    // 查找或创建产品记录
+    let prod: any = await db.select().from(products).where(sql`name = ${b.productName}`).get();
+    if (!prod) {
+      const r: any = await db.insert(products).values({ name: b.productName, type: 'bead' as const, category: b.materialType, price: b.quality === '稀有' ? 3800 : b.quality === '普通' ? 1800 : 800, size: '8mm', stock: 1 } as any).run();
+      prod = { id: Number(r.lastInsertRowid), name: b.productName };
+    }
+
+    // 更新库存
+    const bi = await db.select().from(userBeadInventory).where(sql`${userBeadInventory.userId}=${uid} AND ${userBeadInventory.productIndex}=${prod!.id}`).get();
+    if (bi) await db.update(userBeadInventory).set({ count: (bi.count ?? 0) + 1 }).where(sql`${userBeadInventory.id}=${bi.id}`).run();
+    else await db.insert(userBeadInventory).values({ userId: uid, productIndex: prod!.id, count: 1 }).run();
+
+    // 更新图鉴
+    const now = new Date().toISOString();
+    const col = await db.select().from(userBeadCollection).where(sql`${userBeadCollection.userId}=${uid} AND ${userBeadCollection.materialType}=${b.materialType}`).get();
+    if (col) await db.update(userBeadCollection).set({ count: (col.count ?? 0) + 1, lastAt: now }).where(sql`${userBeadCollection.id}=${col.id}`).run();
+    else await db.insert(userBeadCollection).values({ userId: uid, materialType: b.materialType, count: 1, firstAt: now, lastAt: now }).run();
+
+    return { success: true, productId: prod!.id };
+  }
 }

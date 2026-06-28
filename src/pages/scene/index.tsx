@@ -63,6 +63,10 @@ export default function ScenePage() {
   }, [gameResult])
 
   const goHome = useCallback(() => Taro.navigateBack(), [])
+  const goProcess = useCallback(() => {
+    if (!currentGame || !gameResult) return
+    Taro.navigateTo({ url: `/pages/processing/index?source=${source}&material=${gameResult.gemId}&name=${encodeURIComponent(gameResult.gemName)}` })
+  }, [currentGame, gameResult, source])
   const playAgain = useCallback(() => {
     setPhase('select')
     setCurrentGame(null)
@@ -200,6 +204,13 @@ export default function ScenePage() {
           </Text>
           {(gameResult as any).collected ? (
             <View style={{ display: 'flex', flexDirection: 'row', gap: 10, marginTop: 6 }}>
+              <View onClick={goProcess} onTouchEnd={goProcess} style={{
+                padding: '8px 20px', borderRadius: 20,
+                background: `linear-gradient(135deg, ${theme.primary}, ${cfg.accentColor})`,
+                cursor: 'pointer',
+              }}>
+                <Text style={{ fontSize: 12, fontWeight: 600, color: '#fff' }}>去加工</Text>
+              </View>
               <View onClick={goHome} onTouchEnd={goHome} style={{
                 padding: '8px 20px', borderRadius: 20, border: `1px solid ${theme.border}`,
                 cursor: 'pointer',
