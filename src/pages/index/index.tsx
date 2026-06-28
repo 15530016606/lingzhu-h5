@@ -4,7 +4,8 @@ import Taro from '@tarojs/taro'
 import { BEAD_PRODUCTS } from '@/data/bead-products'
 import BeadPreviewRing from '@/components/designer/BeadPreviewRing'
 import { theme } from '@/lib/theme'
-
+import { preloadSounds, startBGM, resumeAudio } from '@/lib/sound'
+import { getGemCount } from '@/lib/backpack'
 const BASE_URL = 'http://localhost:3000'
 async function api(path: string, options?: RequestInit) {
   const res = await fetch(`${BASE_URL}/api${path}`, { ...options, headers: { 'Content-Type': 'application/json', ...options?.headers } })
@@ -41,7 +42,11 @@ export default function IndexPage() {
   const [loading, setLoading] = useState(false)
   const [cnt, setCnt] = useState(0)
 
-  useEffect(() => { api('/user/raw-materials').then(d => Array.isArray(d) && setCnt(d.filter((x: any) => x.count > 0).length)) }, [])
+  useEffect(() => {
+    preloadSounds()
+    startBGM()
+    api('/user/raw-materials').then(d => Array.isArray(d) && setCnt(d.filter((x: any) => x.count > 0).length))
+  }, [])
 
   const claim = useCallback(async () => {
     if (claimed || loading) return; setLoading(true)
@@ -52,7 +57,7 @@ export default function IndexPage() {
   const go = (p: string) => Taro.navigateTo({ url: p })
 
   return (
-    <View style={{ minHeight: '100vh', background: theme.bgPage }}>
+    <View style={{ minHeight: '100vh', background: theme.bgPage }} onClick={resumeAudio}>
       <ScrollView scrollY style={{ flex: 1, padding: '16px 16px 0' }}>
 
         {/* 顶部：品牌 + 盲盒 + 统计 紧凑一行 */}
@@ -86,7 +91,7 @@ export default function IndexPage() {
         <Text style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary, marginBottom: 10 }}>选择采集源</Text>
         <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 }}>
           {SOURCES.map(src => (
-            <View key={src.id} onClick={() => go(`/pages/workshop/index?source=${src.id}`)} style={{ width: 'calc(33.33% - 7px)', padding: '14px 8px 10px', background: theme.bgCard, borderRadius: theme.radiusCard, border: `1px solid ${theme.borderLight}`, cursor: 'pointer', boxShadow: `0 2px 8px ${theme.shadow}`, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <View key={src.id} onClick={() => go(`/pages/scene/index?source=${src.id}`)} style={{ width: 'calc(33.33% - 7px)', padding: '14px 8px 10px', background: theme.bgCard, borderRadius: theme.radiusCard, border: `1px solid ${theme.borderLight}`, cursor: 'pointer', boxShadow: `0 2px 8px ${theme.shadow}`, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <View style={{ width: 64, height: 64, borderRadius: 16, overflow: 'hidden', marginBottom: 8 }}>
                 <img src={src.gif} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </View>

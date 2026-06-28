@@ -1,7 +1,8 @@
 export default defineAppConfig({
   pages: [
     'pages/index/index',
-    'pages/workshop/index',
+    'pages/scene/index',
+    'pages/processing/index',
     'pages/checkout/index',
     'pages/signin/index',
     'pages/register/index',
