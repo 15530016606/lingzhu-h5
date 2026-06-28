@@ -40,6 +40,8 @@ export default function TimingTap({ source, onEnd, accentColor, bgColor }: { sou
   const [resultText, setResultText] = useState('')
   const tmCycle = useRef<any>()
   const tmTimer = useRef<any>()
+  const phaseRef = useRef(phase)
+  phaseRef.current = phase
 
   useEffect(() => { preloadSounds() }, [])
 
@@ -50,9 +52,8 @@ export default function TimingTap({ source, onEnd, accentColor, bgColor }: { sou
     tmCycle.current = setTimeout(() => {
       setPhase('open')
       playSound('chime1', 0.2)
-      // 一段时间后自动关闭（miss）
       setTimeout(() => {
-        if (phase === 'open') {
+        if (phaseRef.current === 'open') {
           setStreak(0)
           setResultText('慢了...')
           setTimeout(() => setResultText(''), 400)
@@ -61,7 +62,7 @@ export default function TimingTap({ source, onEnd, accentColor, bgColor }: { sou
         startCycle()
       }, OPEN_DURATION)
     }, closedTime)
-  }, [phase])
+  }, [])
 
   const startGame = useCallback(() => {
     if (started) return
