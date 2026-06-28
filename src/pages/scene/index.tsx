@@ -1,16 +1,21 @@
-import { lazy, Suspense, useCallback, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useState } from 'react'
 import Taro from '@tarojs/taro'
 import { SCENES, GameEntry } from './configs'
 import { theme } from '@/lib/theme'
-import GameFrame from '@/components/GameFrame'
 import { playSound, playRareSound, resumeAudio } from '@/lib/sound'
 import { addToBackpack } from '@/lib/backpack'
+import MemoryMatch from './games/memory-match'
+import MatchThree from './games/match-three'
+import StackMatch from './games/stack-match'
+import FallCatch from './games/fall-catch'
+import TimingTap from './games/timing-tap'
 
-const CrystalMine = lazy(() => import('./games/crystal-mine'))
-const JadeValley = lazy(() => import('./games/jade-valley'))
-
-const REACT_GAMES: Record<string, any> = {
-  'crystal-mine-react': CrystalMine,
+const GAME_COMPONENTS: Record<string, any> = {
+  memory: MemoryMatch,
+  match3: MatchThree,
+  stack: StackMatch,
+  'fall-catch': FallCatch,
+  'timing-tap': TimingTap,
 }
 
 const KF = `
@@ -54,9 +59,15 @@ export default function ScenePage() {
     }, 300)
   }, [cfg.games])
 
-  const handleIframeWin = useCallback((score: number) => {
+  const handleGameEnd = useCallback((score: number) => {
     if (!currentGame) return
     const { material, name } = currentGame.reward
+    if (score < 40) {
+      setGameResult({ win: false, score, gemId: 'scrap', gemName: '废料', gemType: 'scrap' })
+      setPhase('result')
+      playSound('click_error', 0.3)
+      return
+    }
     const isRare = score >= 80
     const gemId = isRare ? `${material}_rare` : material
     const gemName = isRare ? `优质${name}` : name
@@ -64,13 +75,6 @@ export default function ScenePage() {
     setPhase('result')
     playSound('complete', 0.6)
     if (isRare) setTimeout(() => playSound('coin', 0.5), 200)
-  }, [currentGame])
-
-  const handleIframeLose = useCallback(() => {
-    if (!currentGame) return
-    setGameResult({ win: false, score: 0, gemId: 'scrap', gemName: '废料', gemType: 'scrap' })
-    setPhase('result')
-    playSound('click_error', 0.3)
   }, [currentGame])
 
   const handleCollect = useCallback(() => {
@@ -92,45 +96,15 @@ export default function ScenePage() {
     setGameResult(null)
   }, [])
 
-  // React game
-  if (phase === 'game' && currentGame?.type === 'react') {
-    const GameComponent = REACT_GAMES[currentGame.id]
-    if (GameComponent) {
-      return (
-        <Suspense fallback={<div style={{ padding: 40, alignItems: 'center', background: '#1a1020', minHeight: '100vh' }}>
-          <div style={{ fontSize: 13, color: '#999' }}>加载中...</div>
-        </div>}>
-          <GameComponent source={source} onComplete={() => {}} />
-        </Suspense>
-      )
+  // 玩游戏
+  if (phase === 'game' && currentGame) {
+    const Comp = GAME_COMPONENTS[currentGame.id]
+    if (Comp) {
+      return <Comp source={source} onEnd={handleGameEnd} accentColor={cfg.accentColor} bgColor={cfg.bgColor} />
     }
-  }
-
-  // Iframe game
-  if (phase === 'game' && currentGame?.type === 'iframe') {
     return (
-      <div style={{ minHeight: '100vh', background: '#000', display: 'flex', flexDirection: 'column' }}>
-        <div style={{
-          padding: '8px 14px', display: 'flex', flexDirection: 'row', alignItems: 'center',
-          background: '#111', borderBottom: '1px solid #222',
-        }}>
-          <span onClick={() => { setPhase('intro'); setCurrentGame(null) }}
-            style={{ fontSize: 13, color: '#888', cursor: 'pointer', touchAction: 'manipulation' }}>
-            ‹ 返回
-          </span>
-          <span style={{ flex: 1, textAlign: 'center', fontSize: 13, color: '#ccc', fontWeight: 600 }}>
-            {currentGame.name}
-          </span>
-          <span style={{ width: 40 }} />
-        </div>
-        <div style={{ flex: 1 }}>
-          <GameFrame
-            src={`/games/${currentGame.id}/index.html`}
-            scene={source}
-            onWin={handleIframeWin}
-            onLose={handleIframeLose}
-          />
-        </div>
+      <div style={{ padding: 40, alignItems: 'center', background: '#1a1020', minHeight: '100vh' }}>
+        <div style={{ fontSize: 13, color: '#999' }}>未知游戏</div>
       </div>
     )
   }

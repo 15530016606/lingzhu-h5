@@ -10,12 +10,12 @@ const KF = `
 `
 
 const GEMS = [
-  {img:'gem-white.png',color:'#a0c4ff',label:'白'},
-  {img:'gem-purple.png',color:'#b388ff',label:'紫'},
-  {img:'raw-pink.png',color:'#ff80ab',label:'粉'},
-  {img:'raw-gold.png',color:'#ffd54f',label:'金'},
-  {img:'raw-green.png',color:'#69f0ae',label:'绿'},
-  {img:'raw-blue.png',color:'#40c4ff',label:'蓝'},
+  {emoji:'💎',color:'#a0c4ff',label:'白'},
+  {emoji:'🔮',color:'#b388ff',label:'紫'},
+  {emoji:'💗',color:'#ff80ab',label:'粉'},
+  {emoji:'⭐',color:'#ffd54f',label:'金'},
+  {emoji:'💠',color:'#40c4ff',label:'蓝'},
+  {emoji:'✨',color:'#e8f0ff',label:'晶'},
 ]
 
 const TOTAL=40,MAX_SLOT=7
@@ -203,7 +203,7 @@ export default function StackMatch({onEnd,accentColor,bgColor}:{onEnd:(s:number)
               display:'flex',alignItems:'center',justifyContent:'center',
               animation:slot[i]!==undefined?'s-pop 0.2s ease-out':'none',
             }}>
-              {slot[i]!==undefined&&<img src={`/images/scenes/thumbs/thumb_${GEMS[slot[i]].img}`} style={{width:'70%',height:'70%',objectFit:'contain'}}/>}
+              {slot[i]!==undefined&&<span style={{fontSize:22}}>{GEMS[slot[i]].emoji}</span>}
             </View>
           ))}
         </View>

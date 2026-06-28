@@ -9,16 +9,59 @@ const KF = `
 @keyframes m3-flash {0%,100%{opacity:1}50%{opacity:0.3}}
 `
 
-const GEMS = [
-  {img:'gem-white.png',color:'#a0c4ff',label:'白'},
-  {img:'gem-purple.png',color:'#b388ff',label:'紫'},
-  {img:'raw-pink.png',color:'#ff80ab',label:'粉'},
-  {img:'raw-gold.png',color:'#ffd54f',label:'金'},
-  {img:'raw-green.png',color:'#69f0ae',label:'绿'},
-  {img:'raw-blue.png',color:'#40c4ff',label:'蓝'},
-]
+// 每个场景的三消主题
+const SCENE_GEMS: Record<string, { emoji: string; color: string; label: string }[]> = {
+  crystal: [
+    { emoji: '💎', color: '#a0c4ff', label: '白' },
+    { emoji: '🔮', color: '#b388ff', label: '紫' },
+    { emoji: '💗', color: '#ff80ab', label: '粉' },
+    { emoji: '⭐', color: '#ffd54f', label: '金' },
+    { emoji: '🍀', color: '#69f0ae', label: '绿' },
+    { emoji: '💠', color: '#40c4ff', label: '蓝' },
+  ],
+  jade: [
+    { emoji: '💚', color: '#90c890', label: '翠' },
+    { emoji: '🟢', color: '#7db87d', label: '碧' },
+    { emoji: '🪨', color: '#a09888', label: '石' },
+    { emoji: '🗿', color: '#b8a888', label: '玉' },
+    { emoji: '📿', color: '#d4c8a0', label: '串' },
+    { emoji: '💎', color: '#c8d8c0', label: '翡' },
+  ],
+  forest: [
+    { emoji: '🌿', color: '#6abf40', label: '草' },
+    { emoji: '🍃', color: '#8bc34a', label: '叶' },
+    { emoji: '🌱', color: '#4caf50', label: '芽' },
+    { emoji: '🍄', color: '#ff8a65', label: '菇' },
+    { emoji: '🌲', color: '#388e3c', label: '松' },
+    { emoji: '🌸', color: '#f48fb1', label: '花' },
+  ],
+  orchard: [
+    { emoji: '🍎', color: '#e53935', label: '苹' },
+    { emoji: '🍊', color: '#ff9800', label: '橙' },
+    { emoji: '🍋', color: '#ffee58', label: '柠' },
+    { emoji: '🍇', color: '#7b1fa2', label: '葡' },
+    { emoji: '🍓', color: '#e91e63', label: '莓' },
+    { emoji: '🍑', color: '#ff8a80', label: '桃' },
+  ],
+  beach: [
+    { emoji: '🐚', color: '#ffccbc', label: '贝' },
+    { emoji: '🦪', color: '#ce93d8', label: '蚌' },
+    { emoji: '💧', color: '#4fc3f7', label: '水' },
+    { emoji: '🪨', color: '#8d9aa8', label: '石' },
+    { emoji: '⭐', color: '#ffd54f', label: '星' },
+    { emoji: '🪸', color: '#f48fb1', label: '珊' },
+  ],
+  workshop: [
+    { emoji: '🔧', color: '#8d6e63', label: '扳' },
+    { emoji: '⚒️', color: '#6d4c41', label: '锤' },
+    { emoji: '🔨', color: '#795548', label: '钉' },
+    { emoji: '⚙️', color: '#607d8b', label: '齿' },
+    { emoji: '🖌️', color: '#90a4ae', label: '刷' },
+    { emoji: '💡', color: '#fff176', label: '灯' },
+  ],
+}
 
-const ROWS=6,COLS=6,TOTAL=40
+const ROWS = 6, COLS = 6, TOTAL = 40
 
 function shuffle<T>(a:T[]):T[]{const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
 
@@ -59,7 +102,8 @@ function findMatches(grid:number[][]):[number,number][]{
   return [...matched].map(s=>s.split(',').map(Number) as [number,number])
 }
 
-export default function MatchThree({onEnd,accentColor,bgColor}:{onEnd:(s:number)=>void,accentColor:string,bgColor:string}){
+export default function MatchThree({source,onEnd,accentColor,bgColor}:{source:string;onEnd:(s:number)=>void;accentColor:string;bgColor:string}){
+  const gems = SCENE_GEMS[source] || SCENE_GEMS.crystal
   const [grid,setGrid]=useState<number[][]>([])
   const [selected,setSelected]=useState<[number,number]|null>(null)
   const [score,setScore]=useState(0)
@@ -182,14 +226,14 @@ export default function MatchThree({onEnd,accentColor,bgColor}:{onEnd:(s:number)
               <View key={c} onClick={()=>tapCell(r,c)} style={{
                 flex:1,aspectRatio:'1/1',maxWidth:52,maxHeight:52,
                 borderRadius:6,overflow:'hidden',cursor:'pointer',
-                border:selected&&selected[0]===r&&selected[1]===c?`2px solid ${GEMS[v]?.color||'#fff'}`:'1px solid rgba(255,255,255,0.06)',
-                background:v>=0?`${GEMS[v].color}33`:'transparent',
+                border:selected&&selected[0]===r&&selected[1]===c?`2px solid ${gems[v]?.color||'#fff'}`:'1px solid rgba(255,255,255,0.06)',
+                background:v>=0?`${gems[v].color}33`:'transparent',
                 display:'flex',alignItems:'center',justifyContent:'center',
                 animation:removing.has(`${r},${c}`)?'m3-pop 0.25s ease-out forwards':
                   shake&&shake[0]===r&&shake[1]===c?'m3-shake 0.2s ease':'none',
                 opacity:v<0?0:1,
               }}>
-                {v>=0&&<img src={`/images/scenes/thumbs/thumb_${GEMS[v].img}`} style={{width:'75%',height:'75%',objectFit:'contain'}}/>}
+                {v>=0&&<span style={{fontSize:28}}>{gems[v].emoji}</span>}
               </View>
             ))}
           </View>

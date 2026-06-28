@@ -9,177 +9,221 @@ const KF = `
 @keyframes bounce-in {0%{transform:scale(0);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
 `
 
-const GEM_IMGS = [
-  {id:'white',img:'gem-white.png',color:'#a0c4ff',label:'白'},
-  {id:'purple',img:'gem-purple.png',color:'#b388ff',label:'紫'},
-  {id:'pink',img:'raw-pink.png',color:'#ff80ab',label:'粉'},
-  {id:'gold',img:'raw-gold.png',color:'#ffd54f',label:'金'},
-  {id:'green',img:'raw-green.png',color:'#69f0ae',label:'绿'},
-  {id:'blue',img:'raw-blue.png',color:'#40c4ff',label:'蓝'},
-  {id:'crystal',img:'raw-white.png',color:'#e8f0ff',label:'晶'},
-  {id:'sparkle',img:'gem-white.png',color:'#fff',label:'光'},
-]
+// 每个场景的翻牌主题
+const SCENE_CARDS: Record<string, { id: string; emoji: string; color: string; label: string }[]> = {
+  crystal: [
+    { id: 'white', emoji: '💎', color: '#a0c4ff', label: '晶' },
+    { id: 'purple', emoji: '🔮', color: '#b388ff', label: '紫' },
+    { id: 'pink', emoji: '💗', color: '#ff80ab', label: '粉' },
+    { id: 'gold', emoji: '⭐', color: '#ffd54f', label: '金' },
+    { id: 'green', emoji: '🍀', color: '#69f0ae', label: '绿' },
+    { id: 'blue', emoji: '💠', color: '#40c4ff', label: '蓝' },
+    { id: 'crystal', emoji: '✨', color: '#e8f0ff', label: '晶' },
+    { id: 'sparkle', emoji: '🌟', color: '#fff', label: '光' },
+  ],
+  jade: [
+    { id: 'jade1', emoji: '💚', color: '#90c890', label: '翠' },
+    { id: 'jade2', emoji: '🟢', color: '#7db87d', label: '碧' },
+    { id: 'jade3', emoji: '🗿', color: '#b8a888', label: '玉' },
+    { id: 'jade4', emoji: '🪨', color: '#a09888', label: '石' },
+    { id: 'jade5', emoji: '💎', color: '#c8d8c0', label: '翡' },
+    { id: 'jade6', emoji: '🟩', color: '#5a9a5a', label: '绿' },
+    { id: 'jade7', emoji: '📿', color: '#d4c8a0', label: '串' },
+    { id: 'jade8', emoji: '⭐', color: '#e8e0c0', label: '光' },
+  ],
+  forest: [
+    { id: 'wood1', emoji: '🌿', color: '#6abf40', label: '草' },
+    { id: 'wood2', emoji: '🍃', color: '#8bc34a', label: '叶' },
+    { id: 'wood3', emoji: '🌱', color: '#4caf50', label: '芽' },
+    { id: 'wood4', emoji: '🪵', color: '#8d6e63', label: '木' },
+    { id: 'wood5', emoji: '🍄', color: '#ff8a65', label: '菇' },
+    { id: 'wood6', emoji: '🌲', color: '#388e3c', label: '松' },
+    { id: 'wood7', emoji: '🍂', color: '#ffa726', label: '秋' },
+    { id: 'wood8', emoji: '🌸', color: '#f48fb1', label: '花' },
+  ],
+  orchard: [
+    { id: 'fruit1', emoji: '🍎', color: '#e53935', label: '苹' },
+    { id: 'fruit2', emoji: '🍊', color: '#ff9800', label: '橙' },
+    { id: 'fruit3', emoji: '🍋', color: '#ffee58', label: '柠' },
+    { id: 'fruit4', emoji: '🍇', color: '#7b1fa2', label: '葡' },
+    { id: 'fruit5', emoji: '🍓', color: '#e91e63', label: '莓' },
+    { id: 'fruit6', emoji: '🍑', color: '#ff8a80', label: '桃' },
+    { id: 'fruit7', emoji: '🍒', color: '#c62828', label: '樱' },
+    { id: 'fruit8', emoji: '🥝', color: '#66bb6a', label: '猕' },
+  ],
+  beach: [
+    { id: 'shell1', emoji: '🐚', color: '#ffccbc', label: '贝' },
+    { id: 'shell2', emoji: '🦪', color: '#ce93d8', label: '蚌' },
+    { id: 'shell3', emoji: '💧', color: '#4fc3f7', label: '水' },
+    { id: 'shell4', emoji: '🪨', color: '#8d9aa8', label: '石' },
+    { id: 'shell5', emoji: '🐟', color: '#64b5f6', label: '鱼' },
+    { id: 'shell6', emoji: '🪸', color: '#f48fb1', label: '珊' },
+    { id: 'shell7', emoji: '⭐', color: '#ffd54f', label: '星' },
+    { id: 'shell8', emoji: '🔮', color: '#81d4fa', label: '珠' },
+  ],
+  workshop: [
+    { id: 'tool1', emoji: '🔧', color: '#8d6e63', label: '扳' },
+    { id: 'tool2', emoji: '⚒️', color: '#6d4c41', label: '锤' },
+    { id: 'tool3', emoji: '🔨', color: '#795548', label: '钉' },
+    { id: 'tool4', emoji: '⚙️', color: '#607d8b', label: '齿' },
+    { id: 'tool5', emoji: '🪡', color: '#bcaaa4', label: '针' },
+    { id: 'tool6', emoji: '🖌️', color: '#90a4ae', label: '刷' },
+    { id: 'tool7', emoji: '📏', color: '#b0bec5', label: '尺' },
+    { id: 'tool8', emoji: '💡', color: '#fff176', label: '灯' },
+  ],
+}
 
-function shuffle(arr:any[]){
-  const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+function shuffle(arr: any[]) {
+  const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]] }
   return a
 }
 
 const TOTAL_TIME = 40
 
-export default function MemoryMatch({onEnd,accentColor,bgColor}:{onEnd:(s:number)=>void,accentColor:string,bgColor:string}){
-  const [cards,setCards]=useState<any[]>([])
-  const [flipped,setFlipped]=useState<number[]>([])
-  const [matched,setMatched]=useState<number[]>([])
-  const [score,setScore]=useState(0)
-  const [time,setTime]=useState(TOTAL_TIME)
-  const [started,setStarted]=useState(false)
-  const [shaking,setShaking]=useState<number|null>(null)
-  const lock=useRef(false)
-  const timerRef=useRef<any>()
+export default function MemoryMatch({ source, onEnd, accentColor, bgColor }: { source: string; onEnd: (s: number) => void; accentColor: string; bgColor: string }) {
+  const cardsData = SCENE_CARDS[source] || SCENE_CARDS.crystal
+  const [cards, setCards] = useState<any[]>([])
+  const [flipped, setFlipped] = useState<number[]>([])
+  const [matched, setMatched] = useState<number[]>([])
+  const [score, setScore] = useState(0)
+  const [time, setTime] = useState(TOTAL_TIME)
+  const [started, setStarted] = useState(false)
+  const [gameOver, setGameOver] = useState(false)
+  const [result, setResult] = useState<{ score: number; isNew: boolean } | null>(null)
+  const tm = useRef<any>()
+  const lock = useRef(false)
 
-  useEffect(()=>{preloadSounds()},[])
+  useEffect(() => { preloadSounds() }, [])
 
-  const init = useCallback(()=>{
-    const pairs = shuffle(GEM_IMGS).slice(0,8)
-    const deck = shuffle([...pairs,...pairs].map((g,i)=>({id:i,gem:g,matched:false})))
-    setCards(deck)
-    setFlipped([]);setMatched([]);setScore(0);setTime(TOTAL_TIME)
+  const init = useCallback(() => {
+    const pairs = shuffle(cardsData).slice(0, 6)
+    const doubled = shuffle([...pairs, ...pairs])
+    setCards(doubled)
+    setFlipped([])
+    setMatched([])
+    setScore(0)
+    setTime(TOTAL_TIME)
+    setStarted(false)
+    setGameOver(false)
+    setResult(null)
+  }, [])
+
+  useEffect(() => { init() }, [init])
+
+  const startTimer = useCallback(() => {
+    if (tm.current) clearInterval(tm.current)
     setStarted(true)
-    // 计时
-    timerRef.current = setInterval(()=>{
-      setTime(t=>{
-        if(t<=1){clearInterval(timerRef.current);return 0}
-        return t-1
+    tm.current = setInterval(() => {
+      setTime(prev => {
+        if (prev <= 1) {
+          clearInterval(tm.current)
+          setGameOver(true)
+          return 0
+        }
+        return prev - 1
       })
-    },1000)
-  },[])
+    }, 1000)
+  }, [])
 
-  // 时间到
-  useEffect(()=>{
-    if(started && time<=0){
-      const pct = score/8*100
-      setTimeout(()=>onEnd(pct),500)
-    }
-  },[time,started,score,onEnd])
-
-  const tapCard = useCallback((idx:number)=>{
-    if(lock.current||flipped.length>=2||matched.includes(idx)||flipped.includes(idx)||time<=0)return
-    const newFlip=[...flipped,idx]
-    setFlipped(newFlip)
-    playSound('chime1',0.2)
-    if(newFlip.length===2){
-      lock.current=true
-      const [a,b]=newFlip
-      if(cards[a].gem.id===cards[b].gem.id){
-        // 配对成功
-        setTimeout(()=>{
-          playSound('coin',0.4)
-          setMatched(m=>[...m,a,b])
-          setScore(s=>s+1)
+  const handleTap = useCallback((idx: number) => {
+    if (lock.current || gameOver || matched.includes(idx) || flipped.includes(idx)) return
+    if (!started) startTimer()
+    playSound('chime1', 0.25)
+    const newFlipped = [...flipped, idx]
+    setFlipped(newFlipped)
+    if (newFlipped.length === 2) {
+      lock.current = true
+      const [a, b] = newFlipped
+      if (cards[a].id === cards[b].id) {
+        lock.current = false
+        setMatched(prev => [...prev, a, b])
+        setFlipped([])
+        playSound('coin', 0.3)
+        const ns = score + 1
+        setScore(ns)
+        if (ns >= 6) {
+          const totalScore = 100 + Math.floor(time * 2)
+          clearInterval(tm.current)
+          setGameOver(true)
+          setResult({ score: totalScore, isNew: true })
+          playRareSound()
+          setTimeout(() => onEnd(totalScore), 500)
+        }
+      } else {
+        playSound('click_error', 0.2)
+        setTimeout(() => {
           setFlipped([])
-          lock.current=false
-          // 检查全完成
-          if(matched.length+2===cards.length){
-            clearInterval(timerRef.current)
-            setTimeout(()=>onEnd(100),600)
-          }
-        },400)
-      }else{
-        // 配对失败
-        setShaking(a)
-        setTimeout(()=>{
-          setShaking(null)
-          setFlipped([])
-          lock.current=false
-          playSound('click_error',0.2)
-        },600)
+          lock.current = false
+        }, 700)
       }
     }
-  },[flipped,matched,cards,time,onEnd])
+  }, [flipped, matched, cards, score, time, started, startTimer, gameOver, onEnd])
 
-  // 未开始 → 点开始
-  if(!started){
-    return(
-      <View style={{minHeight:'100vh',background:bgColor,display:'flex',alignItems:'center',justifyContent:'center'}}>
-        <style>{KF}</style>
-        <View style={{alignItems:'center',gap:12,display:'flex',flexDirection:'column',padding:24}}>
-          <Text style={{fontSize:22,fontWeight:700,color:'#4A382C'}}>水晶连连看</Text>
-          <Text style={{fontSize:12,color:'#928370',textAlign:'center',lineHeight:1.6}}>
-            翻牌配对{'\n'}8 对水晶 40 秒挑战
-          </Text>
-          <View onClick={init} style={{marginTop:20,padding:'14px 40px',borderRadius:25,
-            background:`linear-gradient(135deg,${accentColor},#6a5080)`,cursor:'pointer'}}>
-            <Text style={{fontSize:15,fontWeight:700,color:'#fff'}}>开始游戏</Text>
-          </View>
-        </View>
-      </View>
-    )
-  }
+  // 时间到
+  useEffect(() => {
+    if (gameOver && !result) {
+      const totalScore = Math.floor(score * 15)
+      setResult({ score: totalScore, isNew: false })
+      setTimeout(() => onEnd(totalScore), 800)
+    }
+  }, [gameOver, result, score, onEnd])
 
-  return(
-    <View style={{minHeight:'100vh',background:'#1a1520',display:'flex',flexDirection:'column'}}>
+  const progress = (time / TOTAL_TIME) * 100
+
+  return (
+    <View style={{ minHeight: '100vh', background: bgColor, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 12px' }}>
       <style>{KF}</style>
-
-      {/* 顶栏 */}
-      <View style={{padding:'14px 16px 8px',display:'flex',flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
-        <Text style={{fontSize:15,fontWeight:700,color:'#f0e8d0'}}>连连看</Text>
-        <View style={{display:'flex',flexDirection:'row',gap:16,alignItems:'center'}}>
-          <Text style={{fontSize:13,color:'#f0e8d0'}}>{score}/8</Text>
-          <View style={{padding:'4px 10px',borderRadius:12,background:time<=10?'rgba(255,80,80,0.3)':'rgba(255,255,255,0.1)'}}>
-            <Text style={{fontSize:13,fontWeight:700,color:time<=10?'#ff5050':'#f0e8d0'}}>{time}s</Text>
-          </View>
+      {/* 顶部信息 */}
+      <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, padding: '0 4px' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, display: 'flex' }}>
+          <Text style={{ fontSize: 17 }}>{cardsData[0]?.emoji || '💎'}</Text>
+          <Text style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>配对比分</Text>
         </View>
+        <Text style={{ fontSize: 24, fontWeight: 700, color: '#fff' }}>{score}/6</Text>
       </View>
-
       {/* 进度条 */}
-      <View style={{margin:'0 16px 12px',height:3,borderRadius:2,background:'rgba(255,255,255,0.08)',overflow:'hidden'}}>
-        <View style={{height:'100%',borderRadius:2,background:`linear-gradient(90deg,${accentColor},#f0e8d0)`,
-          width:`${(time/TOTAL_TIME)*100}%`,transition:'width 1s linear'}}/>
+      <View style={{ width: '100%', height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', marginBottom: 16 }}>
+        <View style={{ width: `${progress}%`, height: '100%', borderRadius: 2, background: accentColor, transition: 'width 1s linear' }} />
       </View>
-
-      {/* 卡片网格 */}
-      <View style={{padding:'8px 16px',display:'flex',flex:1,alignItems:'center',justifyContent:'center'}}>
-        <View style={{width:'100%',maxWidth:340,aspectRatio:'1/1',display:'flex',flexDirection:'row',flexWrap:'wrap',gap:6,alignContent:'center'}}>
-        {cards.map((card,i)=>{
-          const isFlipped = flipped.includes(i)||matched.includes(i)
+      {/* 卡牌网格：响应式 4x3 */}
+      <View style={{ width: '100%', maxWidth: 360, display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
+        {cards.map((card, i) => {
+          const isFlipped = flipped.includes(i) || matched.includes(i)
           const isMatched = matched.includes(i)
-          return(
-            <View key={card.id} onClick={()=>tapCard(i)} style={{
-              width:'calc(25% - 4.5px)',aspectRatio:'1/1',maxWidth:78,
-              borderRadius:10,overflow:'hidden',
-              cursor:'pointer',perspective:'300px',
-              animation:isMatched?'match-pop 0.4s ease-out forwards':shaking===i?'shake 0.3s ease':'none',
-              opacity:isMatched?0:1,pointerEvents:isMatched?'none':'auto',
-            }}>
-              <View style={{width:'100%',height:'100%',position:'relative',transformStyle:'preserve-3d',
-                transition:'transform 0.3s',transform:isFlipped?'rotateY(180deg)':'rotateY(0)'}}>
-                {/* 卡背 */}
-                <View style={{position:'absolute',inset:0,borderRadius:10,
-                  background:'linear-gradient(145deg,#6a5080,#4a3060)',
-                  border:'1px solid rgba(255,255,255,0.1)',
-                  display:'flex',alignItems:'center',justifyContent:'center',
-                  backfaceVisibility:'hidden'}}>
-                  <Text style={{fontSize:20,opacity:0.4}}>?</Text>
-                </View>
-                {/* 卡面 */}
-                <View style={{position:'absolute',inset:0,borderRadius:10,
-                  background:'#2a1a40',border:`1px solid ${card.gem.color}44`,
-                  display:'flex',alignItems:'center',justifyContent:'center',
-                  backfaceVisibility:'hidden',transform:'rotateY(180deg)'}}>
-                  <img src={`/images/scenes/thumbs/thumb_${card.gem.img}`} style={{width:'65%',height:'65%',objectFit:'contain'}}/>
-                </View>
+          return (
+            <View key={i} onClick={() => handleTap(i)}
+              style={{
+                width: 'calc(25% - 6px)', aspectRatio: '1', borderRadius: 10,
+                cursor: 'pointer', position: 'relative', perspective: 600,
+                opacity: isMatched ? 0 : 1,
+                transition: 'opacity 0.3s',
+                animation: isMatched ? 'match-pop 0.4s ease-out forwards' : undefined,
+              }}
+            >
+              <View style={{
+                width: '100%', height: '100%', borderRadius: 10,
+                background: isFlipped ? card.color + '33' : accentColor + '44',
+                border: `2px solid ${isFlipped ? card.color + '88' : 'rgba(255,255,255,0.1)'}`,
+                backdropFilter: 'blur(4px)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.3s ease',
+                animation: isFlipped ? 'flip 0.3s ease-out' : undefined,
+                transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0)',
+              }}>
+                {isFlipped ? (
+                  <Text style={{ fontSize: 28, animation: 'bounce-in 0.3s ease-out' }}>{card.emoji}</Text>
+                ) : (
+                  <Text style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }}>?</Text>
+                )}
               </View>
             </View>
           )
         })}
-        </View>
       </View>
-
-      {/* 底部提示 */}
-      <View style={{padding:'8px 16px',alignItems:'center'}}>
-        <Text style={{fontSize:10,color:'rgba(255,255,255,0.2)'}}>翻两张配对的消除</Text>
-      </View>
+      {/* 计时 */}
+      <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 16 }}>
+        {started ? `${time}秒` : '点击卡片开始'}
+      </Text>
     </View>
   )
 }
