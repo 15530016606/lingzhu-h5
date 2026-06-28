@@ -72,7 +72,6 @@ const BRACELET_GROUPS = [
 const S = {
   card: { background: theme.bgCard, borderRadius: theme.radiusCard, border: `1px solid ${theme.borderLight}`, boxShadow: `0 2px 12px ${theme.shadow}` },
 }
-
 function SampleCard({ item, rank }: { item: any; rank: number }) {
   const beads = item.idx.map((i: number) => { const p = BEAD_PRODUCTS[i]; return p ? { ...p } : null }).filter(Boolean) as any[]
   return (
@@ -150,21 +149,10 @@ export default function IndexPage() {
           <View style={{ alignItems: 'center' }}><Text style={{ fontSize: 10, color: theme.textSecondary, marginBottom: 3 }}>可加工类型</Text><Text style={{ fontSize: 20, fontWeight: 700, color: theme.accent }}>39</Text></View>
         </View>
 
-        {/* 进入工作室 —— GIF 动图入口 */}
-        <View onClick={() => go('/pages/workshop/index')} style={{ marginBottom: 20, ...S.card, borderRadius: theme.radiusCard, overflow: 'hidden', cursor: 'pointer', display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-          <Image src='/videos/workshop-icon.gif' mode='aspectFill' style={{ width: 100, height: 100 }} />
-          <View style={{ flex: 1, padding: '0 14px' }}>
-            <Text style={{ fontSize: 14, fontWeight: 600, color: theme.textPrimary }}>加工原料做珠子</Text>
-            <Text style={{ fontSize: 11, color: theme.textSecondary, marginTop: 3 }}>原石切割打磨抛光，亲手制作</Text>
-          </View>
-          <View style={{ width: 28, height: 28, borderRadius: 14, background: theme.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: 14 }}>
-            <Text style={{ fontSize: 14, color: '#fff' }}>→</Text>
-          </View>
-        </View>
-
         {/* ====== 六大采集源入口 ====== */}
-        <View style={{ marginBottom: 20 }}>
-          <Text style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary, marginBottom: 12 }}>选择采集源</Text>
+        <View style={{ marginBottom: 16 }}>
+          <Text style={{ fontSize: 15, fontWeight: 700, color: theme.textPrimary, marginBottom: 2 }}>选择采集源</Text>
+          <Text style={{ fontSize: 11, color: theme.textSecondary, marginBottom: 14 }}>每个来源产出不同的原料 去看看</Text>
           <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
             {[
               { id: 'crystal', name: '水晶矿场', desc: '开采水晶原矿', gif: '/videos/bear-brown.gif' },
@@ -174,11 +162,11 @@ export default function IndexPage() {
               { id: 'beach', name: '河床海岸', desc: '拾取卵石贝壳', gif: '/videos/otter.gif' },
               { id: 'workshop', name: '工坊', desc: '制胚烧制琉璃', gif: '/videos/workshop-icon.gif' },
             ].map(src => (
-              <View key={src.id} onClick={() => go(`/pages/workshop/index?source=${src.id}`)} style={{ width: 'calc(50% - 6px)', padding: '0 0 12px', background: theme.bgCard, borderRadius: theme.radiusCard, border: `1px solid ${theme.borderLight}`, cursor: 'pointer', boxShadow: `0 2px 8px ${theme.shadow}`, overflow: 'hidden' }}>
-                <Image src={src.gif} mode='aspectFill' style={{ width: '100%', height: 90 }} />
-                <View style={{ padding: '8px 10px 0' }}>
-                  <Text style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary, marginBottom: 2 }}>{src.name}</Text>
-                  <Text style={{ fontSize: 10, color: theme.textSecondary }}>{src.desc}</Text>
+              <View key={src.id} onClick={() => go(`/pages/workshop/index?source=${src.id}`)} style={{ width: 'calc(50% - 6px)', background: theme.bgCard, borderRadius: theme.radiusCard, border: `1px solid ${theme.borderLight}`, cursor: 'pointer', boxShadow: `0 2px 8px ${theme.shadow}`, overflow: 'hidden' }}>
+                <Image src={src.gif} mode='aspectFill' style={{ width: '100%', height: 100, display: 'block' }} />
+                <View style={{ padding: '10px 12px 12px' }}>
+                  <Text style={{ fontSize: 14, fontWeight: 600, color: theme.textPrimary, marginBottom: 3 }}>{src.name}</Text>
+                  <Text style={{ fontSize: 11, color: theme.textSecondary, lineHeight: 1.4 }}>{src.desc}</Text>
                 </View>
               </View>
             ))}
