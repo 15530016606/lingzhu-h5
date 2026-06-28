@@ -92,7 +92,15 @@ export default function IndexPage() {
         <span style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary, marginBottom: 10, display: 'block' }}>灵珠手作</span>
 
         {/* 模块1：采集源 */}
-        <span style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary, marginBottom: 10 }}>选择采集源</span>
+        <div style={{ marginBottom: 10, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <div style={{
+            width: 22, height: 22, borderRadius: '50%',
+            background: '#d4c8a0', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#fff' }}>1</span>
+          </div>
+          <span style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary }}>选择采集源</span>
+        </div>
         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 }}>
           {SOURCES.map(src => (
             <div key={src.id} onClick={() => go(`/pages/scene/index?source=${src.id}`)} style={{ width: 'calc(33.33% - 7px)', padding: '14px 8px 10px', background: theme.bgCard, borderRadius: theme.radiusCard, border: `1px solid ${theme.borderLight}`, cursor: 'pointer', boxShadow: `0 2px 8px ${theme.shadow}`, display: 'flex', flexDirection: 'column', alignItems: 'center', touchAction: 'manipulation' }}>
@@ -122,12 +130,11 @@ export default function IndexPage() {
           {/* 左侧插画 */}
           <div style={{
             width: 130, minHeight: 130, flexShrink: 0,
-            background: 'linear-gradient(135deg, #f0e8d8, #e0d4c0)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            overflow: 'hidden',
+            overflow: 'hidden', background: '#f0e8d8',
           }}>
-            {/* TODO: 替换为 AI 生成的柴犬工坊插画 */}
-            <div style={{ fontSize: 48, opacity: 0.6 }}>🏺</div>
+            <img src="/images/home/thumb_workshop-illustration.png"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
           </div>
           {/* 右侧文字 */}
           <div style={{ flex: 1, padding: '14px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 3 }}>
@@ -164,12 +171,11 @@ export default function IndexPage() {
           {/* 左侧插画 */}
           <div style={{
             width: 130, minHeight: 130, flexShrink: 0,
-            background: 'linear-gradient(135deg, #f0e8d8, #e0d4c0)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            overflow: 'hidden',
+            overflow: 'hidden', background: '#f0e8d8',
           }}>
-            {/* TODO: 替换为 AI 生成的串珠小图标 */}
-            <div style={{ fontSize: 48, opacity: 0.6 }}>📿</div>
+            <img src="/images/home/thumb_bead-stringing-icon.png"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
           </div>
           {/* 右侧文字 */}
           <div style={{ flex: 1, padding: '14px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 3 }}>
