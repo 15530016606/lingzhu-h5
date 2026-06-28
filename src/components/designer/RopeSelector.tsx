@@ -1,5 +1,3 @@
-import { View, Text } from '@tarojs/components'
-
 interface Props {
   value: string
   onChange: (color: string) => void
@@ -15,7 +13,7 @@ const ROPE_OPTIONS = [
 
 export default function RopeSelector({ value, onChange }: Props) {
   return (
-    <View
+    <div
       className="rope-selector"
       style={{
         display: 'flex',
@@ -25,11 +23,11 @@ export default function RopeSelector({ value, onChange }: Props) {
         padding: '4px 12px',
       }}
     >
-      <Text style={{ fontSize: 12, color: '#999' }}>绳色</Text>
+      <span style={{ fontSize: 12, color: '#999' }}>绳色</span>
       {ROPE_OPTIONS.map((opt) => {
         const isActive = value === opt.color
         return (
-          <View
+          <div
             key={opt.color}
             style={{
               width: 24,
@@ -43,7 +41,7 @@ export default function RopeSelector({ value, onChange }: Props) {
             onClick={() => onChange(opt.color)}
           >
             {isActive && (
-              <View
+              <div
                 style={{
                   width: '100%',
                   height: '100%',
@@ -52,7 +50,7 @@ export default function RopeSelector({ value, onChange }: Props) {
                   justifyContent: 'center',
                 }}
               >
-                <View
+                <div
                   style={{
                     width: 6,
                     height: 6,
@@ -60,11 +58,11 @@ export default function RopeSelector({ value, onChange }: Props) {
                     backgroundColor: '#fff',
                   }}
                 />
-              </View>
+              </div>
             )}
-          </View>
+          </div>
         )
       })}
-    </View>
+    </div>
   )
 }

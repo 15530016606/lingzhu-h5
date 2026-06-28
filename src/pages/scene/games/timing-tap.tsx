@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { View, Text } from '@tarojs/components'
 import { playSound, playRareSound, preloadSounds } from '@/lib/sound'
 
 const KF = `
@@ -109,32 +108,32 @@ export default function TimingTap({ source, onEnd, accentColor, bgColor }: { sou
   const progress = (time / TOTAL_TIME) * 100
 
   return (
-    <View style={{ minHeight: '100vh', background: bgColor, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <div style={{ minHeight: '100vh', background: bgColor, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <style>{KF}</style>
 
       {/* 顶部 */}
-      <View style={{
+      <div style={{
         padding: '12px 16px', display: 'flex', flexDirection: 'row', justifyContent: 'space-between',
         alignItems: 'center', background: 'rgba(0,0,0,0.3)',
       }}>
-        <Text style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>
+        <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>
           {currentItem?.openEmoji} x{score}
-        </Text>
-        <Text style={{ fontSize: 14, fontWeight: 700, color: time <= 10 ? '#ff5252' : '#fff' }}>
+        </span>
+        <span style={{ fontSize: 14, fontWeight: 700, color: time <= 10 ? '#ff5252' : '#fff' }}>
           {started ? `${time}s` : ''}
-        </Text>
-      </View>
+        </span>
+      </div>
 
       {/* 进度条 */}
-      <View style={{ height: 3, background: 'rgba(255,255,255,0.1)' }}>
-        <View style={{ width: `${progress}%`, height: '100%', background: accentColor, transition: 'width 1s linear' }} />
-      </View>
+      <div style={{ height: 3, background: 'rgba(255,255,255,0.1)' }}>
+        <div style={{ width: `${progress}%`, height: '100%', background: accentColor, transition: 'width 1s linear' }} />
+      </div>
 
       {/* 游戏区 */}
-      <View style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
         {/* 主物体 */}
         {phase !== 'result' && (
-          <View
+          <div
             onClick={started ? tapItem : startGame}
             style={{
               width: 120, height: 120, borderRadius: 24,
@@ -145,45 +144,45 @@ export default function TimingTap({ source, onEnd, accentColor, bgColor }: { sou
               animation: phase === 'open' ? 't-pulse 0.5s ease-in-out infinite' : 'none',
             }}
           >
-            <Text style={{ fontSize: 52, animation: started ? 't-pop 0.3s ease-out' : 'none' }}>
+            <span style={{ fontSize: 52, animation: started ? 't-pop 0.3s ease-out' : 'none' }}>
               {phase === 'open' ? currentItem?.openEmoji : (currentItem?.closedEmoji || '?')}
-            </Text>
-          </View>
+            </span>
+          </div>
         )}
 
         {/* 提示 */}
         {!started && (
-          <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>
             等待开启的瞬间点击！
-          </Text>
+          </span>
         )}
 
         {/* 连击 */}
         {started && streak >= 3 && (
-          <Text style={{ fontSize: 11, color: accentColor, fontWeight: 600, animation: 't-flash 0.5s ease infinite' }}>
+          <span style={{ fontSize: 11, color: accentColor, fontWeight: 600, animation: 't-flash 0.5s ease infinite' }}>
             连击 x{streak}
-          </Text>
+          </span>
         )}
 
         {/* 结果文字 */}
         {resultText && (
-          <Text style={{
+          <span style={{
             fontSize: 14, fontWeight: 700,
             color: resultText === '完美!' ? accentColor : '#ff5252',
             animation: 't-pop 0.2s ease-out',
           }}>
             {resultText}
-          </Text>
+          </span>
         )}
 
         {/* 结束 */}
         {phase === 'result' && (
-          <View style={{ alignItems: 'center', gap: 8, display: 'flex', flexDirection: 'column' }}>
-            <Text style={{ fontSize: 48 }}>{currentItem?.openEmoji}</Text>
-            <Text style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>接住了 {score} 次！</Text>
-          </View>
+          <div style={{ alignItems: 'center', gap: 8, display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: 48 }}>{currentItem?.openEmoji}</span>
+            <span style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>接住了 {score} 次！</span>
+          </div>
         )}
-      </View>
-    </View>
+      </div>
+    </div>
   )
 }

@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { theme } from '@/lib/theme'
 import { SCENES } from '@/pages/scene/configs'
@@ -147,107 +146,107 @@ export default function ProcessingPage() {
   const pc = results.filter(r => r === 'perfect').length
 
   return (
-    <View style={{ minHeight: '100vh', background: cfg.bgColor, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '28px 20px 20px', gap: 20 }}>
+    <div style={{ minHeight: '100vh', background: cfg.bgColor, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '28px 20px 20px', gap: 20 }}>
       <style>{KF}</style>
 
-      <Text style={{ fontSize: 17, fontWeight: 700, color: theme.textPrimary }}>加工 {rawName}</Text>
-      <Text style={{ fontSize: 10, color: theme.textSecondary }}>{proc.steps.join(' → ')}</Text>
+      <span style={{ fontSize: 17, fontWeight: 700, color: theme.textPrimary }}>加工 {rawName}</span>
+      <span style={{ fontSize: 10, color: theme.textSecondary }}>{proc.steps.join(' → ')}</span>
 
       {/* 原料展示 */}
-      <View style={{
+      <div style={{
         width: 80, height: 80, borderRadius: 18,
         background: `radial-gradient(circle at 40% 35%,${mc.c},${mc.g})`,
         boxShadow: `0 0 24px ${mc.g}66`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         animation: phase === 'moving' ? 'bar-shake 0.25s ease infinite' : 'bar-glow 1.5s ease infinite'
       }}>
-        <Text style={{ fontSize: 30, fontWeight: 900, color: 'rgba(255,255,255,0.85)', textShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
-          {rawName.charAt(0)}</Text>
-      </View>
+        <span style={{ fontSize: 30, fontWeight: 900, color: 'rgba(255,255,255,0.85)', textShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>
+          {rawName.charAt(0)}</span>
+      </div>
 
       {/* 步骤指示 */}
-      <View style={{ display: 'flex', flexDirection: 'row', gap: 8 }}>
+      <div style={{ display: 'flex', flexDirection: 'row', gap: 8 }}>
         {proc.steps.map((s, i) => (
-          <View key={i} style={{
+          <div key={i} style={{
             padding: '3px 12px', borderRadius: 14,
             background: i < step ? mc.g + '66' : i === step ? mc.g : theme.borderLight,
             opacity: i === step ? 1 : .5
           }}>
-            <Text style={{ fontSize: 11, fontWeight: 600, color: i === step ? '#fff' : theme.textSecondary }}>{s}</Text>
-          </View>
+            <span style={{ fontSize: 11, fontWeight: 600, color: i === step ? '#fff' : theme.textSecondary }}>{s}</span>
+          </div>
         ))}
-      </View>
+      </div>
 
       {/* 品质 */}
       {results.length > 0 && (
-        <View style={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
-          {results.map((r, i) => <Text key={i} style={{ fontSize: 16 }}>{r === 'perfect' ? '★' : r === 'good' ? '◎' : '×'}</Text>)}
-        </View>
+        <div style={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
+          {results.map((r, i) => <span key={i} style={{ fontSize: 16 }}>{r === 'perfect' ? '★' : r === 'good' ? '◎' : '×'}</span>)}
+        </div>
       )}
 
       {/* 进度条 */}
-      <View style={{ position: 'relative', width: '85%', height: 50, marginTop: 4 }}>
-        <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 16, borderRadius: 8, background: theme.borderLight, overflow: 'hidden' }}>
-          <View style={{ position: 'absolute', top: 0, left: `${50 - proc.widths[step] / 2}%`, width: `${proc.widths[step]}%`, height: '100%',
+      <div style={{ position: 'relative', width: '85%', height: 50, marginTop: 4 }}>
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 16, borderRadius: 8, background: theme.borderLight, overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', top: 0, left: `${50 - proc.widths[step] / 2}%`, width: `${proc.widths[step]}%`, height: '100%',
             background: `linear-gradient(90deg,${mc.g}88,${mc.g},${mc.g}88)`, borderRadius: 3 }} />
-          <View style={{ position: 'absolute', top: 0, left: `${50 - (proc.widths[step] / 2 + 15)}%`, width: `${proc.widths[step] + 30}%`, height: '100%',
+          <div style={{ position: 'absolute', top: 0, left: `${50 - (proc.widths[step] / 2 + 15)}%`, width: `${proc.widths[step] + 30}%`, height: '100%',
             background: 'rgba(255,255,255,0.1)', borderLeft: '1px dashed rgba(255,255,255,0.2)', borderRight: '1px dashed rgba(255,255,255,0.2)' }} />
-        </View>
-        {phase === 'moving' && <View style={{ position: 'absolute', bottom: 20, left: `${pos}%`, transform: 'translateX(-50%)',
+        </div>
+        {phase === 'moving' && <div style={{ position: 'absolute', bottom: 20, left: `${pos}%`, transform: 'translateX(-50%)',
           width: 3, height: 24, borderRadius: 2, background: '#fff', boxShadow: `0 0 6px ${mc.g}`, transition: 'left .03s linear' }} />}
-        <View style={{ position: 'absolute', top: -2, left: '50%', transform: 'translateX(-50%)' }}>
-          <Text style={{ fontSize: 9, color: mc.g, fontWeight: 600 }}>
+        <div style={{ position: 'absolute', top: -2, left: '50%', transform: 'translateX(-50%)' }}>
+          <span style={{ fontSize: 9, color: mc.g, fontWeight: 600 }}>
             {phase === 'ready' ? '点击开始' : phase === 'moving' ? '就是现在!' : ''}
-          </Text>
-        </View>
-      </View>
+          </span>
+        </div>
+      </div>
 
       {/* 按钮 */}
-      {phase === 'ready' && <View onClick={startMove} onTouchEnd={startMove} style={{ padding: '12px 36px', borderRadius: 25,
-        background: `linear-gradient(135deg,${mc.g},${mc.c})`, cursor: 'pointer', boxShadow: `0 4px 14px ${mc.g}55` }}>
-        <Text style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>开始 {proc.steps[step]}</Text>
-      </View>}
-      {phase === 'moving' && <View onClick={tapBar} onTouchEnd={tapBar} style={{ padding: '12px 36px', borderRadius: 25,
+      {phase === 'ready' && <div onClick={startMove} onTouchEnd={startMove} style={{ padding: '12px 36px', borderRadius: 25,
+        background: `linear-gradient(135deg,${mc.g},${mc.c})`, cursor: 'pointer', boxShadow: `0 4px 14px ${mc.g}55`, touchAction: 'manipulation' }}>
+        <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>开始 {proc.steps[step]}</span>
+      </div>}
+      {phase === 'moving' && <div onClick={tapBar} onTouchEnd={tapBar} style={{ padding: '12px 36px', borderRadius: 25,
         background: `linear-gradient(135deg,${mc.g},${cfg.accentColor})`, cursor: 'pointer', boxShadow: `0 4px 14px ${mc.g}55`,
-        animation: 'bar-glow 0.6s ease infinite' }}>
-        <Text style={{ fontSize: 14, fontWeight: 700, color: '#fff', letterSpacing: 2 }}>{proc.steps[step]}</Text>
-      </View>}
-      {phase === 'result' && <Text style={{ fontSize: 12, color: theme.textSecondary }}>评价中...</Text>}
+        animation: 'bar-glow 0.6s ease infinite', touchAction: 'manipulation' }}>
+        <span style={{ fontSize: 14, fontWeight: 700, color: '#fff', letterSpacing: 2 }}>{proc.steps[step]}</span>
+      </div>}
+      {phase === 'result' && <span style={{ fontSize: 12, color: theme.textSecondary }}>评价中...</span>}
 
       {/* 火花 */}
-      {sparks.map(s => <View key={s.id} style={{ position: 'absolute', left: '50%', top: '32%', width: 4, height: 4, borderRadius: '50%', background: s.color,
+      {sparks.map(s => <div key={s.id} style={{ position: 'absolute', left: '50%', top: '32%', width: 4, height: 4, borderRadius: '50%', background: s.color,
         animation: 'bar-pop 0.3s ease-out forwards', '--dx': `${s.dx}px`, '--dy': `${s.dy}px`, zIndex: 5 } as any} />)}
 
       {/* 完成 */}
       {phase === 'done' && showBead && (
-        <View style={{ alignItems: 'center', gap: 8, display: 'flex', flexDirection: 'column', animation: 'bar-pop 0.4s ease-out' }}>
-          <View style={{
+        <div style={{ alignItems: 'center', gap: 8, display: 'flex', flexDirection: 'column', animation: 'bar-pop 0.4s ease-out' }}>
+          <div style={{
             width: 60, height: 60, borderRadius: '50%',
             background: `radial-gradient(circle at 35% 30%,${mc.c},${mc.g})`,
             boxShadow: `0 0 20px ${mc.g},0 3px 10px rgba(0,0,0,0.12)`
           }} />
-          <Text style={{ fontSize: 15, fontWeight: 700, color: theme.textPrimary }}>{rawName}珠</Text>
-          <View style={{ padding: '2px 10px', borderRadius: 8, background: pc >= 2 ? `${mc.g}44` : theme.borderLight }}>
-            <Text style={{ fontSize: 11, fontWeight: 600, color: pc >= 2 ? mc.g : theme.textSecondary }}>
-              {pc >= 2 ? '稀有品质' : pc >= 1 ? '普通品质' : '粗糙品质'}</Text>
-          </View>
-          <View style={{ display: 'flex', flexDirection: 'row', gap: 10, marginTop: 6 }}>
-            <View onClick={() => Taro.navigateBack()} onTouchEnd={() => Taro.navigateBack()} style={{
+          <span style={{ fontSize: 15, fontWeight: 700, color: theme.textPrimary }}>{rawName}珠</span>
+          <div style={{ padding: '2px 10px', borderRadius: 8, background: pc >= 2 ? `${mc.g}44` : theme.borderLight }}>
+            <span style={{ fontSize: 11, fontWeight: 600, color: pc >= 2 ? mc.g : theme.textSecondary }}>
+              {pc >= 2 ? '稀有品质' : pc >= 1 ? '普通品质' : '粗糙品质'}</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'row', gap: 10, marginTop: 6 }}>
+            <div onClick={() => Taro.navigateBack()} onTouchEnd={() => Taro.navigateBack()} style={{
               padding: '8px 20px', borderRadius: 20, border: `1px solid ${theme.border}`,
-              cursor: 'pointer',
+              cursor: 'pointer', touchAction: 'manipulation',
             }}>
-              <Text style={{ fontSize: 12, color: theme.textPrimary }}>返回采集</Text>
-            </View>
-            <View onClick={() => Taro.switchTab({ url: '/pages/collection/index' })} onTouchEnd={() => Taro.switchTab({ url: '/pages/collection/index' })} style={{
+              <span style={{ fontSize: 12, color: theme.textPrimary }}>返回采集</span>
+            </div>
+            <div onClick={() => Taro.switchTab({ url: '/pages/collection/index' })} onTouchEnd={() => Taro.switchTab({ url: '/pages/collection/index' })} style={{
               padding: '8px 20px', borderRadius: 20,
               background: `linear-gradient(135deg,${theme.primary},${cfg.accentColor})`,
-              cursor: 'pointer',
+              cursor: 'pointer', touchAction: 'manipulation',
             }}>
-              <Text style={{ fontSize: 12, fontWeight: 600, color: '#fff' }}>查看图鉴</Text>
-            </View>
-          </View>
-        </View>
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#fff' }}>查看图鉴</span>
+            </div>
+          </div>
+        </div>
       )}
-    </View>
+    </div>
   )
 }

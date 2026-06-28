@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 import Taro from '@tarojs/taro'
-import { View, Text, ScrollView } from '@tarojs/components'
 import { theme } from '@/lib/theme'
 import { playSound } from '@/lib/sound'
 import BeadPreviewRing from '@/components/designer/BeadPreviewRing'
@@ -67,40 +66,40 @@ export default function DesignerPage() {
   }, [selectedBeads, selectedMeta])
 
   return (
-    <View style={{ minHeight: '100vh', background: theme.bgPage }}>
-      <ScrollView scrollY style={{ flex: 1, padding: '16px' }}>
+    <div style={{ minHeight: '100vh', background: theme.bgPage }}>
+      <div style={{ overflowY: 'auto', flex: 1, padding: '16px' }}>
 
         {/* 预览区域 */}
-        <View style={{
+        <div style={{
           background: theme.bgCard, borderRadius: theme.radiusCard,
           border: `1px solid ${theme.borderLight}`, marginBottom: 16,
           boxShadow: `0 2px 12px ${theme.shadow}`,
         }}>
-          <View style={{ height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px 0' }}>
+          <div style={{ height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px 0' }}>
             {selectedBeads.length > 0 ? (
               <BeadPreviewRing beads={selectedBeads} ropeColor={ropeColor} onRemove={removeBead} />
             ) : (
-              <View style={{ alignItems: 'center', gap: 8, display: 'flex', flexDirection: 'column' }}>
-                <Text style={{ fontSize: 36, opacity: 0.15 }}>📿</Text>
-                <Text style={{ fontSize: 12, color: theme.textDisabled }}>点击下方珠子添加到手串</Text>
-              </View>
+              <div style={{ alignItems: 'center', gap: 8, display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: 36, opacity: 0.15 }}>📿</span>
+                <span style={{ fontSize: 12, color: theme.textDisabled }}>点击下方珠子添加到手串</span>
+              </div>
             )}
-          </View>
+          </div>
           <RopeSelector value={ropeColor} onChange={setRopeColor} />
-          <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: '6px 16px 12px' }}>
-            <Text style={{ fontSize: 11, color: selectedBeads.length >= 2 ? theme.accent : theme.textDisabled }}>
+          <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: '6px 16px 12px' }}>
+            <span style={{ fontSize: 11, color: selectedBeads.length >= 2 ? theme.accent : theme.textDisabled }}>
               已选 {selectedBeads.length}/16 颗
-            </Text>
+            </span>
             {selectedBeads.length > 0 && (
-              <Text onClick={clearAll} onTouchEnd={clearAll} style={{ fontSize: 11, color: '#e05a5a' }}>
+              <span onClick={clearAll} onTouchEnd={clearAll} style={{ fontSize: 11, color: '#e05a5a', cursor: 'pointer', touchAction: 'manipulation' }}>
                 清空
-              </Text>
+              </span>
             )}
-          </View>
-        </View>
+          </div>
+        </div>
 
         {/* 确认按钮 */}
-        <View
+        <div
           onClick={confirmDesign}
           onTouchEnd={confirmDesign}
           style={{
@@ -108,42 +107,43 @@ export default function DesignerPage() {
             background: selectedBeads.length >= 2 ? `linear-gradient(135deg, ${theme.primary}, #c4956a)` : theme.borderLight,
             cursor: selectedBeads.length >= 2 ? 'pointer' : 'default',
             opacity: selectedBeads.length >= 2 ? 1 : 0.5,
+            touchAction: 'manipulation',
           }}
         >
-          <Text style={{ fontSize: 15, fontWeight: 700, color: selectedBeads.length >= 2 ? '#fff' : theme.textDisabled }}>
+          <span style={{ fontSize: 15, fontWeight: 700, color: selectedBeads.length >= 2 ? '#fff' : theme.textDisabled }}>
             确认串好 {selectedBeads.length > 0 ? `(${selectedBeads.length}颗)` : ''}
-          </Text>
-        </View>
+          </span>
+        </div>
 
         {/* 珠子库存 */}
-        <Text style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary, marginBottom: 10 }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary, marginBottom: 10 }}>
           我的珠子 ({inventory.length} 种)
-        </Text>
+        </span>
 
         {inventory.length === 0 ? (
-          <View style={{
+          <div style={{
             padding: 40, alignItems: 'center', background: theme.bgCard,
             borderRadius: theme.radiusCard, border: `1px solid ${theme.borderLight}`,
           }}>
-            <Text style={{ fontSize: 12, color: theme.textDisabled, textAlign: 'center' }}>
+            <span style={{ fontSize: 12, color: theme.textDisabled, textAlign: 'center' }}>
               还没有珠子，先去采集加工吧
-            </Text>
-            <View
+            </span>
+            <div
               onClick={() => Taro.navigateBack()}
               style={{
                 marginTop: 12, padding: '8px 24px', borderRadius: 20,
-                background: theme.primary, cursor: 'pointer',
+                background: theme.primary, cursor: 'pointer', touchAction: 'manipulation',
               }}
             >
-              <Text style={{ fontSize: 12, fontWeight: 600, color: '#fff' }}>返回首页</Text>
-            </View>
-          </View>
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#fff' }}>返回首页</span>
+            </div>
+          </div>
         ) : (
-          <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {inventory.map((item, i) => {
               const color = COLORS[item.material] || '#a0c4ff'
               return (
-                <View
+                <div
                   key={item.id}
                   onClick={() => addBead(item)}
                   onTouchEnd={() => addBead(item)}
@@ -152,31 +152,31 @@ export default function DesignerPage() {
                     background: theme.bgCard, borderRadius: 12,
                     border: `1px solid ${theme.borderLight}`,
                     display: 'flex', flexDirection: 'column', alignItems: 'center',
-                    gap: 4, cursor: 'pointer',
+                    gap: 4, cursor: 'pointer', touchAction: 'manipulation',
                   }}
                 >
-                  <View style={{
+                  <div style={{
                     width: 40, height: 40, borderRadius: '50%',
                     background: `radial-gradient(circle at 35% 30%, ${color}88, ${color})`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     boxShadow: `0 2px 8px ${color}44`,
                   }}>
-                    <Text style={{ fontSize: 12, color: '#fff', fontWeight: 700 }}>
+                    <span style={{ fontSize: 12, color: '#fff', fontWeight: 700 }}>
                       {item.name.charAt(0)}
-                    </Text>
-                  </View>
-                  <Text style={{ fontSize: 10, color: theme.textPrimary, textAlign: 'center', lineHeight: 1.2 }}>
+                    </span>
+                  </div>
+                  <span style={{ fontSize: 10, color: theme.textPrimary, textAlign: 'center', lineHeight: 1.2 }}>
                     {item.name}
-                  </Text>
-                  <Text style={{ fontSize: 9, color: theme.textSecondary }}>
+                  </span>
+                  <span style={{ fontSize: 9, color: theme.textSecondary }}>
                     {item.quality} · x{item.count}
-                  </Text>
-                </View>
+                  </span>
+                </div>
               )
             })}
-          </View>
+          </div>
         )}
-      </ScrollView>
-    </View>
+      </div>
+    </div>
   )
 }

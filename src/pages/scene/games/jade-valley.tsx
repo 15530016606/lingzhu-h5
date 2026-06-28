@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { View, Text } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { theme } from '@/lib/theme'
 import { SCENES } from '@/pages/scene/configs'
@@ -119,32 +118,32 @@ export default function JadeValleyGame({ onComplete }: { onComplete: (material: 
   }, [state, onComplete, startGame])
 
   return (
-    <View style={{ minHeight: '100vh', background: cfg.bgColor, overflow: 'hidden' }}>
+    <div style={{ minHeight: '100vh', background: cfg.bgColor, overflow: 'hidden' }}>
       <style>{KF}</style>
 
-      <View style={{
+      <div style={{
         position: 'relative', width: '100%', height: '100vh',
         animation: shaking ? 'g-shake 0.3s ease' : 'none',
       }}>
         {/* 水底背景 */}
-        <View style={{
+        <div style={{
           position: 'absolute', inset: 0,
           background: `linear-gradient(180deg, ${cfg.bgColor}, #d4e8e8, ${cfg.bgColor})`,
         }} />
 
         {/* 场景信息 */}
-        <View style={{ position: 'absolute', top: 12, left: 12, right: 12, zIndex: 10 }}>
-          <Text style={{ fontSize: 18, fontWeight: 700, color: theme.textPrimary, textShadow: '0 1px 4px rgba(255,255,255,0.5)' }}>{cfg.name}</Text>
+        <div style={{ position: 'absolute', top: 12, left: 12, right: 12, zIndex: 10 }}>
+          <span style={{ fontSize: 18, fontWeight: 700, color: theme.textPrimary, textShadow: '0 1px 4px rgba(255,255,255,0.5)' }}>{cfg.name}</span>
           {state === 'intro' && (
-            <Text style={{ fontSize: 11, color: theme.textSecondary, marginTop: 4 }}>点一下水里的石头，捞起来看看是不是玉</Text>
+            <span style={{ fontSize: 11, color: theme.textSecondary, marginTop: 4 }}>点一下水里的石头，捞起来看看是不是玉</span>
           )}
-        </View>
+        </div>
 
         {/* 水面波纹 */}
-        <View style={{ position: 'absolute', top: '15%', left: 0, right: 0, height: '70%', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: '15%', left: 0, right: 0, height: '70%', overflow: 'hidden' }}>
           {/* 波纹线条 */}
           {[0, 1, 2].map(i => (
-            <View key={i} style={{
+            <div key={i} style={{
               position: 'absolute', top: `${20 + i * 25}%`, left: 0, right: 0,
               height: 1, background: 'rgba(255,255,255,0.3)',
               transform: `translateY(${Math.sin(Date.now() / 1000 + i) * 3}px)`,
@@ -153,7 +152,7 @@ export default function JadeValleyGame({ onComplete }: { onComplete: (material: 
 
           {/* 流动的石头 */}
           {state === 'play' && stones.map(s => (
-            <View
+            <div
               key={s.animId}
               onClick={() => tapStone(s)}
               style={{
@@ -161,17 +160,17 @@ export default function JadeValleyGame({ onComplete }: { onComplete: (material: 
                 width: s.size, height: s.size, borderRadius: '50%',
                 background: `radial-gradient(circle at 40% 35%, ${s.color}, ${s.color}dd)`,
                 boxShadow: s.isJade ? `0 0 10px ${s.glow || s.glowColor}` : `0 0 4px ${s.glow}`,
-                cursor: 'pointer', zIndex: 5,
+                cursor: 'pointer', zIndex: 5, touchAction: 'manipulation',
                 animation: `g-flow ${s.speed ? (100 - s.speed + 3) : 5}s linear forwards`,
                 transform: 'translate(-50%, -50%)',
               }}
             />
           ))}
-        </View>
+        </div>
 
         {/* 粒子 */}
         {sparks.map(p => (
-          <View key={p.id} style={{
+          <div key={p.id} style={{
             position: 'absolute', left: '50%', bottom: '40%',
             width: 5, height: 5, borderRadius: '50%', background: p.color,
             animation: `g-spark 0.4s ease-out forwards`,
@@ -181,41 +180,42 @@ export default function JadeValleyGame({ onComplete }: { onComplete: (material: 
 
         {/* 开始按钮 */}
         {state === 'intro' && (
-          <View style={{ position: 'absolute', bottom: '30%', left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-            <Text style={{ fontSize: 11, color: theme.textSecondary, textAlign: 'center', lineHeight: 1.6 }}>
+          <div style={{ position: 'absolute', bottom: '30%', left: '50%', transform: 'translateX(-50%)', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 11, color: theme.textSecondary, textAlign: 'center', lineHeight: 1.6 }}>
               石头从上游流下来{'\n'}手指点一下捞起来看看
-            </Text>
-            <View
+            </span>
+            <div
               onClick={() => startGame()}
               style={{
                 padding: '12px 36px', borderRadius: theme.radiusBtn,
                 background: `linear-gradient(135deg, ${cfg.accentColor}, ${theme.primary})`,
                 cursor: 'pointer', boxShadow: `0 4px 16px ${cfg.accentColor}55`,
+                touchAction: 'manipulation',
               }}
             >
-              <Text style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>开始捡石</Text>
-            </View>
-          </View>
+              <span style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>开始捡石</span>
+            </div>
+          </div>
         )}
 
         {/* 结果 */}
         {state === 'result' && result && (
-          <View style={{ position: 'absolute', top: '40%', left: 0, right: 0, alignItems: 'center', zIndex: 20, animation: 'g-pop 0.4s ease-out' }}>
-            <View style={{ width: 72, height: 72, borderRadius: 20, background: `radial-gradient(circle, ${JADE_TYPES.find(j => j.id === result.id)?.color || '#e8e0d0'}, ${JADE_TYPES.find(j => j.id === result.id)?.glow || '#d4c8a0'})`, boxShadow: `0 0 24px ${JADE_TYPES.find(j => j.id === result.id)?.glow || '#d4c8a0'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
-              <Text style={{ fontSize: 22, fontWeight: 900, color: '#fff', textShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>{result.name.charAt(0)}</Text>
-            </View>
-            <Text style={{ fontSize: 15, fontWeight: 700, color: theme.textPrimary }}>获得 {result.name} 原石</Text>
-          </View>
+          <div style={{ position: 'absolute', top: '40%', left: 0, right: 0, alignItems: 'center', zIndex: 20, animation: 'g-pop 0.4s ease-out' }}>
+            <div style={{ width: 72, height: 72, borderRadius: 20, background: `radial-gradient(circle, ${JADE_TYPES.find(j => j.id === result.id)?.color || '#e8e0d0'}, ${JADE_TYPES.find(j => j.id === result.id)?.glow || '#d4c8a0'})`, boxShadow: `0 0 24px ${JADE_TYPES.find(j => j.id === result.id)?.glow || '#d4c8a0'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
+              <span style={{ fontSize: 22, fontWeight: 900, color: '#fff', textShadow: '0 2px 6px rgba(0,0,0,0.2)' }}>{result.name.charAt(0)}</span>
+            </div>
+            <span style={{ fontSize: 15, fontWeight: 700, color: theme.textPrimary }}>获得 {result.name} 原石</span>
+          </div>
         )}
 
         {/* 角色 */}
-        <View style={{ position: 'absolute', bottom: 16, left: 16, zIndex: 10, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <View style={{ width: 44, height: 44, borderRadius: 14, overflow: 'hidden', border: '2px solid rgba(255,255,255,0.6)', background: '#fff' }}>
+        <div style={{ position: 'absolute', bottom: 16, left: 16, zIndex: 10, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 14, overflow: 'hidden', border: '2px solid rgba(255,255,255,0.6)', background: '#fff' }}>
             <img src={cfg.characterGif} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          </View>
-          <Text style={{ fontSize: 11, color: theme.textSecondary }}>小熊</Text>
-        </View>
-      </View>
-    </View>
+          </div>
+          <span style={{ fontSize: 11, color: theme.textSecondary }}>小熊</span>
+        </div>
+      </div>
+    </div>
   )
 }

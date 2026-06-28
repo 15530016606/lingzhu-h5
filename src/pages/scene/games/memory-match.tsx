@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { View, Text } from '@tarojs/components'
 import { playSound, playRareSound, preloadSounds } from '@/lib/sound'
 
 const KF = `
@@ -171,36 +170,37 @@ export default function MemoryMatch({ source, onEnd, accentColor, bgColor }: { s
   const progress = (time / TOTAL_TIME) * 100
 
   return (
-    <View style={{ minHeight: '100vh', background: bgColor, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 12px' }}>
+    <div style={{ minHeight: '100vh', background: bgColor, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 12px' }}>
       <style>{KF}</style>
       {/* 顶部信息 */}
-      <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, padding: '0 4px' }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, display: 'flex' }}>
-          <Text style={{ fontSize: 17 }}>{cardsData[0]?.emoji || '💎'}</Text>
-          <Text style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>配对比分</Text>
-        </View>
-        <Text style={{ fontSize: 24, fontWeight: 700, color: '#fff' }}>{score}/6</Text>
-      </View>
+      <div style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, padding: '0 4px' }}>
+        <div style={{ flexDirection: 'row', alignItems: 'center', gap: 6, display: 'flex' }}>
+          <span style={{ fontSize: 17 }}>{cardsData[0]?.emoji || '💎'}</span>
+          <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>配对比分</span>
+        </div>
+        <span style={{ fontSize: 24, fontWeight: 700, color: '#fff' }}>{score}/6</span>
+      </div>
       {/* 进度条 */}
-      <View style={{ width: '100%', height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', marginBottom: 16 }}>
-        <View style={{ width: `${progress}%`, height: '100%', borderRadius: 2, background: accentColor, transition: 'width 1s linear' }} />
-      </View>
+      <div style={{ width: '100%', height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', marginBottom: 16 }}>
+        <div style={{ width: `${progress}%`, height: '100%', borderRadius: 2, background: accentColor, transition: 'width 1s linear' }} />
+      </div>
       {/* 卡牌网格：响应式 4x3 */}
-      <View style={{ width: '100%', maxWidth: 360, display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
+      <div style={{ width: '100%', maxWidth: 360, display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
         {cards.map((card, i) => {
           const isFlipped = flipped.includes(i) || matched.includes(i)
           const isMatched = matched.includes(i)
           return (
-            <View key={i} onClick={() => handleTap(i)}
+            <div key={i} onClick={() => handleTap(i)}
               style={{
                 width: 'calc(25% - 6px)', aspectRatio: '1', borderRadius: 10,
                 cursor: 'pointer', position: 'relative', perspective: 600,
                 opacity: isMatched ? 0 : 1,
                 transition: 'opacity 0.3s',
                 animation: isMatched ? 'match-pop 0.4s ease-out forwards' : undefined,
+                touchAction: 'manipulation',
               }}
             >
-              <View style={{
+              <div style={{
                 width: '100%', height: '100%', borderRadius: 10,
                 background: isFlipped ? card.color + '33' : accentColor + '44',
                 border: `2px solid ${isFlipped ? card.color + '88' : 'rgba(255,255,255,0.1)'}`,
@@ -211,19 +211,19 @@ export default function MemoryMatch({ source, onEnd, accentColor, bgColor }: { s
                 transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0)',
               }}>
                 {isFlipped ? (
-                  <Text style={{ fontSize: 28, animation: 'bounce-in 0.3s ease-out' }}>{card.emoji}</Text>
+                  <span style={{ fontSize: 28, animation: 'bounce-in 0.3s ease-out' }}>{card.emoji}</span>
                 ) : (
-                  <Text style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }}>?</Text>
+                  <span style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }}>?</span>
                 )}
-              </View>
-            </View>
+              </div>
+            </div>
           )
         })}
-      </View>
+      </div>
       {/* 计时 */}
-      <Text style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 16 }}>
+      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 16 }}>
         {started ? `${time}秒` : '点击卡片开始'}
-      </Text>
-    </View>
+      </span>
+    </div>
   )
 }

@@ -1,5 +1,4 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
-import { View, Image } from '@tarojs/components'
 import { BeadProduct } from '../../data/bead-products'
 
 interface Props {
@@ -202,7 +201,7 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder,
   const scale = neededTotal > 0 && maxFit > 0 ? Math.min(1, maxFit / neededTotal * 0.92) : 1
 
   return (
-    <View
+    <div
       ref={containerRef}
       className="bracelet-preview"
       style={{
@@ -216,7 +215,7 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder,
         transform: `rotate(0deg) scale(${scale.toFixed(4)})`,
       }}
     >
-      <View className="rope-circle" style={{
+      <div className="rope-circle" style={{
         position: 'absolute', top: '50%', left: '50%',
         width: ropeSize, height: ropeSize, borderRadius: '50%',
         border: `${ROPE_WIDTH}px solid ${ropeColor}`,
@@ -224,7 +223,7 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder,
         boxSizing: 'content-box', zIndex: 1,
       }} />
 
-      <View
+      <div
         ref={ringRef}
         className={`bracelet-ring${count > 0 ? ' has-beads' : ''}`}
         style={{
@@ -260,7 +259,7 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder,
           }
 
           return (
-            <View
+            <div
               key={bead._key || bead.id}
               className={`bead-item${shouldAnimate ? ' bead-adding bead-fly-in' : ''}${bead.type === 'accessory' ? ' bead-accessory' : ''}`}
               data-index={i}
@@ -288,11 +287,11 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder,
                 }
               }}
             >
-              <View className="bead-light-layer" style={{
+              <div className="bead-light-layer" style={{
                 position: 'absolute', inset: 0, pointerEvents: 'none',
                 borderRadius: 'inherit', zIndex: 2,
               }}>
-                <View className="bead-highlight-dot" style={{
+                <div className="bead-highlight-dot" style={{
                   position: 'absolute', left: '50%', top: '50%', borderRadius: '50%',
                   pointerEvents: 'none',
                   width: 'var(--bead-highlight-dot-width, 11px)',
@@ -301,10 +300,9 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder,
                   background: 'radial-gradient(ellipse at center,rgba(255,255,255,var(--bead-highlight-dot-alpha,.95)) 0% 58%,rgba(255,255,255,calc(var(--bead-highlight-dot-alpha,.95) * .36)) 84%,#fff0)',
                   filter: 'blur(0.1px)', boxShadow: 'rgba(255,255,255,0.28) 0px 0px 0.9px',
                 }} />
-              </View>
-              <Image
+              </div>
+              <img
                 src={`/images/beads/${bead.imageUrl}`}
-                mode="aspectFit"
                 style={{
                   width: '100%', height: '100%', objectFit: 'contain',
                   borderRadius: bead.type === 'accessory' ? 0 : '50%',
@@ -313,10 +311,10 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder,
                   backgroundColor: bead.type === 'accessory' ? 'transparent' : '#f5f5f5',
                 }}
               />
-            </View>
+            </div>
           )
         })}
-      </View>
-    </View>
+      </div>
+    </div>
   )
 }

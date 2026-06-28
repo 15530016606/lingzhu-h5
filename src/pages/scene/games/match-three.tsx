@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { View, Text } from '@tarojs/components'
 import { playSound, preloadSounds } from '@/lib/sound'
 
 const KF = `
@@ -189,41 +188,41 @@ export default function MatchThree({source,onEnd,accentColor,bgColor}:{source:st
   },[grid,selected,time,processMatches])
 
   if(!started)return(
-    <View style={{minHeight:'100vh',background:bgColor,display:'flex',alignItems:'center',justifyContent:'center'}}>
+    <div style={{minHeight:'100vh',background:bgColor,display:'flex',alignItems:'center',justifyContent:'center'}}>
       <style>{KF}</style>
-      <View style={{alignItems:'center',gap:12,display:'flex',flexDirection:'column',padding:24}}>
-        <Text style={{fontSize:22,fontWeight:700,color:'#4A382C'}}>水晶消消乐</Text>
-        <Text style={{fontSize:12,color:'#928370',textAlign:'center',lineHeight:1.6}}>6x6 三连消除{'\n'}40 秒看你能消多少</Text>
-        <View onClick={init} style={{marginTop:20,padding:'14px 40px',borderRadius:25,
-          background:`linear-gradient(135deg,${accentColor},#6a5080)`,cursor:'pointer'}}>
-          <Text style={{fontSize:15,fontWeight:700,color:'#fff'}}>开始游戏</Text>
-        </View>
-      </View>
-    </View>
+      <div style={{alignItems:'center',gap:12,display:'flex',flexDirection:'column',padding:24}}>
+        <span style={{fontSize:22,fontWeight:700,color:'#4A382C'}}>水晶消消乐</span>
+        <span style={{fontSize:12,color:'#928370',textAlign:'center',lineHeight:1.6}}>6x6 三连消除{'\n'}40 秒看你能消多少</span>
+        <div onClick={init} style={{marginTop:20,padding:'14px 40px',borderRadius:25,
+          background:`linear-gradient(135deg,${accentColor},#6a5080)`,cursor:'pointer',touchAction:'manipulation'}}>
+          <span style={{fontSize:15,fontWeight:700,color:'#fff'}}>开始游戏</span>
+        </div>
+      </div>
+    </div>
   )
 
   return(
-    <View style={{minHeight:'100vh',background:'#1a1520',display:'flex',flexDirection:'column'}}>
+    <div style={{minHeight:'100vh',background:'#1a1520',display:'flex',flexDirection:'column'}}>
       <style>{KF}</style>
-      <View style={{padding:'14px 16px 8px',display:'flex',flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
-        <Text style={{fontSize:15,fontWeight:700,color:'#f0e8d0'}}>消消乐</Text>
-        <View style={{display:'flex',flexDirection:'row',gap:16,alignItems:'center'}}>
-          <Text style={{fontSize:13,color:'#f0e8d0'}}>{score*10}分</Text>
-          <View style={{padding:'4px 10px',borderRadius:12,background:time<=10?'rgba(255,80,80,0.3)':'rgba(255,255,255,0.1)'}}>
-            <Text style={{fontSize:13,fontWeight:700,color:time<=10?'#ff5050':'#f0e8d0'}}>{time}s</Text>
-          </View>
-        </View>
-      </View>
-      <View style={{margin:'0 16px 10px',height:3,borderRadius:2,background:'rgba(255,255,255,0.08)',overflow:'hidden'}}>
-        <View style={{height:'100%',borderRadius:2,background:`linear-gradient(90deg,${accentColor},#f0e8d0)`,
+      <div style={{padding:'14px 16px 8px',display:'flex',flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
+        <span style={{fontSize:15,fontWeight:700,color:'#f0e8d0'}}>消消乐</span>
+        <div style={{display:'flex',flexDirection:'row',gap:16,alignItems:'center'}}>
+          <span style={{fontSize:13,color:'#f0e8d0'}}>{score*10}分</span>
+          <div style={{padding:'4px 10px',borderRadius:12,background:time<=10?'rgba(255,80,80,0.3)':'rgba(255,255,255,0.1)'}}>
+            <span style={{fontSize:13,fontWeight:700,color:time<=10?'#ff5050':'#f0e8d0'}}>{time}s</span>
+          </div>
+        </div>
+      </div>
+      <div style={{margin:'0 16px 10px',height:3,borderRadius:2,background:'rgba(255,255,255,0.08)',overflow:'hidden'}}>
+        <div style={{height:'100%',borderRadius:2,background:`linear-gradient(90deg,${accentColor},#f0e8d0)`,
           width:`${(time/TOTAL)*100}%`,transition:'width 1s linear'}}/>
-      </View>
-      <View style={{padding:'4px 16px',display:'flex',flexDirection:'column',alignItems:'center',flex:1,justifyContent:'center'}}>
-        <View style={{width:'100%',maxWidth:330,aspectRatio:'1/1',display:'flex',flexDirection:'column',gap:2}}>
+      </div>
+      <div style={{padding:'4px 16px',display:'flex',flexDirection:'column',alignItems:'center',flex:1,justifyContent:'center'}}>
+        <div style={{width:'100%',maxWidth:330,aspectRatio:'1/1',display:'flex',flexDirection:'column',gap:2}}>
         {grid.map((row,r)=>(
-          <View key={r} style={{display:'flex',flexDirection:'row',gap:2,flex:1}}>
+          <div key={r} style={{display:'flex',flexDirection:'row',gap:2,flex:1}}>
             {row.map((v,c)=>(
-              <View key={c} onClick={()=>tapCell(r,c)} style={{
+              <div key={c} onClick={()=>tapCell(r,c)} style={{
                 flex:1,aspectRatio:'1/1',maxWidth:52,maxHeight:52,
                 borderRadius:6,overflow:'hidden',cursor:'pointer',
                 border:selected&&selected[0]===r&&selected[1]===c?`2px solid ${gems[v]?.color||'#fff'}`:'1px solid rgba(255,255,255,0.06)',
@@ -232,17 +231,18 @@ export default function MatchThree({source,onEnd,accentColor,bgColor}:{source:st
                 animation:removing.has(`${r},${c}`)?'m3-pop 0.25s ease-out forwards':
                   shake&&shake[0]===r&&shake[1]===c?'m3-shake 0.2s ease':'none',
                 opacity:v<0?0:1,
+                touchAction:'manipulation',
               }}>
                 {v>=0&&<span style={{fontSize:28}}>{gems[v].emoji}</span>}
-              </View>
+              </div>
             ))}
-          </View>
+          </div>
         ))}
-        </View>
-      </View>
-      <View style={{padding:'8px 16px',alignItems:'center'}}>
-        <Text style={{fontSize:9,color:'rgba(255,255,255,0.15)'}}>点两个相邻宝石交换 三连消除</Text>
-      </View>
-    </View>
+        </div>
+      </div>
+      <div style={{padding:'8px 16px',alignItems:'center'}}>
+        <span style={{fontSize:9,color:'rgba(255,255,255,0.15)'}}>点两个相邻宝石交换 三连消除</span>
+      </div>
+    </div>
   )
 }

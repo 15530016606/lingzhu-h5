@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { View, Text } from '@tarojs/components'
 import { playSound, playRareSound, preloadSounds } from '@/lib/sound'
 
 const KF = `
@@ -128,47 +127,47 @@ export default function StackMatch({onEnd,accentColor,bgColor}:{onEnd:(s:number)
   },[layers,slot,time,matching,score,isTopVisible,onEnd])
 
   if(!started)return(
-    <View style={{minHeight:'100vh',background:bgColor,display:'flex',alignItems:'center',justifyContent:'center'}}>
+    <div style={{minHeight:'100vh',background:bgColor,display:'flex',alignItems:'center',justifyContent:'center'}}>
       <style>{KF}</style>
-      <View style={{alignItems:'center',gap:12,display:'flex',flexDirection:'column',padding:24}}>
-        <Text style={{fontSize:22,fontWeight:700,color:'#4A382C'}}>水晶叠叠乐</Text>
-        <Text style={{fontSize:12,color:'#928370',textAlign:'center',lineHeight:1.6}}>3 层叠牌 集 3 张相同消除{'\n'}槽满 7 格则失败</Text>
-        <View onClick={init} style={{marginTop:20,padding:'14px 40px',borderRadius:25,
-          background:`linear-gradient(135deg,${accentColor},#6a5080)`,cursor:'pointer'}}>
-          <Text style={{fontSize:15,fontWeight:700,color:'#fff'}}>开始游戏</Text>
-        </View>
-      </View>
-    </View>
+      <div style={{alignItems:'center',gap:12,display:'flex',flexDirection:'column',padding:24}}>
+        <span style={{fontSize:22,fontWeight:700,color:'#4A382C'}}>水晶叠叠乐</span>
+        <span style={{fontSize:12,color:'#928370',textAlign:'center',lineHeight:1.6}}>3 层叠牌 集 3 张相同消除{'\n'}槽满 7 格则失败</span>
+        <div onClick={init} style={{marginTop:20,padding:'14px 40px',borderRadius:25,
+          background:`linear-gradient(135deg,${accentColor},#6a5080)`,cursor:'pointer',touchAction:'manipulation'}}>
+          <span style={{fontSize:15,fontWeight:700,color:'#fff'}}>开始游戏</span>
+        </div>
+      </div>
+    </div>
   )
 
   // 计算已消除的组数
   return(
-    <View style={{minHeight:'100vh',background:'#1a1520',display:'flex',flexDirection:'column'}}>
+    <div style={{minHeight:'100vh',background:'#1a1520',display:'flex',flexDirection:'column'}}>
       <style>{KF}</style>
-      <View style={{padding:'14px 16px 8px',display:'flex',flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
-        <Text style={{fontSize:15,fontWeight:700,color:'#f0e8d0'}}>叠叠乐</Text>
-        <View style={{display:'flex',flexDirection:'row',gap:16,alignItems:'center'}}>
-          <Text style={{fontSize:13,color:'#f0e8d0'}}>{score}/7 组</Text>
-          <View style={{padding:'4px 10px',borderRadius:12,background:time<=10?'rgba(255,80,80,0.3)':'rgba(255,255,255,0.1)'}}>
-            <Text style={{fontSize:13,fontWeight:700,color:time<=10?'#ff5050':'#f0e8d0'}}>{time}s</Text>
-          </View>
-        </View>
-      </View>
-      <View style={{margin:'0 16px 10px',height:3,borderRadius:2,background:'rgba(255,255,255,0.08)',overflow:'hidden'}}>
-        <View style={{height:'100%',borderRadius:2,background:`linear-gradient(90deg,${accentColor},#f0e8d0)`,
+      <div style={{padding:'14px 16px 8px',display:'flex',flexDirection:'row',justifyContent:'space-between',alignItems:'center'}}>
+        <span style={{fontSize:15,fontWeight:700,color:'#f0e8d0'}}>叠叠乐</span>
+        <div style={{display:'flex',flexDirection:'row',gap:16,alignItems:'center'}}>
+          <span style={{fontSize:13,color:'#f0e8d0'}}>{score}/7 组</span>
+          <div style={{padding:'4px 10px',borderRadius:12,background:time<=10?'rgba(255,80,80,0.3)':'rgba(255,255,255,0.1)'}}>
+            <span style={{fontSize:13,fontWeight:700,color:time<=10?'#ff5050':'#f0e8d0'}}>{time}s</span>
+          </div>
+        </div>
+      </div>
+      <div style={{margin:'0 16px 10px',height:3,borderRadius:2,background:'rgba(255,255,255,0.08)',overflow:'hidden'}}>
+        <div style={{height:'100%',borderRadius:2,background:`linear-gradient(90deg,${accentColor},#f0e8d0)`,
           width:`${(time/TOTAL)*100}%`,transition:'width 1s linear'}}/>
-      </View>
+      </div>
 
       {/* 叠牌区 */}
-      <View style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
-        <View style={{position:'relative',width:'80vw',height:'80vw',maxWidth:300,maxHeight:300}}>
+      <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',padding:16}}>
+        <div style={{position:'relative',width:'80vw',height:'80vw',maxWidth:300,maxHeight:300}}>
           {layers.map((layer,li)=>layer.map(card=>{
             if(card.removed)return null
             const visible=isTopVisible(card,layers)
             const offset=li*8
             const cw=60-offset*0.3
             return(
-              <View key={card.id} onClick={()=>tapCard(card)} style={{
+              <div key={card.id} onClick={()=>tapCard(card)} style={{
                 position:'absolute',
                 left:`${8+card.col*30+offset-offset*0.2}px`,top:`${8+card.row*30+offset-offset*0.2}px`,
                 width:cw,height:cw,borderRadius:8,overflow:'hidden',cursor:visible?'pointer':'default',
@@ -178,25 +177,26 @@ export default function StackMatch({onEnd,accentColor,bgColor}:{onEnd:(s:number)
                 zIndex:li*10+card.row,
                 opacity:visible?1:0.25,
                 animation:'s-pop 0.2s ease-out',
+                touchAction:'manipulation',
               }}>
                 {visible&&<img src={`/images/scenes/thumbs/thumb_${GEMS[card.gem].img}`} style={{width:'70%',height:'70%',objectFit:'contain'}}/>}
-              </View>
+              </div>
             )
           }))}
-        </View>
-      </View>
+        </div>
+      </div>
 
       {/* 槽位 */}
-      <View style={{padding:'8px 20px',display:'flex',flexDirection:'column',alignItems:'center',gap:6}}>
-        <Text style={{fontSize:9,color:'rgba(255,255,255,0.2)'}}>收集槽 ({slot.length}/{MAX_SLOT})</Text>
-        <View style={{
+      <div style={{padding:'8px 20px',display:'flex',flexDirection:'column',alignItems:'center',gap:6}}>
+        <span style={{fontSize:9,color:'rgba(255,255,255,0.2)'}}>收集槽 ({slot.length}/{MAX_SLOT})</span>
+        <div style={{
           width:'100%',height:48,borderRadius:10,
           background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',
           display:'flex',flexDirection:'row',gap:2,padding:'4px 6px',alignItems:'center',
           animation:shaking?'s-shake 0.3s ease':'none',
         }}>
           {Array.from({length:MAX_SLOT}).map((_,i)=>(
-            <View key={i} style={{
+            <div key={i} style={{
               width:40,height:40,borderRadius:6,overflow:'hidden',
               background:slot[i]!==undefined?`${GEMS[slot[i]].color}33`:'rgba(255,255,255,0.03)',
               border:slot[i]!==undefined?`1px solid ${GEMS[slot[i]].color}44`:'1px solid rgba(255,255,255,0.04)',
@@ -204,14 +204,14 @@ export default function StackMatch({onEnd,accentColor,bgColor}:{onEnd:(s:number)
               animation:slot[i]!==undefined?'s-pop 0.2s ease-out':'none',
             }}>
               {slot[i]!==undefined&&<span style={{fontSize:22}}>{GEMS[slot[i]].emoji}</span>}
-            </View>
+            </div>
           ))}
-        </View>
-      </View>
+        </div>
+      </div>
 
-      <View style={{padding:'6px 16px 10px',alignItems:'center'}}>
-        <Text style={{fontSize:9,color:'rgba(255,255,255,0.15)'}}>点卡收集 3 张相同消除</Text>
-      </View>
-    </View>
+      <div style={{padding:'6px 16px 10px',alignItems:'center'}}>
+        <span style={{fontSize:9,color:'rgba(255,255,255,0.15)'}}>点卡收集 3 张相同消除</span>
+      </div>
+    </div>
   )
 }

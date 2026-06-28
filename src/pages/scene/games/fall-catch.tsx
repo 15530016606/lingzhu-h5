@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { View, Text } from '@tarojs/components'
 import { playSound, playRareSound, preloadSounds } from '@/lib/sound'
 
 const KF = `
@@ -135,40 +134,41 @@ export default function FallCatch({ source, onEnd, accentColor, bgColor }: { sou
   const progress = (time / TOTAL_TIME) * 100
 
   return (
-    <View style={{ minHeight: '100vh', background: bgColor, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <div style={{ minHeight: '100vh', background: bgColor, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <style>{KF}</style>
 
       {/* 顶部信息 */}
-      <View style={{
+      <div style={{
         padding: '12px 16px', display: 'flex', flexDirection: 'row', justifyContent: 'space-between',
         alignItems: 'center', background: 'rgba(0,0,0,0.3)',
       }}>
-        <Text style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>
+        <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>
           {items[0]?.emoji} 收集 {score}
-        </Text>
-        <Text style={{ fontSize: 14, fontWeight: 700, color: time <= 10 ? '#ff5252' : '#fff' }}>
+        </span>
+        <span style={{ fontSize: 14, fontWeight: 700, color: time <= 10 ? '#ff5252' : '#fff' }}>
           {started ? `${time}s` : ''}
-        </Text>
-      </View>
+        </span>
+      </div>
 
       {/* 进度条 */}
-      <View style={{ height: 3, background: 'rgba(255,255,255,0.1)' }}>
-        <View style={{ width: `${progress}%`, height: '100%', background: accentColor, transition: 'width 1s linear' }} />
-      </View>
+      <div style={{ height: 3, background: 'rgba(255,255,255,0.1)' }}>
+        <div style={{ width: `${progress}%`, height: '100%', background: accentColor, transition: 'width 1s linear' }} />
+      </div>
 
       {/* 游戏区 */}
-      <View
+      <div
         onClick={started ? handleMiss : startGame}
         style={{
           flex: 1, position: 'relative', overflow: 'hidden',
           background: missFlash ? 'rgba(255,255,255,0.08)' : 'transparent',
           transition: 'background 0.1s',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
+          touchAction: 'manipulation',
         }}
       >
         {/* 掉落物 */}
         {falling.map(item => (
-          <View key={item.id}
+          <div key={item.id}
             onClick={(e) => { e.stopPropagation(); catchItem(item) }}
             style={{
               position: 'absolute', left: `${item.x}%`, top: '-10px',
@@ -176,28 +176,29 @@ export default function FallCatch({ source, onEnd, accentColor, bgColor }: { sou
               animation: item.caught ? 'f-pop 0.3s ease-out forwards' : `f-fall ${item.speed}s linear`,
               opacity: item.caught ? 0 : 1,
               zIndex: 10, cursor: 'pointer',
+              touchAction: 'manipulation',
             }}
           >
-            <Text style={{ fontSize: 32 }}>{item.emoji}</Text>
-          </View>
+            <span style={{ fontSize: 32 }}>{item.emoji}</span>
+          </div>
         ))}
 
         {/* 未开始提示 */}
         {!started && !gameOver && (
-          <View style={{ alignItems: 'center', gap: 8, display: 'flex', flexDirection: 'column' }}>
-            <Text style={{ fontSize: 48, opacity: 0.4 }}>{items[Math.floor(Math.random() * items.length)].emoji}</Text>
-            <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>点击开始收集</Text>
-          </View>
+          <div style={{ alignItems: 'center', gap: 8, display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: 48, opacity: 0.4 }}>{items[Math.floor(Math.random() * items.length)].emoji}</span>
+            <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>点击开始收集</span>
+          </div>
         )}
 
         {/* 结束 */}
         {gameOver && (
-          <View style={{ alignItems: 'center', gap: 8, display: 'flex', flexDirection: 'column' }}>
-            <Text style={{ fontSize: 42 }}>{items[Math.floor(Math.random() * items.length)].emoji}</Text>
-            <Text style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>收集了 {score} 个！</Text>
-          </View>
+          <div style={{ alignItems: 'center', gap: 8, display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: 42 }}>{items[Math.floor(Math.random() * items.length)].emoji}</span>
+            <span style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>收集了 {score} 个！</span>
+          </div>
         )}
-      </View>
-    </View>
+      </div>
+    </div>
   )
 }

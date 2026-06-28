@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react'
-import { View, Text, Input, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { theme } from '@/lib/theme'
 import { BEAD_PRODUCTS, BeadProduct } from '@/data/bead-products'
@@ -56,96 +55,96 @@ export default function CheckoutPage() {
 
   if (submitted) {
     return (
-      <View style={{ minHeight: '100vh', background: theme.bgPage, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 40 }}>
-        <View style={{ width: 60, height: 60, borderRadius: '50%', background: '#9db9a5', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-          <Text style={{ fontSize: 22, color: '#fff', fontWeight: 700 }}>OK</Text>
-        </View>
-        <Text style={{ fontSize: 16, fontWeight: 700, color: theme.textPrimary, marginBottom: 8 }}>订单提交成功</Text>
-        <Text style={{ fontSize: 12, color: theme.textSecondary, textAlign: 'center', marginBottom: 20 }}>我们会在24小时内联系您确认订单</Text>
-        <View onClick={() => Taro.navigateBack()} style={{ background: theme.primary, borderRadius: theme.radiusBtn, padding: '12px 28px', cursor: 'pointer' }}>
-          <Text style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>返回首页</Text>
-        </View>
-      </View>
+      <div style={{ minHeight: '100vh', background: theme.bgPage, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 40 }}>
+        <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#9db9a5', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+          <span style={{ fontSize: 22, color: '#fff', fontWeight: 700 }}>OK</span>
+        </div>
+        <span style={{ fontSize: 16, fontWeight: 700, color: theme.textPrimary, marginBottom: 8 }}>订单提交成功</span>
+        <span style={{ fontSize: 12, color: theme.textSecondary, textAlign: 'center', marginBottom: 20 }}>我们会在24小时内联系您确认订单</span>
+        <div onClick={() => Taro.navigateBack()} style={{ background: theme.primary, borderRadius: theme.radiusBtn, padding: '12px 28px', cursor: 'pointer', touchAction: 'manipulation' }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>返回首页</span>
+        </div>
+      </div>
     )
   }
 
   return (
-    <View style={{ minHeight: '100vh', background: theme.bgPage }}>
-      <ScrollView scrollY style={{ flex: 1, padding: '16px' }}>
+    <div style={{ minHeight: '100vh', background: theme.bgPage }}>
+      <div style={{ overflowY: 'auto', flex: 1, padding: '16px' }}>
 
         {/* 订单摘要 */}
         {beads.length > 0 && (
-          <View style={{
+          <div style={{
             background: theme.bgCard, borderRadius: theme.radiusCard,
             border: `1px solid ${theme.borderLight}`, marginBottom: 16,
             boxShadow: `0 2px 12px ${theme.shadow}`, padding: 16,
           }}>
-            <Text style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary, marginBottom: 10 }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary, marginBottom: 10 }}>
               手串设计 ({beadCount}颗)
-            </Text>
-            <View style={{ height: 140, marginBottom: 8 }}>
+            </span>
+            <div style={{ height: 140, marginBottom: 8 }}>
               <BeadPreviewRing beads={beads} ropeColor={ropeColor} onRemove={() => {}} compact />
-            </View>
-            <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
               {beads.map((b, i) => (
-                <View key={i} style={{
+                <div key={i} style={{
                   padding: '2px 8px', borderRadius: 8, background: theme.borderLight,
                 }}>
-                  <Text style={{ fontSize: 9, color: theme.textSecondary }}>{b.name}</Text>
-                </View>
+                  <span style={{ fontSize: 9, color: theme.textSecondary }}>{b.name}</span>
+                </div>
               ))}
-            </View>
-          </View>
+            </div>
+          </div>
         )}
 
         {/* 收货信息 */}
-        <View style={{
+        <div style={{
           background: theme.bgCard, borderRadius: theme.radiusCard,
           border: `1px solid ${theme.borderLight}`, marginBottom: 16,
           boxShadow: `0 2px 12px ${theme.shadow}`, padding: 16,
         }}>
-          <Text style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary, marginBottom: 12 }}>收货信息</Text>
-          <View style={{ marginBottom: 10 }}>
-            <Input placeholder='收件人' value={receiver} onInput={e => setReceiver(e.detail.value)}
-              style={{ height: 40, borderBottom: `1px solid ${theme.borderLight}`, fontSize: 13, color: theme.textPrimary }} />
-          </View>
-          <View style={{ marginBottom: 10 }}>
-            <Input placeholder='手机号' value={phone} onInput={e => setPhone(e.detail.value)}
-              style={{ height: 40, borderBottom: `1px solid ${theme.borderLight}`, fontSize: 13, color: theme.textPrimary }} />
-          </View>
-          <View style={{ marginBottom: 10 }}>
-            <Input placeholder='收货地址' value={address} onInput={e => setAddress(e.detail.value)}
-              style={{ height: 40, borderBottom: `1px solid ${theme.borderLight}`, fontSize: 13, color: theme.textPrimary }} />
-          </View>
-          <View>
-            <Input placeholder='备注（选填）' value={note} onInput={e => setNote(e.detail.value)}
-              style={{ height: 40, borderBottom: `1px solid ${theme.borderLight}`, fontSize: 13, color: theme.textSecondary }} />
-          </View>
-        </View>
+          <span style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary, marginBottom: 12 }}>收货信息</span>
+          <div style={{ marginBottom: 10 }}>
+            <input placeholder='收件人' value={receiver} onChange={e => setReceiver(e.target.value)}
+              style={{ height: 40, fontSize: 13, color: theme.textPrimary, width: '100%', border: 'none', borderBottom: `1px solid ${theme.borderLight}`, outline: 'none', boxSizing: 'border-box' }} />
+          </div>
+          <div style={{ marginBottom: 10 }}>
+            <input placeholder='手机号' value={phone} onChange={e => setPhone(e.target.value)}
+              style={{ height: 40, fontSize: 13, color: theme.textPrimary, width: '100%', border: 'none', borderBottom: `1px solid ${theme.borderLight}`, outline: 'none', boxSizing: 'border-box' }} />
+          </div>
+          <div style={{ marginBottom: 10 }}>
+            <input placeholder='收货地址' value={address} onChange={e => setAddress(e.target.value)}
+              style={{ height: 40, fontSize: 13, color: theme.textPrimary, width: '100%', border: 'none', borderBottom: `1px solid ${theme.borderLight}`, outline: 'none', boxSizing: 'border-box' }} />
+          </div>
+          <div>
+            <input placeholder='备注（选填）' value={note} onChange={e => setNote(e.target.value)}
+              style={{ height: 40, fontSize: 13, color: theme.textSecondary, width: '100%', border: 'none', borderBottom: `1px solid ${theme.borderLight}`, outline: 'none', boxSizing: 'border-box' }} />
+          </div>
+        </div>
 
         {/* 金额 */}
-        <View style={{
+        <div style={{
           background: theme.bgCard, borderRadius: theme.radiusCard,
           border: `1px solid ${theme.borderLight}`, marginBottom: 16,
           boxShadow: `0 2px 12px ${theme.shadow}`, padding: 16, display: 'flex',
           flexDirection: 'row', justifyContent: 'space-between',
         }}>
-          <Text style={{ fontSize: 12, color: theme.textSecondary }}>预估金额</Text>
-          <Text style={{ fontSize: 16, fontWeight: 700, color: theme.accent }}>¥{(totalPrice / 100).toFixed(2)}</Text>
-        </View>
+          <span style={{ fontSize: 12, color: theme.textSecondary }}>预估金额</span>
+          <span style={{ fontSize: 16, fontWeight: 700, color: theme.accent }}>¥{(totalPrice / 100).toFixed(2)}</span>
+        </div>
 
         {/* 提交按钮 */}
-        <View onClick={handleSubmit} onTouchEnd={handleSubmit} style={{
+        <div onClick={handleSubmit} onTouchEnd={handleSubmit} style={{
           padding: '14px 0', borderRadius: theme.radiusBtn,
           background: valid ? `linear-gradient(135deg, ${theme.primary}, #c4956a)` : theme.borderLight,
           alignItems: 'center', marginBottom: 24, cursor: valid ? 'pointer' : 'default',
-          opacity: valid ? 1 : 0.5,
+          opacity: valid ? 1 : 0.5, touchAction: 'manipulation',
         }}>
-          <Text style={{ fontSize: 15, fontWeight: 700, color: valid ? '#fff' : theme.textDisabled }}>
+          <span style={{ fontSize: 15, fontWeight: 700, color: valid ? '#fff' : theme.textDisabled }}>
             {submitting ? '提交中...' : '提交订单'}
-          </Text>
-        </View>
-      </ScrollView>
-    </View>
+          </span>
+        </div>
+      </div>
+    </div>
   )
 }

@@ -1,5 +1,4 @@
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react'
-import { View, Text } from '@tarojs/components'
 import { BeadProduct, BEAD_PRODUCTS, getProductsByCategory, getCategories } from '../../data/bead-products'
 import MaterialCard from './MaterialCard'
 import CategorySidebar from './CategorySidebar'
@@ -139,7 +138,7 @@ export default function MaterialPanel({ onAddBead, onSlideChange, defaultPct = 1
   }
 
   return (
-    <View
+    <div
       ref={contentRef}
       style={{
         position: 'fixed',
@@ -157,7 +156,7 @@ export default function MaterialPanel({ onAddBead, onSlideChange, defaultPct = 1
       }}
     >
       {/* 把手 */}
-      <View
+      <div
         className="panel-handle"
         onClick={() => {
           // 拖拽距离小于 5px 才算点击（切换展开/收起），否则忽略
@@ -170,79 +169,79 @@ export default function MaterialPanel({ onAddBead, onSlideChange, defaultPct = 1
           cursor: 'grab', flexShrink: 0, touchAction: 'none',
         }}
       >
-        <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: '#c8c8c8' }} />
-      </View>
+        <div style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: '#c8c8c8' }} />
+      </div>
 
       {contentVisible && (
         <>
           {/* 绳色选择 */}
-          <View style={{
+          <div style={{
             padding: '2px 14px 8px', flexShrink: 0,
             animation: 'panelFadeIn 0.2s ease-out',
           }}>
             <RopeSelector value={ropeColor} onChange={setRopeColor} />
-          </View>
+          </div>
 
           {/* 标签栏 */}
-          <View style={{
+          <div style={{
             display: 'flex', alignItems: 'center', padding: '0 12px 8px', gap: 10, flexShrink: 0,
           }}>
-            <View style={{ display: 'flex', gap: 8 }}>
-              <View onClick={() => handleTabChange('beads')}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <div onClick={() => handleTabChange('beads')}
                 style={{
                   padding: '4px 12px', fontSize: 13,
                   color: activeTab === 'beads' ? '#000' : '#999',
                   backgroundColor: activeTab === 'beads' ? '#ffffff' : '#f9f9f9',
                   border: '1px solid #e0e0e0', borderRadius: 14, cursor: 'pointer',
-                }}>珠子</View>
-              <View onClick={() => handleTabChange('accessories')}
+                }}>珠子</div>
+              <div onClick={() => handleTabChange('accessories')}
                 style={{
                   padding: '4px 12px', fontSize: 13,
                   color: activeTab === 'accessories' ? '#000' : '#999',
                   backgroundColor: activeTab === 'accessories' ? '#ffffff' : '#f9f9f9',
                   border: '1px solid #e0e0e0', borderRadius: 14, cursor: 'pointer',
-                }}>配饰</View>
-              <View onClick={() => handleTabChange('ore')}
+                }}>配饰</div>
+              <div onClick={() => handleTabChange('ore')}
                 style={{
                   padding: '4px 12px', fontSize: 13,
                   color: activeTab === 'ore' ? '#000' : '#999',
                   backgroundColor: activeTab === 'ore' ? '#ffffff' : '#f9f9f9',
                   border: '1px solid #e0e0e0', borderRadius: 14, cursor: 'pointer',
-                }}>矿石</View>
-            </View>
-            <View style={{
+                }}>矿石</div>
+            </div>
+            <div style={{
               marginLeft: 'auto', padding: '4px 10px', backgroundColor: '#f7f7f8',
               border: '1px solid #e4e4e7', borderRadius: 14, fontSize: 12, color: '#6b7280',
             }}>
-              <Text style={{ fontSize: 11 }}>筛选 {filteredProducts.length}</Text>
-            </View>
-          </View>
+              <span style={{ fontSize: 11 }}>筛选 {filteredProducts.length}</span>
+            </div>
+          </div>
 
           {/* 分类 + 网格（珠子/配饰标签） */}
           {activeTab !== 'ore' && (
-            <View style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
+            <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
               <CategorySidebar categories={categories} activeCategory={activeCategory} onSelect={setActiveCategory} />
-              <View style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '4px 6px' }}>
-                <View className="materials-grid" style={{
+              <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '4px 6px' }}>
+                <div className="materials-grid" style={{
                   display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6,
                 }}>
                   {filteredProducts.map((p) => (
                     <MaterialCard key={`${p.id}-${p.sizeMm}`} product={p} onSelect={onAddBead} compact />
                   ))}
-                </View>
-                <View style={{ height: 12 }} />
-              </View>
-            </View>
+                </div>
+                <div style={{ height: 12 }} />
+              </div>
+            </div>
           )}
 
           {/* 矿石标签内容（暂为占位） */}
           {activeTab === 'ore' && (
-            <View style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ fontSize: 14, color: '#999' }}>矿石系统开发中...</Text>
-            </View>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: 14, color: '#999' }}>矿石系统开发中...</span>
+            </div>
           )}
         </>
       )}
-    </View>
+    </div>
   )
 }

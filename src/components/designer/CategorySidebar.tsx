@@ -1,4 +1,3 @@
-import { View, Text, ScrollView } from '@tarojs/components'
 import { BeadCategory, getCategoryName } from '../../data/bead-products'
 
 interface Props {
@@ -12,7 +11,7 @@ export default function CategorySidebar({ categories, activeCategory, onSelect }
   const list = [allCategory, ...categories]
 
   return (
-    <View
+    <div
       className="category-sidebar"
       style={{
         display: 'flex',
@@ -23,11 +22,11 @@ export default function CategorySidebar({ categories, activeCategory, onSelect }
         borderRight: '1px solid #e0e0e0',
       }}
     >
-      <ScrollView scrollY style={{ height: '100%' }}>
+      <div style={{ overflowY: 'auto', height: '100%' }}>
         {list.map((cat) => {
           const isActive = cat.id === activeCategory
           return (
-            <View
+            <div
               key={cat.id}
               className="category-item"
               style={{
@@ -41,7 +40,7 @@ export default function CategorySidebar({ categories, activeCategory, onSelect }
               }}
               onClick={() => onSelect(cat.id)}
             >
-              <Text
+              <span
                 style={{
                   fontSize: 13,
                   color: isActive ? '#000' : '#999',
@@ -49,11 +48,11 @@ export default function CategorySidebar({ categories, activeCategory, onSelect }
                 }}
               >
                 {cat.id === 'all' ? '所有材料' : getCategoryName(cat.id)}
-              </Text>
-            </View>
+              </span>
+            </div>
           )
         })}
-      </ScrollView>
-    </View>
+      </div>
+    </div>
   )
 }

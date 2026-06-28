@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { View, Text, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { theme } from '@/lib/theme'
 import { getInventory, BeadItem } from '@/lib/inventory'
@@ -41,78 +40,78 @@ export default function CollectionPage() {
   })
 
   return (
-    <View style={{ minHeight: '100vh', background: theme.bgPage }}>
-      <View style={{
+    <div style={{ minHeight: '100vh', background: theme.bgPage }}>
+      <div style={{
         padding: '14px 16px', background: theme.bgCard, borderBottom: `1px solid ${theme.borderLight}`,
         display: 'flex', flexDirection: 'row', alignItems: 'center',
       }}>
-        <Text onClick={() => Taro.navigateBack()} style={{ fontSize: 16, color: theme.textSecondary, marginRight: 12, cursor: 'pointer' }}>‹</Text>
-        <Text style={{ fontSize: 16, fontWeight: 600, color: theme.textPrimary }}>我的珠子图鉴</Text>
-        <View style={{ flex: 1 }} />
-        <Text style={{ fontSize: 11, color: theme.textSecondary }}>共 {beads.reduce((s, b) => s + b.count, 0)} 颗</Text>
-      </View>
+        <span onClick={() => Taro.navigateBack()} style={{ fontSize: 16, color: theme.textSecondary, marginRight: 12, cursor: 'pointer', touchAction: 'manipulation' }}>‹</span>
+        <span style={{ fontSize: 16, fontWeight: 600, color: theme.textPrimary }}>我的珠子图鉴</span>
+        <div style={{ flex: 1 }} />
+        <span style={{ fontSize: 11, color: theme.textSecondary }}>共 {beads.reduce((s, b) => s + b.count, 0)} 颗</span>
+      </div>
 
-      <ScrollView scrollY style={{ flex: 1, padding: '16px' }}>
+      <div style={{ overflowY: 'auto', flex: 1, padding: '16px' }}>
         {Object.entries(grouped).length === 0 ? (
-          <View style={{ padding: 60, alignItems: 'center' }}>
-            <Text style={{ fontSize: 48, opacity: 0.15 }}>📿</Text>
-            <Text style={{ fontSize: 13, color: theme.textDisabled, textAlign: 'center', marginTop: 12 }}>
+          <div style={{ padding: 60, alignItems: 'center' }}>
+            <span style={{ fontSize: 48, opacity: 0.15 }}>📿</span>
+            <span style={{ fontSize: 13, color: theme.textDisabled, textAlign: 'center', marginTop: 12 }}>
               还没有收集到珠子{'\n'}先去采集加工吧
-            </Text>
-          </View>
+            </span>
+          </div>
         ) : (
           Object.entries(grouped).map(([material, items]) => {
             const cfg = COLORS[material] || { bg: '#99999988', color: '#999', label: material }
             return (
-              <View key={material} style={{ marginBottom: 16 }}>
-                <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 6 }}>
-                  <View style={{ width: 8, height: 8, borderRadius: 4, background: cfg.color }} />
-                  <Text style={{ fontSize: 12, fontWeight: 600, color: theme.textPrimary }}>{cfg.label}</Text>
-                  <Text style={{ fontSize: 10, color: theme.textSecondary }}>
+              <div key={material} style={{ marginBottom: 16 }}>
+                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 6 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: 4, background: cfg.color }} />
+                  <span style={{ fontSize: 12, fontWeight: 600, color: theme.textPrimary }}>{cfg.label}</span>
+                  <span style={{ fontSize: 10, color: theme.textSecondary }}>
                     {items.reduce((s, i) => s + i.count, 0)} 颗
-                  </Text>
-                </View>
-                <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                  </span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                   {items.map(item => (
-                    <View key={item.id} style={{
+                    <div key={item.id} style={{
                       width: 'calc(33.33% - 6px)', padding: '10px 6px 8px',
                       background: theme.bgCard, borderRadius: 12,
                       border: `1px solid ${theme.borderLight}`,
                       display: 'flex', flexDirection: 'column', alignItems: 'center',
                       gap: 4,
                     }}>
-                      <View style={{
+                      <div style={{
                         width: 40, height: 40, borderRadius: '50%',
                         background: `radial-gradient(circle at 35% 30%, ${cfg.bg}, ${cfg.color})`,
                         boxShadow: `0 2px 8px ${cfg.color}44`,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
-                        <Text style={{ fontSize: 12, color: '#fff', fontWeight: 700 }}>
+                        <span style={{ fontSize: 12, color: '#fff', fontWeight: 700 }}>
                           {item.name.charAt(0)}
-                        </Text>
-                      </View>
-                      <Text style={{ fontSize: 10, color: theme.textPrimary, textAlign: 'center', lineHeight: 1.2 }}>
+                        </span>
+                      </div>
+                      <span style={{ fontSize: 10, color: theme.textPrimary, textAlign: 'center', lineHeight: 1.2 }}>
                         {item.name}
-                      </Text>
-                      <View style={{
+                      </span>
+                      <div style={{
                         padding: '1px 6px', borderRadius: 6,
                         background: (QUALITY_COLORS[item.quality] || '#c4b89e') + '33',
                       }}>
-                        <Text style={{ fontSize: 8, color: QUALITY_COLORS[item.quality] || '#c4b89e', fontWeight: 600 }}>
+                        <span style={{ fontSize: 8, color: QUALITY_COLORS[item.quality] || '#c4b89e', fontWeight: 600 }}>
                           {item.quality}
-                        </Text>
-                      </View>
-                      <Text style={{ fontSize: 9, color: theme.textSecondary }}>
+                        </span>
+                      </div>
+                      <span style={{ fontSize: 9, color: theme.textSecondary }}>
                         x{item.count}
-                      </Text>
-                    </View>
+                      </span>
+                    </div>
                   ))}
-                </View>
-              </View>
+                </div>
+              </div>
             )
           })
         )}
-      </ScrollView>
-    </View>
+      </div>
+    </div>
   )
 }

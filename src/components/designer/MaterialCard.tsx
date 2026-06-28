@@ -1,4 +1,3 @@
-import { View, Text, Image } from '@tarojs/components'
 import { BeadProduct } from '../../data/bead-products'
 
 interface Props {
@@ -16,7 +15,7 @@ export default function MaterialCard({ product, onSelect, compact }: Props) {
   const metaSize = compact ? 10 : 12
 
   return (
-    <View
+    <div
       className="material-card"
       onClick={() => onSelect(product)}
       style={{
@@ -29,7 +28,7 @@ export default function MaterialCard({ product, onSelect, compact }: Props) {
         cursor: 'pointer',
       }}
     >
-      <View
+      <div
         className="material-image"
         style={{
           width: '100%',
@@ -42,17 +41,17 @@ export default function MaterialCard({ product, onSelect, compact }: Props) {
           overflow: 'hidden',
         }}
       >
-        <Image
+        <img
           src={imgUrl}
-          mode="aspectFit"
           style={{
             width: '85%',
             height: '85%',
+            objectFit: 'contain',
           }}
         />
-      </View>
+      </div>
 
-      <View
+      <div
         className="material-info"
         style={{
           padding: infoPad,
@@ -61,7 +60,7 @@ export default function MaterialCard({ product, onSelect, compact }: Props) {
           gap: 2,
         }}
       >
-        <Text
+        <span
           className="material-name"
           style={{
             fontSize: nameSize,
@@ -74,8 +73,8 @@ export default function MaterialCard({ product, onSelect, compact }: Props) {
           }}
         >
           {product.name}
-        </Text>
-        <View
+        </span>
+        <div
           className="material-meta"
           style={{
             display: 'flex',
@@ -83,14 +82,14 @@ export default function MaterialCard({ product, onSelect, compact }: Props) {
             alignItems: 'center',
           }}
         >
-          <Text style={{ fontSize: metaSize, color: '#888', fontWeight: 500 }}>
+          <span style={{ fontSize: metaSize, color: '#888', fontWeight: 500 }}>
             {product.sizeMm}mm
-          </Text>
-          <Text style={{ fontSize: metaSize, color: '#999' }}>
+          </span>
+          <span style={{ fontSize: metaSize, color: '#999' }}>
             ¥{product.price.toFixed(2)}
-          </Text>
-        </View>
-      </View>
-    </View>
+          </span>
+        </div>
+      </div>
+    </div>
   )
 }

@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react'
-import { View } from '@tarojs/components'
 
 interface GameFrameProps {
   src: string
@@ -41,7 +40,7 @@ export default function GameFrame({ src, scene, onWin, onLose, onReady, style }:
   }, [onWin, onLose, onReady])
 
   return (
-    <View style={{
+    <div style={{
       width: '100%',
       flex: 1,
       overflow: 'hidden',
@@ -60,6 +59,6 @@ export default function GameFrame({ src, scene, onWin, onLose, onReady, style }:
         title='mini-game'
         allow='autoplay'
       />
-    </View>
+    </div>
   )
 }

@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { View, Text, Input } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { theme } from '@/lib/theme'
 
@@ -40,50 +39,50 @@ export default function SignInPage() {
   }
 
   return (
-    <View style={{ minHeight: '100vh', background: theme.bgPage, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 24px' }}>
+    <div style={{ minHeight: '100vh', background: theme.bgPage, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 24px' }}>
       {/* Header */}
-      <View style={{ marginBottom: 32 }}>
-        <Text style={{ fontSize: 26, fontWeight: 700, color: theme.textPrimary, letterSpacing: 2 }}>欢迎回来</Text>
-        <Text style={{ fontSize: 13, color: theme.textSecondary, marginTop: 6 }}>登录后继续你的手作之旅</Text>
-      </View>
+      <div style={{ marginBottom: 32 }}>
+        <span style={{ fontSize: 26, fontWeight: 700, color: theme.textPrimary, letterSpacing: 2 }}>欢迎回来</span>
+        <span style={{ fontSize: 13, color: theme.textSecondary, marginTop: 6 }}>登录后继续你的手作之旅</span>
+      </div>
 
       {/* Card */}
-      <View style={{ padding: 24, background: theme.bgCard, borderRadius: theme.radiusCard, border: `1px solid ${theme.borderLight}`, boxShadow: theme.shadow }}>
+      <div style={{ padding: 24, background: theme.bgCard, borderRadius: theme.radiusCard, border: `1px solid ${theme.borderLight}`, boxShadow: theme.shadow }}>
         {/* Phone input */}
-        <Input
+        <input
           placeholder='手机号码'
           value={phone}
-          onInput={(e) => setPhone(e.detail.value)}
+          onChange={(e) => setPhone(e.target.value)}
           style={{ width: '100%', padding: '14px 16px', background: theme.bgInput, borderRadius: theme.radiusBtn, marginBottom: 12, fontSize: 14, color: theme.textPrimary, border: 'none', outline: 'none', boxSizing: 'border-box' }}
         />
 
         {/* Password input */}
-        <Input
+        <input
           placeholder='密码'
-          password
+          type="password"
           value={password}
-          onInput={(e) => setPassword(e.detail.value)}
+          onChange={(e) => setPassword(e.target.value)}
           style={{ width: '100%', padding: '14px 16px', background: theme.bgInput, borderRadius: theme.radiusBtn, marginBottom: 20, fontSize: 14, color: theme.textPrimary, border: 'none', outline: 'none', boxSizing: 'border-box' }}
         />
 
         {/* Login button */}
-        <View
+        <div
           onClick={handleLogin}
-          style={{ width: '100%', padding: '14px 0', borderRadius: theme.radiusBtn, background: valid ? theme.primary : theme.border, cursor: valid ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          style={{ width: '100%', padding: '14px 0', borderRadius: theme.radiusBtn, background: valid ? theme.primary : theme.border, cursor: valid ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', touchAction: 'manipulation' }}
         >
-          <Text style={{ fontSize: 15, fontWeight: 600, color: '#fff' }}>{loading ? '登录中...' : '登录'}</Text>
-        </View>
-      </View>
+          <span style={{ fontSize: 15, fontWeight: 600, color: '#fff' }}>{loading ? '登录中...' : '登录'}</span>
+        </div>
+      </div>
 
       {/* Register link */}
-      <View style={{ marginTop: 20, display: 'flex', justifyContent: 'center' }}>
-        <Text
+      <div style={{ marginTop: 20, display: 'flex', justifyContent: 'center' }}>
+        <span
           onClick={() => Taro.navigateTo({ url: '/pages/register/index' })}
-          style={{ fontSize: 13, color: theme.textSecondary, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 2 }}
+          style={{ fontSize: 13, color: theme.textSecondary, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 2, touchAction: 'manipulation' }}
         >
           没有账号? 去注册
-        </Text>
-      </View>
-    </View>
+        </span>
+      </div>
+    </div>
   )
 }
