@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { View, Text, ScrollView, Video } from '@tarojs/components'
+import { View, Text, ScrollView, Image } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { BEAD_PRODUCTS } from '@/data/bead-products'
 import BeadPreviewRing from '@/components/designer/BeadPreviewRing'
@@ -150,23 +150,15 @@ export default function IndexPage() {
           <View style={{ alignItems: 'center' }}><Text style={{ fontSize: 10, color: theme.textSecondary, marginBottom: 3 }}>可加工类型</Text><Text style={{ fontSize: 20, fontWeight: 700, color: theme.accent }}>39</Text></View>
         </View>
 
-        {/* 进入工作室 —— 视频入口卡片 */}
-        <View onClick={() => go('/pages/workshop/index')} style={{ marginBottom: 20, ...S.card, borderRadius: theme.radiusCard, overflow: 'hidden', cursor: 'pointer' }}>
-          <Video
-            src='/videos/workshop.mp4'
-            autoplay
-            muted
-            loop
-            style={{ width: '100%', height: 180, display: 'block', objectFit: 'cover' }}
-          />
-          <View style={{ padding: '10px 16px 12px', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <View>
-              <Text style={{ fontSize: 14, fontWeight: 600, color: theme.textPrimary }}>加工原料做珠子</Text>
-              <Text style={{ fontSize: 11, color: theme.textSecondary, marginTop: 2 }}>点击进入工作室</Text>
-            </View>
-            <View style={{ width: 28, height: 28, borderRadius: 14, background: theme.primary, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ fontSize: 14, color: '#fff' }}>→</Text>
-            </View>
+        {/* 进入工作室 —— GIF 动图入口 */}
+        <View onClick={() => go('/pages/workshop/index')} style={{ marginBottom: 20, ...S.card, borderRadius: theme.radiusCard, overflow: 'hidden', cursor: 'pointer', display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+          <Image src='/videos/workshop-icon.gif' mode='aspectFill' style={{ width: 100, height: 100 }} />
+          <View style={{ flex: 1, padding: '0 14px' }}>
+            <Text style={{ fontSize: 14, fontWeight: 600, color: theme.textPrimary }}>加工原料做珠子</Text>
+            <Text style={{ fontSize: 11, color: theme.textSecondary, marginTop: 3 }}>原石切割打磨抛光，亲手制作</Text>
+          </View>
+          <View style={{ width: 28, height: 28, borderRadius: 14, background: theme.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: 14 }}>
+            <Text style={{ fontSize: 14, color: '#fff' }}>→</Text>
           </View>
         </View>
 
