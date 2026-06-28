@@ -33,11 +33,23 @@ export default function DesignerPage() {
       return
     }
     playSound('chime1', 0.3)
-    // 找一个匹配的 BEAD_PRODUCTS 条目
-    const product = BEAD_PRODUCTS.find((_, i) => `${item.material}_${i}` === item.id) || {
-      id: item.id, name: item.name, categoryId: item.material, sizeMm: 8, price: 500, imageUrl: '', type: 'bead' as const
+    // 从 inventory 创建 BeadProduct 兼容对象
+    const color = COLORS[item.material] || '#a0c4ff'
+    // 根据原料类型映射到现有珠子图片
+    const imgIndex = ['white','purple','pink','gold','green','blue','jade_green','jade_white','wood_root','bark','fruit_seed','fruit_pulp','shell','pebble','artificial_clay','artificial_resin']
+      .indexOf(item.material)
+    const imageUrl = imgIndex >= 0 ? `${imgIndex}.png` : '0.png'
+    const beadProduct: BeadProduct = {
+      id: item.id,
+      name: item.name,
+      categoryId: item.material,
+      sizeMm: 8,
+      price: item.quality === '稀有' ? 3800 : item.quality === '普通' ? 1800 : 800,
+      imageUrl,
+      type: 'bead',
+      _key: `${item.id}_${Date.now()}`,
     }
-    setSelectedBeads(prev => [...prev, { ...product, _key: `${item.id}_${Date.now()}` }])
+    setSelectedBeads(prev => [...prev, beadProduct])
     setSelectedMeta(prev => [...prev, { id: item.id, name: item.name }])
   }, [selectedBeads.length])
 

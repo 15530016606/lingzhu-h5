@@ -9,7 +9,12 @@ import { addBead } from '@/lib/inventory'
 const KF = `
 @keyframes bar-shake {0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
 @keyframes bar-pop {0%{transform:scale(0);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
-@keyframes bar-glow {0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes bar-glow {0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+@keyframes sparkle {0%{transform:translate(0,0) scale(0);opacity:1}60%{transform:translate(var(--sx),var(--sy)) scale(1);opacity:0.8}100%{transform:translate(var(--sx),var(--sy)) scale(0.2);opacity:0}}
+@keyframes pulse-ring {0%{box-shadow:0 0 0 0 var(--rc)}50%{box-shadow:0 0 0 8px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes slide-up-fade {0%{transform:translateY(20px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes bounce-scale {0%{transform:scale(0.5);opacity:0}50%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+@keyframes progress-glow {0%,100%{filter:brightness(1)}50%{filter:brightness(1.4)}}
 `
 
 // 加工步骤配置
@@ -92,12 +97,15 @@ export default function ProcessingPage() {
   const tapBar = useCallback(() => {
     if (phase !== 'moving') return
     clearInterval(iv.current)
-    const dist = Math.abs(pos - 50)
-    const gw = proc.widths[step] / 2
-    let q: string
-    if (dist <= gw) {
-      q = 'perfect'; playSound('chime1', 0.5)
-      const sp = Array.from({ length: 6 }, (_, i) => ({ id: Date.now() + i, dx: (Math.random() - .5) * 70, dy: -Math.random() * 60, color: mc.g }))
+    const dist=Math.abs(pos-50)
+    const gw=proc.widths[step]/2
+    let q:string
+    if(dist<=gw){q='perfect';playSound('chime1',0.5)
+      const sp=Array.from({length:12},(_,i)=>({
+        id:Date.now()+i,
+        dx:(Math.random()-.5)*120,dy:-Math.random()*120-20,
+        color:mc.g,
+      }))
       setSparks(sp); setTimeout(() => setSparks([]), 400)
     } else if (dist <= gw + 15) { q = 'good'; playSound('coin', 0.4) }
     else { q = 'miss'; playSound('click_error', 0.3) }
@@ -219,8 +227,13 @@ export default function ProcessingPage() {
       {phase === 'result' && <span style={{ fontSize: 12, color: theme.textSecondary }}>评价中...</span>}
 
       {/* 火花 */}
-      {sparks.map(s => <div key={s.id} style={{ position: 'absolute', left: '50%', top: '32%', width: 4, height: 4, borderRadius: '50%', background: s.color,
-        animation: 'bar-pop 0.3s ease-out forwards', '--dx': `${s.dx}px`, '--dy': `${s.dy}px`, zIndex: 5 } as any} />)}
+      {sparks.map(s => <div key={s.id} style={{
+        position: 'absolute', left: '50%', top: '35%',
+        width: 6, height: 6, borderRadius: '50%',
+        background: s.color, zIndex: 5,
+        animation: 'sparkle 0.5s ease-out forwards',
+        '--sx': `${s.dx}px`, '--sy': `${s.dy}px`,
+      } as any} />)}
 
       {/* 完成 */}
       {phase === 'done' && showBead && (
