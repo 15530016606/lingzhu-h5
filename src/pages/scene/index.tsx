@@ -4,6 +4,7 @@ import { SCENES, GameEntry } from './configs'
 import { theme } from '@/lib/theme'
 import { playSound, playRareSound, resumeAudio } from '@/lib/sound'
 import { addToBackpack } from '@/lib/backpack'
+import { addBead } from '@/lib/inventory'
 import MemoryMatch from './games/memory-match'
 import MatchThree from './games/match-three'
 import StackMatch from './games/stack-match'
@@ -99,6 +100,11 @@ export default function ScenePage() {
   const handleCollect = useCallback(() => {
     if (!gameResult) return
     addToBackpack(gameResult.gemId, gameResult.gemName, gameResult.gemType)
+    // 同步加入珠子库存（免加工直接获得珠子）
+    if (gameResult.gemType === 'gem') {
+      const quality = gameResult.score >= 80 ? '稀有' : '普通'
+      addBead(`${gameResult.gemName}珠`, gameResult.gemId, quality)
+    }
     setGameResult(prev => prev ? { ...prev, collected: true } : null)
     playSound('coin', 0.5)
   }, [gameResult])
@@ -145,7 +151,7 @@ export default function ScenePage() {
         <div style={{
           background: theme.bgCard, borderRadius: 20, padding: '28px 30px',
           alignItems: 'center', gap: 12, display: 'flex', flexDirection: 'column',
-          maxWidth: 280, boxShadow: `0 4px 20px ${theme.shadow}`,
+          maxWidth: 300, width: '85vw', boxShadow: `0 4px 20px ${theme.shadow}`,
           animation: 'popup-enter 0.4s ease-out',
         }}>
           <div style={{
@@ -165,9 +171,9 @@ export default function ScenePage() {
             {gameResult.gemType === 'scrap' ? '表现还可以更好哦' : '已放入背包'}
           </div>
           {gameResult.collected ? (
-            <div style={{ display: 'flex', flexDirection: 'row', gap: 10, marginTop: 6 }}>
+            <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6, justifyContent: 'center' }}>
               <div onClick={goProcess} style={{
-                padding: '8px 20px', borderRadius: 20,
+                padding: '7px 14px', borderRadius: 18,
                 background: `linear-gradient(135deg, ${theme.primary}, ${cfg.accentColor})`,
                 cursor: 'pointer', touchAction: 'manipulation',
                 transition: 'transform 0.15s, box-shadow 0.15s',
@@ -180,13 +186,13 @@ export default function ScenePage() {
                 <span style={{ fontSize: 12, fontWeight: 600, color: '#fff' }}>去加工</span>
               </div>
               <div onClick={goHome} style={{
-                padding: '8px 20px', borderRadius: 20, border: `1px solid ${theme.border}`,
+                padding: '7px 14px', borderRadius: 18, border: `1px solid ${theme.border}`,
                 cursor: 'pointer', touchAction: 'manipulation',
               }}>
                 <span style={{ fontSize: 12, color: theme.textPrimary }}>返回首页</span>
               </div>
               <div onClick={playAgain} style={{
-                padding: '8px 20px', borderRadius: 20,
+                padding: '7px 14px', borderRadius: 18,
                 background: `linear-gradient(135deg, ${cfg.accentColor}, ${cfg.accentColor}dd)`,
                 cursor: 'pointer', touchAction: 'manipulation',
               }}>
