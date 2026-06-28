@@ -84,6 +84,28 @@ CREATE TABLE IF NOT EXISTS orders (
   shipped_at TEXT
 );
 
+CREATE TABLE IF NOT EXISTS user_sandpaper (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL REFERENCES users(id),
+  count INTEGER DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS user_bead_collection (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL REFERENCES users(id),
+  material_type TEXT NOT NULL,
+  count INTEGER DEFAULT 0,
+  first_at TEXT DEFAULT (datetime('now')),
+  last_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS user_bead_inventory (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL REFERENCES users(id),
+  product_index INTEGER NOT NULL,
+  count INTEGER DEFAULT 0
+);
+
 CREATE TABLE IF NOT EXISTS signin_records (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id INTEGER NOT NULL REFERENCES users(id),

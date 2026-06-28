@@ -83,6 +83,31 @@ export const orders = sqliteTable('orders', {
   shippedAt: text('shipped_at'),
 })
 
+// 用户砂纸
+export const userSandpaper = sqliteTable('user_sandpaper', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').notNull().references(() => users.id),
+  count: integer('count').default(0),
+})
+
+// 用户珠子图鉴（永久收藏记录）
+export const userBeadCollection = sqliteTable('user_bead_collection', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').notNull().references(() => users.id),
+  materialType: text('material_type').notNull(),
+  count: integer('count').default(0),
+  firstAt: text('first_at').default("datetime('now')"),
+  lastAt: text('last_at').default("datetime('now')"),
+})
+
+// 用户珠子背包（当前可用库存）
+export const userBeadInventory = sqliteTable('user_bead_inventory', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').notNull().references(() => users.id),
+  productIndex: integer('product_index').notNull(),
+  count: integer('count').default(0),
+})
+
 // 签到记录
 export const signinRecords = sqliteTable('signin_records', {
   id: integer('id').primaryKey({ autoIncrement: true }),
