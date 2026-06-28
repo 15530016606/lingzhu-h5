@@ -106,47 +106,90 @@ export default function IndexPage() {
 
         {/* 模块2：加工 */}
         <div onClick={() => go('/pages/processing/index')} style={{
-          marginBottom: 12, padding: '16px', borderRadius: theme.radiusCard,
+          marginBottom: 12, padding: 0, borderRadius: 16, overflow: 'hidden',
           background: theme.bgCard, border: `1px solid ${theme.borderLight}`,
           boxShadow: `0 2px 8px ${theme.shadow}`, cursor: 'pointer', touchAction: 'manipulation',
-          display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12,
+          display: 'flex', flexDirection: 'row', alignItems: 'stretch', position: 'relative',
         }}>
+          {/* 左上角数字标签 */}
           <div style={{
-            width: 44, height: 44, borderRadius: 12,
-            background: '#ffd54f22', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            position: 'absolute', top: 8, left: 8, zIndex: 2,
+            width: 22, height: 22, borderRadius: '50%',
+            background: '#d4c8a0', display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <span style={{ fontSize: 22 }}>⚒️</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#fff' }}>2</span>
           </div>
-          <div style={{ flex: 1 }}>
-            <span style={{ fontSize: 14, fontWeight: 600, color: theme.textPrimary }}>加工</span>
-            <span style={{ fontSize: 11, color: theme.textSecondary, display: 'block', marginTop: 2 }}>
-              背包有 {bpCount} 种原料可加工
+          {/* 左侧插画 */}
+          <div style={{
+            width: 130, minHeight: 130, flexShrink: 0,
+            background: 'linear-gradient(135deg, #f0e8d8, #e0d4c0)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            overflow: 'hidden',
+          }}>
+            {/* TODO: 替换为 AI 生成的柴犬工坊插画 */}
+            <div style={{ fontSize: 48, opacity: 0.6 }}>🏺</div>
+          </div>
+          {/* 右侧文字 */}
+          <div style={{ flex: 1, padding: '14px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 3 }}>
+            <span style={{ fontSize: 15, fontWeight: 700, color: theme.textPrimary }}>开始加工</span>
+            <span style={{ fontSize: 11, color: theme.textSecondary, lineHeight: 1.7 }}>
+              携带采集获得的各类原石原料{'\n'}
+              经过切割、打磨、抛光三道工序{'\n'}
+              打磨出专属温润珠子
             </span>
           </div>
-          <span style={{ fontSize: 16, color: theme.border }}>›</span>
+          {/* 右侧箭头 */}
+          <div style={{
+            width: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          }}>
+            <span style={{ fontSize: 16, color: '#d4c8a0' }}>›</span>
+          </div>
         </div>
 
-        {/* 模块3：穿手串 */}
+        {/* 模块3：串珠 */}
         <div onClick={() => go('/pages/designer/index')} style={{
-          marginBottom: 20, padding: '16px', borderRadius: theme.radiusCard,
+          marginBottom: 0, padding: 0, borderRadius: 16, overflow: 'hidden',
           background: theme.bgCard, border: `1px solid ${theme.borderLight}`,
           boxShadow: `0 2px 8px ${theme.shadow}`, cursor: 'pointer', touchAction: 'manipulation',
-          display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 12,
+          display: 'flex', flexDirection: 'row', alignItems: 'stretch', position: 'relative',
         }}>
+          {/* 左上角数字标签 */}
           <div style={{
-            width: 44, height: 44, borderRadius: 12,
-            background: '#d4a57422', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            position: 'absolute', top: 8, left: 8, zIndex: 2,
+            width: 22, height: 22, borderRadius: '50%',
+            background: '#d4c8a0', display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <span style={{ fontSize: 22 }}>📿</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#fff' }}>3</span>
           </div>
-          <div style={{ flex: 1 }}>
-            <span style={{ fontSize: 14, fontWeight: 600, color: theme.textPrimary }}>穿手串</span>
-            <span style={{ fontSize: 11, color: theme.textSecondary, display: 'block', marginTop: 2 }}>
-              {beadCount > 0 ? `已有 ${beadCount} 颗珠子可用` : '还没有珠子，先去采集加工'}
+          {/* 左侧插画 */}
+          <div style={{
+            width: 130, minHeight: 130, flexShrink: 0,
+            background: 'linear-gradient(135deg, #f0e8d8, #e0d4c0)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            overflow: 'hidden',
+          }}>
+            {/* TODO: 替换为 AI 生成的串珠小图标 */}
+            <div style={{ fontSize: 48, opacity: 0.6 }}>📿</div>
+          </div>
+          {/* 右侧文字 */}
+          <div style={{ flex: 1, padding: '14px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 3 }}>
+            <span style={{ fontSize: 15, fontWeight: 700, color: theme.textPrimary }}>开始串珠</span>
+            <span style={{ fontSize: 11, color: theme.textSecondary, lineHeight: 1.7 }}>
+              按喜好自由排列已做好的珠子{'\n'}
+              自定义绳色、适配个人手围{'\n'}
+              打造专属独一无二手串
             </span>
           </div>
-          <span style={{ fontSize: 16, color: theme.border }}>›</span>
+          {/* 右侧箭头 */}
+          <div style={{
+            width: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          }}>
+            <span style={{ fontSize: 16, color: '#d4c8a0' }}>›</span>
+          </div>
         </div>
+
+        {/* 底部 60rpx 超大空白分隔 */}
+        <div style={{ height: 44 }} />
 
         {/* 手串灵感（折叠展示，只显示前 2 组） */}
         <div style={{ marginBottom: 8 }}>
