@@ -38,7 +38,7 @@ export class AuthService {
     const db = getDb();
     const user = await db.select({
       id: users.id, phone: users.phone, nickname: users.nickname,
-      createdAt: users.createdAt, totalOrders: users.totalOrders,
+      createdAt: users.createdAt,
     }).from(users).where(sql`id = ${userId}`).get();
     return user || null;
   }
