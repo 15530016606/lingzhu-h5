@@ -3,6 +3,7 @@ export default defineAppConfig({
     'pages/index/index',
     'pages/scene/index',
     'pages/processing/index',
+    'pages/designer/index',
     'pages/checkout/index',
     'pages/signin/index',
     'pages/register/index',

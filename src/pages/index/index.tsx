@@ -134,11 +134,11 @@ export default function IndexPage() {
 
         {/* 底部导航 */}
         <View style={{ display: 'flex', flexDirection: 'row', gap: 10, marginBottom: 24 }}>
+          <View onClick={() => go('/pages/designer/index')} style={{ flex: 1, padding: '12px 0', borderRadius: theme.radiusBtn, border: `1px solid ${theme.border}`, background: `linear-gradient(135deg, ${theme.primary}, #c4956a)`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            <Text style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>串珠</Text>
+          </View>
           <View onClick={() => go('/pages/collection/index')} style={{ flex: 1, padding: '12px 0', borderRadius: theme.radiusBtn, border: `1px solid ${theme.border}`, background: theme.bgCard, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
             <Text style={{ fontSize: 13, fontWeight: 500, color: theme.textBody }}>图鉴</Text>
-          </View>
-          <View onClick={() => go('/pages/checkout/index')} style={{ flex: 1, padding: '12px 0', borderRadius: theme.radiusBtn, border: `1px solid ${theme.border}`, background: theme.bgCard, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-            <Text style={{ fontSize: 13, fontWeight: 500, color: theme.textBody }}>下单</Text>
           </View>
         </View>
 

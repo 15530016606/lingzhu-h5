@@ -1,7 +1,7 @@
 // 用户游戏 API
 import { Injectable, Controller, Get, Post, Body, Req, UseGuards } from '@nestjs/common';
 import { getDb } from '@/database/connection';
-import { users, userRawMaterials, userWaste, userSandpaper, userBeadCollection, userBeadInventory, dailyClaims, rawMaterialTypes, products } from '@/database/schema';
+import { users, userRawMaterials, userWaste, userSandpaper, userBeadCollection, userBeadInventory, dailyClaims, rawMaterialTypes, products, orders } from '@/database/schema';
 import { sql } from 'drizzle-orm';
 import { JwtAuthGuard } from '@/auth/jwt-auth.guard';
 import { AuthGuard } from '@nestjs/passport';
@@ -206,5 +206,37 @@ export class UserController {
     else await db.insert(userBeadCollection).values({ userId: uid, materialType: b.materialType, count: 1, firstAt: now, lastAt: now }).run();
 
     return { success: true, productId: prod!.id };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('orders') async createOrder(@Req() req: any, @Body() b: { beads: number[]; ropeColor: string; address: { receiver: string; phone: string; address: string; note: string }; totalPrice: number }) {
+    const db = getDb();
+    const uid = req.user.userId;
+    const orderId = `ORD${Date.now()}${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`;
+    const now = new Date().toISOString();
+
+    await db.insert(orders).values({
+      id: orderId,
+      userId: uid,
+      items: JSON.stringify({ beads: b.beads, ropeColor: b.ropeColor }),
+      totalPrice: b.totalPrice,
+      receiver: b.address.receiver,
+      phone: b.address.phone,
+      address: b.address.address,
+      note: b.address.note || '',
+      createdAt: now,
+    } as any).run();
+
+    // 从库存扣减珠子
+    for (const pid of b.beads) {
+      const bi = await db.select().from(userBeadInventory).where(sql`${userBeadInventory.userId}=${uid} AND ${userBeadInventory.productIndex}=${pid}`).get();
+      if (bi) {
+        const newCount = (bi.count ?? 0) - 1;
+        if (newCount <= 0) await db.delete(userBeadInventory).where(sql`${userBeadInventory.id}=${bi.id}`).run();
+        else await db.update(userBeadInventory).set({ count: newCount }).where(sql`${userBeadInventory.id}=${bi.id}`).run();
+      }
+    }
+
+    return { success: true, orderId };
   }
 }
