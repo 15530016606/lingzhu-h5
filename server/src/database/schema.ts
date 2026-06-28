@@ -31,6 +31,7 @@ export const oreTypes = sqliteTable('ore_types', {
 export const users = sqliteTable('users', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   phone: text('phone').notNull().unique(),
+  passwordHash: text('password_hash'),
   nickname: text('nickname'),
   avatar: text('avatar'),
   createdAt: text('created_at').default('datetime(\'now\')'),
