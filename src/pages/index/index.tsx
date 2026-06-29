@@ -13,6 +13,12 @@ async function api(path: string, options?: RequestInit) {
   return res.json()
 }
 
+function requireLogin(): boolean {
+  if (localStorage.getItem('token')) return true
+  Taro.navigateTo({ url: '/pages/signin/index' })
+  return false
+}
+
 const SOURCES = [
   { id: 'crystal', name: '水晶矿场', desc: '开采水晶原矿', gif: '/videos/bear-brown.gif' },
   { id: 'jade', name: '玉石矿场', desc: '开采玉石原石', gif: '/videos/bear-cub.gif' },
@@ -211,7 +217,9 @@ export default function IndexPage() {
   }, [])
 
   const claim = useCallback(async () => {
-    if (claimed || loading) return; setLoading(true)
+    if (claimed || loading) return
+    if (!requireLogin()) return
+    setLoading(true)
     const r = await api('/user/claim-daily', { method: 'POST' })
     setCl(r); if (r.success) setClaimed(true); setLoading(false)
   }, [claimed, loading])
@@ -366,7 +374,10 @@ export default function IndexPage() {
         </div>
         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 }}>
           {SOURCES.map(src => (
-            <div key={src.id} onClick={() => go(`/pages/scene/index?source=${src.id}`)} style={{
+            <div key={src.id} onClick={() => {
+              if (!requireLogin()) return
+              go(`/pages/scene/index?source=${src.id}`)
+            }} style={{
               width: 'calc(33.33% - 7px)', padding: '16px 8px 12px',
               background: theme.bgCard, borderRadius: 16,
               border: `1px solid ${theme.borderLight}`, cursor: 'pointer',
