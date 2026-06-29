@@ -42,24 +42,25 @@ export default function SignInPage() {
 
   return (
     <div style={{
-      minHeight: '100vh', background: 'linear-gradient(180deg, #faf6ed 0%, #f5efe4 100%)',
-      display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 28px',
+      height: '100vh', overflow: 'hidden',
+      background: 'linear-gradient(180deg, #faf6ed 0%, #f5efe4 100%)',
+      display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 24px',
     }}>
       {/* Logo */}
       <div style={{
-        width: 48, height: 48, borderRadius: 16, marginBottom: 20,
+        width: 44, height: 44, borderRadius: 14, marginBottom: 16,
         background: 'linear-gradient(135deg, #d4a574, #c4956a)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        boxShadow: '0 4px 16px rgba(212,165,116,0.35)',
+        boxShadow: '0 4px 12px rgba(212,165,116,0.35)',
       }}>
-        <span style={{ fontSize: 22, color: '#fff', fontWeight: 700 }}>灵</span>
+        <span style={{ fontSize: 20, color: '#fff', fontWeight: 700 }}>灵</span>
       </div>
-      <span style={{ fontSize: 24, fontWeight: 700, color: theme.textPrimary, letterSpacing: 1, marginBottom: 4 }}>欢迎回来</span>
-      <span style={{ fontSize: 13, color: theme.textSecondary, marginBottom: 32 }}>登录后继续你的手作之旅</span>
+      <span style={{ fontSize: 22, fontWeight: 700, color: theme.textPrimary, letterSpacing: 1, marginBottom: 2 }}>欢迎回来</span>
+      <span style={{ fontSize: 13, color: theme.textSecondary, marginBottom: 28 }}>登录后继续你的手作之旅</span>
 
       {/* 表单卡片 */}
       <div style={{
-        padding: 24, borderRadius: 20,
+        padding: 20, borderRadius: 18,
         background: theme.bgCard, border: `1px solid ${theme.borderLight}`,
         boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
       }}>
@@ -68,8 +69,8 @@ export default function SignInPage() {
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           style={{
-            width: '100%', padding: '14px 16px', background: '#f5f0e8',
-            borderRadius: 14, marginBottom: 12, fontSize: 15, color: theme.textPrimary,
+            width: '100%', padding: '12px 14px', background: '#f5f0e8',
+            borderRadius: 12, marginBottom: 10, fontSize: 14, color: theme.textPrimary,
             border: 'none', outline: 'none', boxSizing: 'border-box',
           }}
         />
@@ -79,29 +80,29 @@ export default function SignInPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           style={{
-            width: '100%', padding: '14px 16px', background: '#f5f0e8',
-            borderRadius: 14, marginBottom: 24, fontSize: 15, color: theme.textPrimary,
+            width: '100%', padding: '12px 14px', background: '#f5f0e8',
+            borderRadius: 12, marginBottom: 20, fontSize: 14, color: theme.textPrimary,
             border: 'none', outline: 'none', boxSizing: 'border-box',
           }}
         />
         <div
           onClick={handleLogin}
           style={{
-            width: '100%', padding: '14px 0', borderRadius: 16,
+            width: '100%', padding: '12px 0', borderRadius: 14,
             background: valid ? 'linear-gradient(135deg, #d4a574, #c4956a)' : '#e0dcd4',
             cursor: valid ? 'pointer' : 'not-allowed',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             touchAction: 'manipulation', transition: 'opacity 0.15s',
           }}
         >
-          <span style={{ fontSize: 15, fontWeight: 600, color: '#fff' }}>
+          <span style={{ fontSize: 14, fontWeight: 600, color: '#fff' }}>
             {loading ? '登录中...' : '登录'}
           </span>
         </div>
       </div>
 
       {/* 去注册 */}
-      <div style={{ marginTop: 20, textAlign: 'center' }}>
+      <div style={{ marginTop: 16, textAlign: 'center' }}>
         <span
           onClick={() => Taro.navigateTo({ url: '/pages/register/index' })}
           style={{ fontSize: 13, color: theme.accent, cursor: 'pointer', touchAction: 'manipulation', fontWeight: 500 }}
