@@ -6,14 +6,12 @@ import { theme } from '@/lib/theme'
 import { preloadSounds, resumeAudio } from '@/lib/sound'
 import { getGemCount, getScrapCount, getBackpack } from '@/lib/backpack'
 import { getInventory } from '@/lib/inventory'
-import { ALL_MATERIALS, MATERIAL_INFO } from '@/lib/material-map'
+import { MATERIAL_INFO } from '@/lib/material-map'
 const BASE_URL = 'http://localhost:3000'
 async function api(path: string, options?: RequestInit) {
   const res = await fetch(`${BASE_URL}/api${path}`, { ...options, headers: { 'Content-Type': 'application/json', ...options?.headers } })
   return res.json()
 }
-
-const S = { card: { background: theme.bgCard, borderRadius: theme.radiusCard, border: `1px solid ${theme.borderLight}`, boxShadow: `0 2px 12px ${theme.shadow}` } }
 
 const SOURCES = [
   { id: 'crystal', name: '水晶矿场', desc: '开采水晶原矿', gif: '/videos/bear-brown.gif' },
@@ -37,12 +35,84 @@ const BRACELETS = [
   ]},
 ]
 
+const QC = { bgCard: theme.bgCard, br: theme.radiusCard, bd: `1px solid ${theme.borderLight}`, sh: `0 2px 12px ${theme.shadow}` }
+
+const StepBadge = ({ n }: { n: number }) => (
+  <div style={{
+    width: 24, height: 24, borderRadius: '50%', flexShrink: 0,
+    background: 'linear-gradient(135deg, #e0d0b0, #d4c8a0)',
+    boxShadow: '0 2px 6px rgba(180,160,120,0.3)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  }}>
+    <span style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>{n}</span>
+  </div>
+)
+
+const QuickBtn = ({ emoji, label, sub, onClick, accent }: { emoji: string; label: string; sub: string; onClick: () => void; accent?: boolean }) => (
+  <div onClick={onClick} onTouchEnd={onClick} style={{
+    flex: 1, padding: '12px 4px', borderRadius: 14, cursor: 'pointer', touchAction: 'manipulation',
+    background: theme.bgCard, border: accent ? `1.5px solid ${theme.accent}44` : `1px solid ${theme.borderLight}`,
+    boxShadow: accent ? `0 2px 8px ${theme.shadow}` : 'none',
+    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+    transition: 'transform 0.15s, box-shadow 0.15s',
+    WebkitTapHighlightColor: 'transparent',
+  }}>
+    <div style={{
+      width: 36, height: 36, borderRadius: 12,
+      background: accent ? `linear-gradient(135deg, ${theme.accent}22, ${theme.accent}11)` : '#f5f0e8',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 2,
+    }}>
+      <span style={{ fontSize: 18 }}>{emoji}</span>
+    </div>
+    <span style={{ fontSize: 12, fontWeight: 600, color: theme.textPrimary }}>{label}</span>
+    <span style={{ fontSize: 9, color: accent ? theme.accent : theme.textSecondary, fontWeight: accent ? 600 : 400 }}>{sub}</span>
+  </div>
+)
+
+const FlowCard = ({ num, imgSrc, title, desc, badge, onClick }: {
+  num: number; imgSrc: string; title: string; desc: string; badge: { text: string; active: boolean }; onClick: () => void
+}) => (
+  <div onClick={onClick} onTouchEnd={onClick} style={{
+    marginBottom: 12, borderRadius: 18, overflow: 'hidden',
+    background: theme.bgCard, border: `1px solid ${theme.borderLight}`,
+    boxShadow: `0 2px 12px ${theme.shadow}`, cursor: 'pointer', touchAction: 'manipulation',
+    display: 'flex', flexDirection: 'row', alignItems: 'stretch', position: 'relative',
+    transition: 'transform 0.15s, box-shadow 0.15s',
+    WebkitTapHighlightColor: 'transparent',
+  }}>
+    <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 2 }}>
+      <StepBadge n={num} />
+    </div>
+    <div style={{
+      width: 120, minHeight: 120, flexShrink: 0, overflow: 'hidden',
+      background: 'linear-gradient(135deg, #f5efe4, #efe5d5)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }}>
+      <img src={imgSrc} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+    </div>
+    <div style={{ flex: 1, padding: '14px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 4 }}>
+      <span style={{ fontSize: 15, fontWeight: 700, color: theme.textPrimary }}>{title}</span>
+      <span style={{ fontSize: 11, color: theme.textSecondary, lineHeight: 1.6 }}>{desc}</span>
+      <div style={{
+        marginTop: 4, padding: '4px 10px', borderRadius: 10, alignSelf: 'flex-start',
+        background: badge.active ? `linear-gradient(135deg, ${theme.accent}22, ${theme.accent}11)` : '#f0ece4',
+      }}>
+        <span style={{ fontSize: 10, fontWeight: 600, color: badge.active ? theme.accent : '#b8b0a0' }}>{badge.text}</span>
+      </div>
+    </div>
+    <div style={{
+      width: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+    }}>
+      <span style={{ fontSize: 18, color: '#d4c0a8', fontWeight: 300 }}>›</span>
+    </div>
+  </div>
+)
+
 export default function IndexPage() {
   const [claimed, setClaimed] = useState(false)
   const [cl, setCl] = useState<any>(null)
   const [loading, setLoading] = useState(false)
 
-  // 实时数据
   const gemCount = getGemCount()
   const scrapCount = getScrapCount()
   const backpack = getBackpack()
@@ -50,12 +120,10 @@ export default function IndexPage() {
   const beadInv = getInventory()
   const beadTotal = beadInv.reduce((s, i) => s + i.count, 0)
   const beadTypes = beadInv.length
-  const collectedTypes = new Set(beadInv.map(i => i.material))
-  const collectedCount = collectedTypes.size
+  const collectedCount = new Set(beadInv.map(i => i.material)).size
+  const hasAny = gemCount > 0 || beadTotal > 0 || collectedCount > 0
 
-  useEffect(() => {
-    preloadSounds()
-  }, [])
+  useEffect(() => { preloadSounds() }, [])
 
   const claim = useCallback(async () => {
     if (claimed || loading) return; setLoading(true)
@@ -69,57 +137,75 @@ export default function IndexPage() {
     <div style={{ minHeight: '100vh', background: theme.bgPage }} onClick={resumeAudio}>
       <div style={{ overflowY: 'auto', flex: 1, padding: '16px 16px 0' }}>
 
-        {/* ===== 顶部品牌 ===== */}
-        <div style={{ marginBottom: 14, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-          <span style={{ fontSize: 20, fontWeight: 700, color: theme.textPrimary, letterSpacing: 1 }}>灵珠手作</span>
+        {/* ===== 品牌头 ===== */}
+        <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+          <div style={{
+            width: 32, height: 32, borderRadius: 10, flexShrink: 0, marginRight: 10,
+            background: 'linear-gradient(135deg, #d4a574, #c4956a)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 2px 8px rgba(212,165,116,0.3)',
+          }}>
+            <span style={{ fontSize: 14, color: '#fff', fontWeight: 700 }}>灵</span>
+          </div>
+          <div>
+            <span style={{ fontSize: 18, fontWeight: 700, color: theme.textPrimary, letterSpacing: 1 }}>灵珠手作</span>
+            <div style={{ fontSize: 9, color: theme.textSecondary, letterSpacing: 2, marginTop: 1 }}>从一颗原石开始</div>
+          </div>
           <div style={{ flex: 1 }} />
-          <span style={{ fontSize: 10, color: theme.textSecondary, letterSpacing: 2 }}>从一颗原石开始</span>
+          {/* 登录/注册入口 */}
+          <div onClick={() => { const t = Taro.getStorageSync('token'); if (t) Taro.showToast({ title: '已登录', icon: 'none' }); else go('/pages/signin/index') }}
+            style={{ padding: '4px 10px', borderRadius: 12, background: theme.borderLight, cursor: 'pointer', touchAction: 'manipulation' }}>
+            <span style={{ fontSize: 10, color: theme.textSecondary }}>{Taro.getStorageSync('token') ? '已登录' : '登录'}</span>
+          </div>
         </div>
 
-        {/* ===== 每日盲盒 — 大卡片 ===== */}
-        <div
-          onClick={claim}
-          style={{
-            marginBottom: 14, padding: '18px 20px', borderRadius: 20,
-            background: 'linear-gradient(135deg, #e8d5b8, #d4a574)',
-            boxShadow: '0 4px 20px rgba(212,165,116,0.35)',
-            cursor: 'pointer', touchAction: 'manipulation',
-          }}
-        >
-          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <span style={{ fontSize: 18, fontWeight: 700, color: '#fff', letterSpacing: 1 }}>
-                {cl?.success ? '今日已领取' : loading ? '领取中...' : '今日盲盒'}
-              </span>
+        {/* ===== 每日盲盒 ===== */}
+        <div onClick={claim} onTouchEnd={claim} style={{
+          marginBottom: 14, padding: '20px 20px', borderRadius: 20,
+          background: 'linear-gradient(135deg, #e8d5b8, #d4a574)',
+          boxShadow: '0 4px 24px rgba(212,165,116,0.35)',
+          cursor: 'pointer', touchAction: 'manipulation', position: 'relative', overflow: 'hidden',
+        }}>
+          {/* 背景装饰圆 */}
+          <div style={{ position: 'absolute', top: -30, right: -20, width: 100, height: 100, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+          <div style={{ position: 'absolute', bottom: -40, left: -30, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} />
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 18, fontWeight: 700, color: '#fff' }}>
+                  {cl?.success ? '今日已领取' : loading ? '领取中...' : '每日盲盒'}
+                </span>
+                {cl?.success ? null : (
+                  <div style={{ padding: '2px 6px', borderRadius: 6, background: 'rgba(255,255,255,0.2)' }}>
+                    <span style={{ fontSize: 8, color: '#fff', fontWeight: 600 }}>每日</span>
+                  </div>
+                )}
+              </div>
               <div style={{ height: 4 }} />
               <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5 }}>
-                {cl?.success
-                  ? `获得 ${cl?.items?.length || 0} 种原料`
-                  : '每日签到领取随机原料 可加工成珠子'
-                }
+                {cl?.success ? `获得 ${cl?.items?.length || 0} 种原料` : '每日签到领取随机原料 可加工成珠子'}
               </span>
             </div>
             <div style={{
-              width: 50, height: 50, borderRadius: 16,
+              width: 52, height: 52, borderRadius: 16, flexShrink: 0,
               background: 'rgba(255,255,255,0.2)',
+              backdropFilter: 'blur(4px)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
             }}>
-              <span style={{ fontSize: 26, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}>
-                {cl?.success ? '🎁' : '🎀'}
-              </span>
+              <span style={{ fontSize: 26 }}>{cl?.success ? '🎁' : '🎀'}</span>
             </div>
           </div>
-          {/* 盲盒预览原料 */}
           {cl?.items && (
-            <div style={{ display: 'flex', flexDirection: 'row', gap: 6, marginTop: 10 }}>
+            <div style={{ display: 'flex', flexDirection: 'row', gap: 6, marginTop: 12, position: 'relative', zIndex: 1 }}>
               {cl.items.map((it: any, i: number) => {
                 const info = MATERIAL_INFO[it.id] || { label: it.name, color: '#999', bg: '#eee' }
                 return (
                   <div key={i} style={{
-                    padding: '3px 8px', borderRadius: 10,
-                    background: 'rgba(255,255,255,0.25)',
+                    padding: '4px 10px', borderRadius: 10,
+                    background: 'rgba(255,255,255,0.2)',
+                    display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 4,
                   }}>
+                    <div style={{ width: 8, height: 8, borderRadius: 4, background: info.color }} />
                     <span style={{ fontSize: 10, color: '#fff', fontWeight: 600 }}>{info.label} x{it.count}</span>
                   </div>
                 )
@@ -128,189 +214,143 @@ export default function IndexPage() {
           )}
         </div>
 
-        {/* ===== 统计行 ===== */}
+        {/* ===== 统计面板 ===== */}
         <div style={{
-          marginBottom: 16, padding: '10px 14px', borderRadius: 14,
+          marginBottom: 16, padding: '14px 16px', borderRadius: 16,
           background: theme.bgCard, border: `1px solid ${theme.borderLight}`,
-          display: 'flex', flexDirection: 'row', alignItems: 'center',
+          boxShadow: `0 2px 8px ${theme.shadow}`,
         }}>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-            <span style={{ fontSize: 18, fontWeight: 700, color: theme.textPrimary }}>{gemCount}</span>
-            <span style={{ fontSize: 9, color: theme.textSecondary }}>原料</span>
-          </div>
-          <div style={{ width: 1, height: 28, background: theme.borderLight }} />
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-            <span style={{ fontSize: 18, fontWeight: 700, color: theme.accent }}>{beadTotal}</span>
-            <span style={{ fontSize: 9, color: theme.textSecondary }}>珠子</span>
-          </div>
-          <div style={{ width: 1, height: 28, background: theme.borderLight }} />
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-            <span style={{ fontSize: 18, fontWeight: 700, color: theme.textPrimary }}>{collectedCount}/16</span>
-            <span style={{ fontSize: 9, color: theme.textSecondary }}>图鉴</span>
-          </div>
-          <div style={{ width: 1, height: 28, background: theme.borderLight }} />
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-            <span style={{ fontSize: 18, fontWeight: 700, color: theme.textPrimary }}>{scrapCount}</span>
-            <span style={{ fontSize: 9, color: theme.textSecondary }}>废料</span>
+          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+              <span style={{ fontSize: 20, fontWeight: 700, color: theme.textPrimary }}>{gemCount}</span>
+              <span style={{ fontSize: 9, color: theme.textSecondary, letterSpacing: 0.5 }}>原料</span>
+              <div style={{ width: 20, height: 3, borderRadius: 2, background: `${theme.accent}44`, marginTop: 2 }} />
+            </div>
+            <div style={{ width: 1, height: 36, background: theme.borderLight }} />
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+              <span style={{ fontSize: 20, fontWeight: 700, color: theme.accent }}>{beadTotal}</span>
+              <span style={{ fontSize: 9, color: theme.textSecondary, letterSpacing: 0.5 }}>珠子</span>
+              <div style={{ width: 20, height: 3, borderRadius: 2, background: `${theme.accent}44`, marginTop: 2 }} />
+            </div>
+            <div style={{ width: 1, height: 36, background: theme.borderLight }} />
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+              <span style={{ fontSize: 20, fontWeight: 700, color: theme.textPrimary }}>{collectedCount}/16</span>
+              <span style={{ fontSize: 9, color: theme.textSecondary, letterSpacing: 0.5 }}>图鉴</span>
+              <div style={{ width: 20, height: 3, borderRadius: 2, background: col => collectedCount >= 8 ? '#69f0ae44' : `${theme.accent}44`, marginTop: 2 }} />
+            </div>
+            <div style={{ width: 1, height: 36, background: theme.borderLight }} />
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+              <span style={{ fontSize: 20, fontWeight: 700, color: theme.textPrimary }}>{scrapCount}</span>
+              <span style={{ fontSize: 9, color: theme.textSecondary, letterSpacing: 0.5 }}>废料</span>
+              <div style={{ width: 20, height: 3, borderRadius: 2, background: '#a0988844', marginTop: 2 }} />
+            </div>
           </div>
         </div>
 
-        {/* ===== 快捷入口行 ===== */}
-        <div style={{ display: 'flex', flexDirection: 'row', gap: 8, marginBottom: 16 }}>
-          <div onClick={() => go('/pages/backpack/index')} style={{
-            flex: 1, padding: '10px 0', borderRadius: 12, cursor: 'pointer', touchAction: 'manipulation',
-            background: theme.bgCard, border: `1px solid ${theme.borderLight}`,
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
-          }}>
-            <span style={{ fontSize: 18 }}>🎒</span>
-            <span style={{ fontSize: 11, fontWeight: 600, color: theme.textPrimary }}>背包</span>
-            <span style={{ fontSize: 9, color: theme.textSecondary }}>{gemTypes} 种原料</span>
-          </div>
-          <div onClick={() => go('/pages/designer/index')} style={{
-            flex: 1, padding: '10px 0', borderRadius: 12, cursor: 'pointer', touchAction: 'manipulation',
-            background: theme.bgCard, border: `1px solid ${theme.borderLight}`,
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
-          }}>
-            <span style={{ fontSize: 18 }}>📿</span>
-            <span style={{ fontSize: 11, fontWeight: 600, color: theme.textPrimary }}>串珠</span>
-            <span style={{ fontSize: 9, color: theme.textSecondary }}>{beadTotal} 颗可用</span>
-          </div>
-          <div onClick={() => go('/pages/collection/index')} style={{
-            flex: 1, padding: '10px 0', borderRadius: 12, cursor: 'pointer', touchAction: 'manipulation',
-            background: theme.bgCard, border: `1px solid ${theme.borderLight}`,
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
-          }}>
-            <span style={{ fontSize: 18 }}>📕</span>
-            <span style={{ fontSize: 11, fontWeight: 600, color: theme.textPrimary }}>图鉴</span>
-            <span style={{ fontSize: 9, color: theme.textSecondary }}>{collectedCount}/16 种</span>
-          </div>
+        {/* ===== 快捷入口 ===== */}
+        <div style={{ display: 'flex', flexDirection: 'row', gap: 8, marginBottom: 18 }}>
+          <QuickBtn emoji="🎒" label="背包" sub={gemTypes > 0 ? `${gemTypes} 种原料` : '空背包'} onClick={() => go('/pages/backpack/index')} />
+          <QuickBtn emoji="📿" label="串珠" sub={beadTotal > 0 ? `${beadTotal} 颗可用` : '暂无珠子'} onClick={() => go('/pages/designer/index')} accent />
+          <QuickBtn emoji="📕" label="图鉴" sub={`${collectedCount}/16 种`} onClick={() => go('/pages/collection/index')} />
         </div>
 
         {/* ===== ① 采集源 ===== */}
         <div style={{ marginBottom: 10, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#d4c8a0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#fff' }}>1</span>
+          <StepBadge n={1} />
+          <span style={{ fontSize: 14, fontWeight: 600, color: theme.textPrimary }}>采集源</span>
+          <div style={{ padding: '1px 8px', borderRadius: 8, background: theme.borderLight }}>
+            <span style={{ fontSize: 9, color: theme.textSecondary }}>玩游戏获取原料</span>
           </div>
-          <span style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary }}>采集源</span>
-          <span style={{ fontSize: 10, color: theme.textSecondary }}>玩游戏获取原料</span>
         </div>
         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 }}>
           {SOURCES.map(src => (
             <div key={src.id} onClick={() => go(`/pages/scene/index?source=${src.id}`)} style={{
-              width: 'calc(33.33% - 7px)', padding: '14px 8px 10px',
-              background: theme.bgCard, borderRadius: theme.radiusCard,
+              width: 'calc(33.33% - 7px)', padding: '16px 8px 12px',
+              background: theme.bgCard, borderRadius: 16,
               border: `1px solid ${theme.borderLight}`, cursor: 'pointer',
               boxShadow: `0 2px 8px ${theme.shadow}`,
               display: 'flex', flexDirection: 'column', alignItems: 'center',
-              touchAction: 'manipulation',
+              touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent',
+              transition: 'transform 0.15s',
             }}>
-              <div style={{ width: 64, height: 64, borderRadius: 16, overflow: 'hidden', marginBottom: 8 }}>
+              <div style={{
+                width: 64, height: 64, borderRadius: 18, overflow: 'hidden', marginBottom: 8,
+                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+              }}>
                 <img src={src.gif} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
               <span style={{ fontSize: 12, fontWeight: 600, color: theme.textPrimary, textAlign: 'center' }}>{src.name}</span>
+              <span style={{ fontSize: 9, color: theme.textSecondary, marginTop: 2 }}>{src.desc}</span>
             </div>
           ))}
         </div>
 
-        {/* ===== ② 加工入口 ===== */}
-        <div onClick={() => go('/pages/backpack/index')} style={{
-          marginBottom: 12, padding: 0, borderRadius: 16, overflow: 'hidden',
-          background: theme.bgCard, border: `1px solid ${theme.borderLight}`,
-          boxShadow: `0 2px 8px ${theme.shadow}`, cursor: 'pointer', touchAction: 'manipulation',
-          display: 'flex', flexDirection: 'row', alignItems: 'stretch', position: 'relative',
-        }}>
-          <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 2, width: 22, height: 22, borderRadius: '50%', background: '#d4c8a0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#fff' }}>2</span>
-          </div>
-          <div style={{ width: 130, minHeight: 130, flexShrink: 0, overflow: 'hidden', background: '#f0e8d8' }}>
-            <img src="/images/home/thumb_workshop-illustration.png" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          </div>
-          <div style={{ flex: 1, padding: '14px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 3 }}>
-            <span style={{ fontSize: 15, fontWeight: 700, color: theme.textPrimary }}>背包加工</span>
-            <span style={{ fontSize: 11, color: theme.textSecondary, lineHeight: 1.7 }}>
-              {gemTypes > 0
-                ? `背包里有 ${gemTypes} 种原料可加工`
-                : '背包里还没有原料'
-              }
-            </span>
-            <div style={{
-              marginTop: 6, padding: '3px 10px', borderRadius: 10, alignSelf: 'flex-start',
-              background: gemTypes > 0 ? `${theme.accent}22` : theme.borderLight,
-            }}>
-              <span style={{ fontSize: 10, fontWeight: 600, color: gemTypes > 0 ? theme.accent : theme.textDisabled }}>
-                {gemTypes > 0 ? `${gemCount} 个原料待加工 →` : '先去采集'}
-              </span>
-            </div>
-          </div>
-          <div style={{ width: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <span style={{ fontSize: 16, color: '#d4c8a0' }}>›</span>
-          </div>
-        </div>
+        {/* ===== ② 加工 ===== */}
+        <FlowCard
+          num={2}
+          imgSrc="/images/home/thumb_workshop-illustration.png"
+          title="背包加工"
+          desc={gemTypes > 0 ? `背包里有 ${gemTypes} 种原料可加工成珠子` : '先去采集源获取原料吧'}
+          badge={{ text: gemTypes > 0 ? `${gemCount} 个原料待加工` : '空背包', active: gemTypes > 0 }}
+          onClick={() => go('/pages/backpack/index')}
+        />
 
-        {/* ===== ③ 串珠入口 ===== */}
-        <div onClick={() => go('/pages/designer/index')} style={{
-          marginBottom: 0, padding: 0, borderRadius: 16, overflow: 'hidden',
-          background: theme.bgCard, border: `1px solid ${theme.borderLight}`,
-          boxShadow: `0 2px 8px ${theme.shadow}`, cursor: 'pointer', touchAction: 'manipulation',
-          display: 'flex', flexDirection: 'row', alignItems: 'stretch', position: 'relative',
-        }}>
-          <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 2, width: 22, height: 22, borderRadius: '50%', background: '#d4c8a0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#fff' }}>3</span>
-          </div>
-          <div style={{ width: 130, minHeight: 130, flexShrink: 0, overflow: 'hidden', background: '#f0e8d8' }}>
-            <img src="/images/home/thumb_bead-stringing-icon.png" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          </div>
-          <div style={{ flex: 1, padding: '14px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 3 }}>
-            <span style={{ fontSize: 15, fontWeight: 700, color: theme.textPrimary }}>开始串珠</span>
-            <span style={{ fontSize: 11, color: theme.textSecondary, lineHeight: 1.7 }}>
-              {beadTotal > 0
-                ? `已有 ${beadTotal} 颗珠子可串成手串`
-                : '先采集加工获得珠子吧'
-              }
-            </span>
-            <div style={{
-              marginTop: 6, padding: '3px 10px', borderRadius: 10, alignSelf: 'flex-start',
-              background: beadTotal > 0 ? `${theme.accent}22` : theme.borderLight,
-            }}>
-              <span style={{ fontSize: 10, fontWeight: 600, color: beadTotal > 0 ? theme.accent : theme.textDisabled }}>
-                {beadTotal > 0 ? `${beadTypes} 种珠子` : '暂无珠子'}
-              </span>
-            </div>
-          </div>
-          <div style={{ width: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <span style={{ fontSize: 16, color: '#d4c8a0' }}>›</span>
-          </div>
-        </div>
+        {/* ===== ③ 串珠 ===== */}
+        <FlowCard
+          num={3}
+          imgSrc="/images/home/thumb_bead-stringing-icon.png"
+          title="开始串珠"
+          desc={beadTotal > 0 ? `已有 ${beadTotal} 颗珠子可串成手串` : '加工出珠子再来串手串吧'}
+          badge={{ text: beadTotal > 0 ? `${beadTypes} 种珠子` : '暂无珠子', active: beadTotal > 0 }}
+          onClick={() => go('/pages/designer/index')}
+        />
 
         {/* 分隔 */}
         <div style={{ height: 24 }} />
 
         {/* ===== 手串灵感 ===== */}
         <div style={{ marginBottom: 8 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary, marginBottom: 10 }}>手串灵感</span>
+          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+            <span style={{ fontSize: 14, fontWeight: 600, color: theme.textPrimary }}>手串灵感</span>
+            <span style={{ fontSize: 10, color: theme.textSecondary }}>定制你的专属手串</span>
+          </div>
           {BRACELETS.map(group => (
             <div key={group.label} style={{ marginBottom: 14 }}>
-              <div style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8, display: 'flex' }}>
-                <span style={{ fontSize: 12, fontWeight: 600, color: theme.textPrimary }}>{group.label}</span>
-                <div style={{ padding: '1px 6px', borderRadius: theme.radiusTag, background: theme.primaryLight }}>
-                  <span style={{ fontSize: 9, color: theme.primaryDark }}>{group.tag}</span>
+              <div style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10, display: 'flex' }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: theme.textPrimary }}>{group.label}</span>
+                <div style={{ padding: '2px 8px', borderRadius: 8, background: 'linear-gradient(135deg, #f5efe4, #efe5d5)' }}>
+                  <span style={{ fontSize: 9, color: '#b89870', fontWeight: 600 }}>{group.tag}</span>
                 </div>
               </div>
               <div style={{ overflowX: 'auto', width: '100%', whiteSpace: 'nowrap', WebkitOverflowScrolling: 'touch' }}>
-                <div style={{ display: 'flex', flexDirection: 'row', gap: 10, paddingLeft: 2, paddingRight: 2 }}>
+                <div style={{ display: 'flex', flexDirection: 'row', gap: 12, paddingLeft: 2, paddingRight: 2 }}>
                   {group.items.map((item, i) => (
-                    <div key={item.name} style={{ width: 120, flexShrink: 0, background: theme.bgPage, borderRadius: 10, overflow: 'hidden', position: 'relative' }}>
-                      <div style={{ position: 'absolute', top: 4, left: 4, zIndex: 2, width: 18, height: 18, borderRadius: '50%', background: i <= 0 ? '#e05a5a' : i === 1 ? theme.accent : theme.textDisabled, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ fontSize: 8, fontWeight: 700, color: '#fff' }}>{i + 1}</span>
+                    <div key={item.name} style={{
+                      width: 130, flexShrink: 0, background: theme.bgCard, borderRadius: 14,
+                      overflow: 'hidden', position: 'relative',
+                      border: `1px solid ${theme.borderLight}`,
+                      boxShadow: `0 2px 6px ${theme.shadow}`,
+                    }}>
+                      <div style={{
+                        position: 'absolute', top: 6, left: 6, zIndex: 2,
+                        width: 20, height: 20, borderRadius: '50%',
+                        background: i === 0 ? 'linear-gradient(135deg, #e05a5a, #d04040)' : i === 1 ? `linear-gradient(135deg, ${theme.accent}, #c4956a)` : '#d0c8b8',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.12)',
+                      }}>
+                        <span style={{ fontSize: 9, fontWeight: 700, color: '#fff' }}>{i + 1}</span>
                       </div>
-                      <div style={{ height: 90, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <div style={{ width: '100%', height: '100%', maxWidth: 90 }}>
+                      <div style={{ height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 0' }}>
+                        <div style={{ width: '100%', height: '100%', maxWidth: 100 }}>
                           <BeadPreviewRing beads={item.idx.map((i: number) => { const p = BEAD_PRODUCTS[i]; return p ? { ...p } : null }).filter(Boolean) as any[]} ropeColor={item.rope} onRemove={() => {}} compact stagger />
                         </div>
                       </div>
-                      <div style={{ padding: '2px 6px 6px', textAlign: 'center' }}>
-                        <span style={{ fontSize: 11, fontWeight: 600, color: theme.textPrimary }}>{item.name}</span>
-                        <span style={{ fontSize: 10, fontWeight: 700, color: theme.accent }}>{item.score} 分</span>
+                      <div style={{ padding: '2px 10px 10px', textAlign: 'center' }}>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: theme.textPrimary }}>{item.name}</span>
+                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4, marginTop: 2 }}>
+                          <span style={{ fontSize: 10, color: theme.textSecondary }}>{item.desc}</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: theme.accent }}>{item.score}</span>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -321,8 +361,8 @@ export default function IndexPage() {
         </div>
 
         {/* ===== 底部 ===== */}
-        <div style={{ padding: '16px 0 24px', textAlign: 'center' }}>
-          <span style={{ fontSize: 10, color: theme.textDisabled, letterSpacing: 4 }}>指尖流转 好运自来</span>
+        <div style={{ padding: '20px 0 28px', textAlign: 'center' }}>
+          <div style={{ fontSize: 10, color: theme.textDisabled, letterSpacing: 4 }}>指尖流转 好运自来</div>
         </div>
       </div>
     </div>
