@@ -417,8 +417,18 @@ export default function IndexPage() {
                 <div style={{ display: 'flex', flexDirection: 'row', gap: 12, paddingLeft: 2, paddingRight: 2 }}>
                   {group.items.map((item, i) => (
                     <div key={item.name}
-                      onClick={() => Taro.navigateTo({ url: '/pages/designer/index' })}
-                      onTouchEnd={() => Taro.navigateTo({ url: '/pages/designer/index' })}
+                      onClick={() => {
+                        const ids = item.idx.join(',')
+                        const n = encodeURIComponent(item.name)
+                        const r = encodeURIComponent(item.rope)
+                        Taro.navigateTo({ url: `/pages/checkout/index?beads=${ids}&rope=${r}&name=${n}` })
+                      }}
+                      onTouchEnd={() => {
+                        const ids = item.idx.join(',')
+                        const n = encodeURIComponent(item.name)
+                        const r = encodeURIComponent(item.rope)
+                        Taro.navigateTo({ url: `/pages/checkout/index?beads=${ids}&rope=${r}&name=${n}` })
+                      }}
                       style={{
                       width: 130, flexShrink: 0, background: theme.bgCard, borderRadius: 14,
                       overflow: 'hidden', position: 'relative',
