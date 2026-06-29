@@ -9,7 +9,7 @@
     "build:server": "pnpm --filter server build",
     "build:tt": "taro build --type tt",
     "build:weapp": "taro build --type weapp",
-    "build:web": "taro build --type h5 && cp -r public/images dist-web/images/ && cp -r public/videos dist-web/videos/ && cp -r public/sounds dist-web/sounds/ && node -e \"var f='dist-web/index.html',c=require('fs').readFileSync(f,'utf8');require('fs').writeFileSync(f,c.replace('<head>','<head><base href=\\\"/lingzhu-h5/\\\">'))\"",
+    "build:web": "taro build --type h5 && cp -r public/images dist-web/images/ && cp -r public/videos dist-web/videos/ && cp -r public/sounds dist-web/sounds/ && node scripts/inject-base.js",
     "dev": "pnpm exec concurrently --kill-others --kill-signal SIGKILL -n web,server -c blue,green \"pnpm dev:web\" \"pnpm dev:server\"",
     "dev:server": "pnpm --filter server dev",
     "dev:tt": "taro build --type tt --watch",
