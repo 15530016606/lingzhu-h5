@@ -1,15 +1,9 @@
 import { useState } from 'react'
 import Taro from '@tarojs/taro'
 import { theme } from '@/lib/theme'
-
-const BASE_URL = 'http://localhost:3000'
-async function api(path: string, options?: RequestInit) {
-  const token = localStorage.getItem('token')
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-  if (token) headers['Authorization'] = `Bearer ${token}`
-  const res = await fetch(`${BASE_URL}/api${path}`, { ...options, headers: { ...headers, ...options?.headers as Record<string, string> } })
-  return res.json()
-}
+import { login, getMe, getMaterialsFromAPI, getBeadsFromAPI } from '@/lib/api'
+import { syncBackpackFromAPI, clearBackpack } from '@/lib/backpack'
+import { syncInventoryFromAPI, clearInventory } from '@/lib/inventory'
 
 export default function SignInPage() {
   const [phone, setPhone] = useState('')
@@ -22,19 +16,20 @@ export default function SignInPage() {
     if (!valid || loading) return
     setLoading(true)
     try {
-      const data = await api('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ phone: phone.trim(), password: password.trim() }),
-      })
+      const data = await login(phone.trim(), password.trim())
       if (data.token) {
         localStorage.setItem('token', data.token)
-        // 获取用户信息
-        const me = await api('/auth/me')
-        if (me) {
-          localStorage.setItem('user_phone', me.phone || phone.trim())
-        }
+        // 清空旧缓存，从后端同步用户数据
+        clearBackpack()
+        clearInventory()
+        const me = await getMe()
+        if (me?.phone) localStorage.setItem('user_phone', me.phone)
+        // 同步背包和珠子库存
+        const mats = await getMaterialsFromAPI()
+        if (Array.isArray(mats)) await syncBackpackFromAPI(mats)
+        const beads = await getBeadsFromAPI()
+        if (Array.isArray(beads)) await syncInventoryFromAPI(beads)
         Taro.showToast({ title: '登录成功', icon: 'success' })
-        // 跳回首页
         setTimeout(() => { window.location.hash = '#/pages/index/index' }, 300)
       } else {
         Taro.showToast({ title: data.message || '登录失败', icon: 'none' })

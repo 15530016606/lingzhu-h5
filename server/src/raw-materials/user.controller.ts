@@ -116,6 +116,28 @@ export class UserController {
 
   // 需要 JWT 鉴权的 API
   @UseGuards(JwtAuthGuard)
+  @Post('claim-daily')
+  async claimDaily(@Req() req: any) {
+    const db = getDb();
+    const userId = req.user.userId;
+    // 随机生成 2-3 种原料
+    const types = ['white','purple','pink','gold','green','blue','jade_green','jade_white','wood_root','bark','fruit_seed','fruit_pulp','shell','pebble','artificial_clay','artificial_resin'];
+    const count = 2 + Math.floor(Math.random() * 2); // 2~3 种
+    const picked = new Set<string>();
+    while (picked.size < count) {
+      picked.add(types[Math.floor(Math.random() * types.length)]);
+    }
+    const items: { id: string; name: string; count: number }[] = [];
+    for (const id of picked) {
+      const qty = 1 + Math.floor(Math.random() * 3); // 1~3 个
+      await this.s.addMaterial(userId, id, qty);
+      const mt = await db.select().from(materialTypes).where(sql`${materialTypes.id}=${id}`).get();
+      items.push({ id, name: mt?.name || id, count: qty });
+    }
+    return { success: true, items };
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('materials')
   async getMaterials(@Req() req: any) { return this.s.getMaterials(req.user.userId); }
 

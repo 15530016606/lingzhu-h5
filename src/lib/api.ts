@@ -1,68 +1,77 @@
-// 前端 API 客户端
-// Taro H5 dev server 已配置 proxy: /api → localhost:3000
+// 统一 API 客户端 — 自动携带 JWT token
+const BASE_URL = 'http://localhost:3000'
 
-const API_BASE = '/api'
+function getToken(): string | null {
+  return localStorage.getItem('token')
+}
 
-async function fetchJSON(url: string, options?: RequestInit) {
-  const res = await fetch(`${API_BASE}${url}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
+async function request(path: string, options?: RequestInit): Promise<any> {
+  const token = getToken()
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (token) headers['Authorization'] = `Bearer ${token}`
+  try {
+    const res = await fetch(`${BASE_URL}/api${path}`, {
+      ...options,
+      headers: { ...headers, ...(options?.headers || {}) as Record<string, string> },
+    })
+    const data = await res.json()
+    return data
+  } catch {
+    return null
+  }
+}
+
+// ===== 用户 API =====
+export async function login(phone: string, password: string) {
+  return request('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ phone, password }),
   })
-  if (!res.ok) throw new Error(`API error: ${res.status}`)
-  return res.json()
 }
 
-export interface ProductDTO {
-  id: number
-  name: string
-  type: 'bead' | 'accessory'
-  category: string
-  materialType: string | null
-  size: string | null
-  price: number    // 分
-  imageUrl: string
-  stock: number
-  isActive: boolean
+export async function register(phone: string, password: string) {
+  return request('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify({ phone, password }),
+  })
 }
 
-export interface OreDTO {
-  id: string
-  name: string
-  rarity: 'common' | 'uncommon' | 'rare' | 'legendary'
-  imageUrl: string
-  polishMs: number
-  outputs: string
+export async function getMe() {
+  return request('/auth/me')
 }
 
-export interface PaginatedResult {
-  data: any[]
-  total: number
-  page: number
-  limit: number
+// ===== 每日盲盒 =====
+export async function claimDaily() {
+  return request('/user/claim-daily', { method: 'POST' })
 }
 
-export const api = {
-  getProducts(params?: { type?: string; category?: string; page?: number; limit?: number }) {
-    const q = new URLSearchParams()
-    if (params?.type) q.set('type', params.type)
-    if (params?.category) q.set('category', params.category)
-    if (params?.page) q.set('page', String(params.page))
-    if (params?.limit) q.set('limit', String(params.limit))
-    return fetchJSON(`/products?${q}`) as Promise<PaginatedResult>
-  },
+// ===== 原料背包 API =====
+export async function getMaterialsFromAPI(): Promise<any[]> {
+  return request('/user/materials') || []
+}
 
-  getProduct(id: number) {
-    return fetchJSON(`/products/${id}`) as Promise<ProductDTO>
-  },
+export async function addMaterialToAPI(materialType: string, count = 1) {
+  return request('/user/materials/add', {
+    method: 'POST',
+    body: JSON.stringify({ materialType, count }),
+  })
+}
 
-  getCategories() {
-    return fetchJSON('/products/categories') as Promise<string[]>
-  },
+export async function consumeMaterialFromAPI(materialType: string) {
+  return request('/user/materials/consume', {
+    method: 'POST',
+    body: JSON.stringify({ materialType }),
+  })
+}
 
-  getOres() {
-    return fetchJSON('/ores') as Promise<OreDTO[]>
-  },
+// ===== 珠子库存 API =====
+export async function getBeadsFromAPI(): Promise<any[]> {
+  return request('/user/beads') || []
+}
+
+export async function addBeadToAPI(name: string, materialType: string, quality: string) {
+  return request('/user/beads/add', {
+    method: 'POST',
+    body: JSON.stringify({ name, materialType, quality }),
+  })
 }

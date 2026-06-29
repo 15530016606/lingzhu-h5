@@ -1,15 +1,9 @@
 import { useState } from 'react'
 import Taro from '@tarojs/taro'
 import { theme } from '@/lib/theme'
-
-const BASE_URL = 'http://localhost:3000'
-async function api(path: string, options?: RequestInit) {
-  const token = localStorage.getItem('token')
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-  if (token) headers['Authorization'] = `Bearer ${token}`
-  const res = await fetch(`${BASE_URL}/api${path}`, { ...options, headers: { ...headers, ...options?.headers as Record<string, string> } })
-  return res.json()
-}
+import { register, getMe, getMaterialsFromAPI, getBeadsFromAPI } from '@/lib/api'
+import { syncBackpackFromAPI, clearBackpack } from '@/lib/backpack'
+import { syncInventoryFromAPI, clearInventory } from '@/lib/inventory'
 
 export default function RegisterPage() {
   const [phone, setPhone] = useState('')
@@ -31,12 +25,12 @@ export default function RegisterPage() {
     }
     setLoading(true)
     try {
-      const data = await api('/auth/register', {
-        method: 'POST',
-        body: JSON.stringify({ phone: phone.trim(), password: password.trim() }),
-      })
+      const data = await register(phone.trim(), password.trim())
       if (data.token) {
         localStorage.setItem('token', data.token)
+        // 清空旧缓存
+        clearBackpack()
+        clearInventory()
         localStorage.setItem('user_phone', phone.trim())
         Taro.showToast({ title: '注册成功', icon: 'success' })
         setTimeout(() => { window.location.hash = '#/pages/index/index' }, 300)
