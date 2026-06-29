@@ -10,7 +10,7 @@ const CRAFT_FEE = 500 // ¥5.00 in cents
 const SHIPPING_FEE = 800 // ¥8.00 in cents
 
 function parsePrice(p: any): number {
-  if (typeof p === 'number') return p
+  if (typeof p === 'number') return Math.round(p * 100)
   if (typeof p === 'string') {
     const n = parseFloat(p.replace(/[¥￥,]/g, ''))
     return isNaN(n) ? 0 : Math.round(n * 100)
@@ -55,11 +55,16 @@ export default function CheckoutPage() {
 
   const beads: BeadProduct[] = beadIds.map(id => BEAD_PRODUCTS[id]).filter(Boolean)
 
-  const beadSubtotal = beadSummary.reduce((s, item) => {
-    const needToBuy = Math.max(0, item.count - item.owned)
-    return s + parsePrice(item.product.price) * needToBuy
+  const beadFullPrice = beadSummary.reduce((s, item) => {
+    return s + parsePrice(item.product.price) * item.count
   }, 0)
 
+  const beadOwnedValue = beadSummary.reduce((s, item) => {
+    const owned = Math.min(item.count, item.owned)
+    return s + parsePrice(item.product.price) * owned
+  }, 0)
+
+  const beadSubtotal = beadFullPrice - beadOwnedValue
   const totalPrice = beadSubtotal + CRAFT_FEE + SHIPPING_FEE
   const allOwned = beadSummary.every(item => item.count <= item.owned)
 
@@ -187,9 +192,15 @@ export default function CheckoutPage() {
           boxShadow: `0 2px 12px ${theme.shadow}`, padding: 16,
         }}>
           <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-            <span style={{ fontSize: 12, color: theme.textSecondary }}>珠子小计</span>
-            <span style={{ fontSize: 12, color: theme.textPrimary }}>¥{(beadSubtotal / 100).toFixed(2)}</span>
+            <span style={{ fontSize: 12, color: theme.textSecondary }}>珠子原价</span>
+            <span style={{ fontSize: 12, color: theme.textPrimary }}>¥{(beadFullPrice / 100).toFixed(2)}</span>
           </div>
+          {beadOwnedValue > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+              <span style={{ fontSize: 12, color: '#7da88a', fontWeight: 600 }}>背包已有关减免</span>
+              <span style={{ fontSize: 12, color: '#7da88a' }}>-¥{(beadOwnedValue / 100).toFixed(2)}</span>
+            </div>
+          )}
           <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
             <span style={{ fontSize: 12, color: theme.textSecondary }}>手工费</span>
             <span style={{ fontSize: 12, color: theme.accent, fontWeight: 600 }}>¥{(CRAFT_FEE / 100).toFixed(2)}</span>
