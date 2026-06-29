@@ -3,6 +3,7 @@ import { AppModule } from '@/app.module';
 import * as express from 'express';
 import * as http from 'http';
 import { HttpStatusInterceptor } from '@/interceptors/http-status.interceptor';
+import { migrateV3 } from '@/database/migrate-v3';
 
 function parsePort(): number {
   const args = process.argv.slice(2);
@@ -18,6 +19,13 @@ function parsePort(): number {
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // 数据库迁移
+  try {
+    await migrateV3()
+  } catch (e) {
+    console.error('[bootstrap] migration failed:', e)
+  }
 
   app.enableCors({
     origin: true,
