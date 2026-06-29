@@ -22,7 +22,7 @@ const MAT_LIST = ['white','purple','pink','gold','green','blue','jade_green','ja
 export default function DesignerPage() {
   const [inventory, setInventory] = useState<BeadItem[]>([])
   const [selectedBeads, setSelectedBeads] = useState<BeadProduct[]>([])
-  const [selectedMeta, setSelectedMeta] = useState<{ id: string; name: string }[]>([])
+  const [selectedMeta, setSelectedMeta] = useState<{ id: string; name: string; material: string }[]>([])
   const [ropeColor, setRopeColor] = useState('rgba(180,180,180,0.6)')
   // 记录每种珠子在串珠中已用个数
   const usedCount = useRef<Record<string, number>>({})
@@ -58,7 +58,7 @@ export default function DesignerPage() {
       _key: `${item.id}_${Date.now()}`,
     }
     setSelectedBeads(prev => [...prev, beadProduct])
-    setSelectedMeta(prev => [...prev, { id: item.id, name: item.name }])
+    setSelectedMeta(prev => [...prev, { id: item.id, name: item.name, material: item.material }])
     usedCount.current[item.id] = used + 1
   }, [selectedBeads.length])
 
@@ -81,13 +81,15 @@ export default function DesignerPage() {
     playSound('whoosh', 0.3)
   }, [])
 
-  const confirmDesign = useCallback(() => {
+  const confirmDesign = useCallback(async () => {
     if (selectedBeads.length < 2) {
       Taro.showToast({ title: '至少选2颗珠子', icon: 'none' })
       return
     }
     // 消耗珠子
-    selectedMeta.forEach(m => consumeBead(m.id))
+    for (const m of selectedMeta) {
+      await consumeBead(m.id, m.material)
+    }
     Taro.showToast({ title: `已串好 ${selectedBeads.length} 颗`, icon: 'success' })
     // 更新库存显示
     setInventory(getInventory())

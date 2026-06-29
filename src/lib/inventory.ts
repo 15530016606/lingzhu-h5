@@ -53,10 +53,19 @@ export async function addBead(name: string, material: string, quality: string) {
 export async function consumeBead(id: string, materialType?: string, quality?: string) {
   const inv = getInventory()
   const idx = inv.findIndex(i => i.id === id)
+  let consumed = false
   if (idx >= 0) {
     inv[idx].count--
     if (inv[idx].count <= 0) inv.splice(idx, 1)
     saveInventory(inv)
+    consumed = true
+  }
+  // 后端同步
+  if (materialType) {
+    try {
+      const { consumeMaterialFromAPI } = await import('./api')
+      await consumeMaterialFromAPI(materialType)
+    } catch {}
   }
   return inv
 }
