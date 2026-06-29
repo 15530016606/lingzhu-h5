@@ -4,6 +4,7 @@ import '@/app.css';
 import { Toaster } from '@/components/ui/toast';
 import { Preset } from './presets';
 import { startBGM, preloadSounds } from '@/lib/sound';
+import CursorEffect from '@/components/CursorEffect';
 
 const App = ({ children }: PropsWithChildren) => {
   useEffect(() => {
@@ -22,6 +23,7 @@ const App = ({ children }: PropsWithChildren) => {
     <LucideTaroProvider defaultColor="#000" defaultSize={24}>
       <Preset>{children}</Preset>
       <Toaster />
+      <CursorEffect />
     </LucideTaroProvider>
   );
 };
