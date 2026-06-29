@@ -18,7 +18,7 @@ export function getInventory(): BeadItem[] {
 
 export function addBead(name: string, material: string, quality: string) {
   const inv = getInventory()
-  const id = `${material}_${name}`
+  const id = `${material}_${name}_${quality}`
   const exist = inv.find(i => i.id === id)
   if (exist) {
     exist.count++

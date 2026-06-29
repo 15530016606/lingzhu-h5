@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Taro from '@tarojs/taro'
 import { theme } from '@/lib/theme'
 import { playSound } from '@/lib/sound'
@@ -17,27 +17,35 @@ const COLORS: Record<string, string> = {
   artificial_clay: '#c0a888', artificial_resin: '#d4b898',
 }
 
+const MAT_LIST = ['white','purple','pink','gold','green','blue','jade_green','jade_white','wood_root','bark','fruit_seed','fruit_pulp','shell','pebble','artificial_clay','artificial_resin']
+
 export default function DesignerPage() {
   const [inventory, setInventory] = useState<BeadItem[]>([])
   const [selectedBeads, setSelectedBeads] = useState<BeadProduct[]>([])
   const [selectedMeta, setSelectedMeta] = useState<{ id: string; name: string }[]>([])
   const [ropeColor, setRopeColor] = useState('rgba(180,180,180,0.6)')
+  // 记录每种珠子在串珠中已用个数
+  const usedCount = useRef<Record<string, number>>({})
 
   useEffect(() => {
     setInventory(getInventory())
   }, [])
+
+  const getUsed = useCallback((id: string) => usedCount.current[id] || 0, [])
 
   const addBead = useCallback((item: BeadItem) => {
     if (selectedBeads.length >= 16) {
       Taro.showToast({ title: '最多16颗', icon: 'none' })
       return
     }
+    // 校验库存数量
+    const used = usedCount.current[item.id] || 0
+    if (used >= item.count) {
+      Taro.showToast({ title: '库存不足', icon: 'none' })
+      return
+    }
     playSound('chime1', 0.3)
-    // 从 inventory 创建 BeadProduct 兼容对象
-    const color = COLORS[item.material] || '#a0c4ff'
-    // 根据原料类型映射到现有珠子图片
-    const imgIndex = ['white','purple','pink','gold','green','blue','jade_green','jade_white','wood_root','bark','fruit_seed','fruit_pulp','shell','pebble','artificial_clay','artificial_resin']
-      .indexOf(item.material)
+    const imgIndex = MAT_LIST.indexOf(item.material)
     const imageUrl = imgIndex >= 0 ? `${imgIndex}.png` : '0.png'
     const beadProduct: BeadProduct = {
       id: item.id,
@@ -51,17 +59,25 @@ export default function DesignerPage() {
     }
     setSelectedBeads(prev => [...prev, beadProduct])
     setSelectedMeta(prev => [...prev, { id: item.id, name: item.name }])
+    usedCount.current[item.id] = used + 1
   }, [selectedBeads.length])
 
   const removeBead = useCallback((index: number) => {
+    const removed = selectedMeta[index]
     setSelectedBeads(prev => prev.filter((_, i) => i !== index))
     setSelectedMeta(prev => prev.filter((_, i) => i !== index))
+    // 释放已用计数
+    if (removed) {
+      const cur = usedCount.current[removed.id] || 0
+      usedCount.current[removed.id] = Math.max(0, cur - 1)
+    }
     playSound('click_error', 0.2)
-  }, [])
+  }, [selectedMeta])
 
   const clearAll = useCallback(() => {
     setSelectedBeads([])
     setSelectedMeta([])
+    usedCount.current = {}
     playSound('whoosh', 0.3)
   }, [])
 
@@ -72,14 +88,44 @@ export default function DesignerPage() {
     }
     // 消耗珠子
     selectedMeta.forEach(m => consumeBead(m.id))
-    const beadNames = selectedMeta.map(m => m.name).join(',')
     Taro.showToast({ title: `已串好 ${selectedBeads.length} 颗`, icon: 'success' })
-    Taro.navigateBack()
+    // 更新库存显示
+    setInventory(getInventory())
+    setSelectedBeads([])
+    setSelectedMeta([])
+    usedCount.current = {}
   }, [selectedBeads, selectedMeta])
 
   return (
     <div style={{ minHeight: '100vh', background: theme.bgPage }}>
       <div style={{ overflowY: 'auto', flex: 1, padding: '16px' }}>
+
+        {/* 顶栏 */}
+        <div style={{
+          marginBottom: 16, display: 'flex', flexDirection: 'row', alignItems: 'center',
+        }}>
+          <span onClick={() => Taro.navigateBack()} style={{
+            fontSize: 16, color: theme.textSecondary, marginRight: 12,
+            cursor: 'pointer', touchAction: 'manipulation', padding: '2px 4px',
+          }}>‹</span>
+          <div style={{
+            width: 24, height: 24, borderRadius: 8, flexShrink: 0, marginRight: 8,
+            background: 'linear-gradient(135deg, #d4a574, #c4956a)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{ fontSize: 11, color: '#fff', fontWeight: 700 }}>串</span>
+          </div>
+          <span style={{ fontSize: 16, fontWeight: 600, color: theme.textPrimary }}>串珠</span>
+          <div style={{ flex: 1 }} />
+          <div style={{
+            padding: '3px 10px', borderRadius: 10,
+            background: selectedBeads.length >= 2 ? `${theme.accent}22` : theme.borderLight,
+          }}>
+            <span style={{ fontSize: 10, fontWeight: 600, color: selectedBeads.length >= 2 ? theme.accent : theme.textDisabled }}>
+              {selectedBeads.length}/16
+            </span>
+          </div>
+        </div>
 
         {/* 预览区域 */}
         <div style={{
@@ -154,17 +200,21 @@ export default function DesignerPage() {
           <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {inventory.map((item, i) => {
               const color = COLORS[item.material] || '#a0c4ff'
+              const used = usedCount.current[item.id] || 0
+              const remain = item.count - used
               return (
                 <div
                   key={item.id}
                   onClick={() => addBead(item)}
                   onTouchEnd={() => addBead(item)}
                   style={{
-                    width: 'calc(33.33% - 6px)', padding: '12px 6px 10px',
+                    width: 'calc(33.33% - 6px)', padding: '14px 6px 10px',
                     background: theme.bgCard, borderRadius: 12,
                     border: `1px solid ${theme.borderLight}`,
                     display: 'flex', flexDirection: 'column', alignItems: 'center',
                     gap: 4, cursor: 'pointer', touchAction: 'manipulation',
+                    opacity: remain > 0 ? 1 : 0.35,
+                    boxShadow: remain > 0 ? `0 2px 6px ${theme.shadow}` : 'none',
                   }}
                 >
                   <div style={{
@@ -181,8 +231,18 @@ export default function DesignerPage() {
                     {item.name}
                   </span>
                   <span style={{ fontSize: 9, color: theme.textSecondary }}>
-                    {item.quality} · x{item.count}
+                    {item.quality} · {remain > 0 ? `剩余 ${remain}` : '已用完'}
                   </span>
+                  {used > 0 && (
+                    <div style={{
+                      padding: '1px 6px', borderRadius: 6,
+                      background: `${theme.accent}33`,
+                    }}>
+                      <span style={{ fontSize: 8, color: theme.accent, fontWeight: 600 }}>
+                        已选 {used}
+                      </span>
+                    </div>
+                  )}
                 </div>
               )
             })}
