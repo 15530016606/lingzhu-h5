@@ -28,7 +28,14 @@ export default function SignInPage() {
       })
       if (data.token) {
         localStorage.setItem('token', data.token)
-        Taro.navigateBack()
+        // 获取用户信息
+        const me = await api('/auth/me')
+        if (me) {
+          localStorage.setItem('user_phone', me.phone || phone.trim())
+        }
+        Taro.showToast({ title: '登录成功', icon: 'success' })
+        // 跳回首页
+        setTimeout(() => { window.location.hash = '#/pages/index/index' }, 300)
       } else {
         Taro.showToast({ title: data.message || '登录失败', icon: 'none' })
       }
@@ -39,46 +46,70 @@ export default function SignInPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: theme.bgPage, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 24px' }}>
-      {/* Header */}
-      <div style={{ marginBottom: 32 }}>
-        <span style={{ fontSize: 26, fontWeight: 700, color: theme.textPrimary, letterSpacing: 2 }}>欢迎回来</span>
-        <span style={{ fontSize: 13, color: theme.textSecondary, marginTop: 6 }}>登录后继续你的手作之旅</span>
+    <div style={{
+      minHeight: '100vh', background: 'linear-gradient(180deg, #faf6ed 0%, #f5efe4 100%)',
+      display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 28px',
+    }}>
+      {/* Logo */}
+      <div style={{
+        width: 48, height: 48, borderRadius: 16, marginBottom: 20,
+        background: 'linear-gradient(135deg, #d4a574, #c4956a)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        boxShadow: '0 4px 16px rgba(212,165,116,0.35)',
+      }}>
+        <span style={{ fontSize: 22, color: '#fff', fontWeight: 700 }}>灵</span>
       </div>
+      <span style={{ fontSize: 24, fontWeight: 700, color: theme.textPrimary, letterSpacing: 1, marginBottom: 4 }}>欢迎回来</span>
+      <span style={{ fontSize: 13, color: theme.textSecondary, marginBottom: 32 }}>登录后继续你的手作之旅</span>
 
-      {/* Card */}
-      <div style={{ padding: 24, background: theme.bgCard, borderRadius: theme.radiusCard, border: `1px solid ${theme.borderLight}`, boxShadow: theme.shadow }}>
-        {/* Phone input */}
+      {/* 表单卡片 */}
+      <div style={{
+        padding: 24, borderRadius: 20,
+        background: theme.bgCard, border: `1px solid ${theme.borderLight}`,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
+      }}>
         <input
           placeholder='手机号码'
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          style={{ width: '100%', padding: '14px 16px', background: '#f5f0e8', borderRadius: theme.radiusBtn, marginBottom: 12, fontSize: 14, color: theme.textPrimary, border: 'none', outline: 'none', boxSizing: 'border-box' }}
+          style={{
+            width: '100%', padding: '14px 16px', background: '#f5f0e8',
+            borderRadius: 14, marginBottom: 12, fontSize: 15, color: theme.textPrimary,
+            border: 'none', outline: 'none', boxSizing: 'border-box',
+          }}
         />
-
-        {/* Password input */}
         <input
           placeholder='密码'
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          style={{ width: '100%', padding: '14px 16px', background: '#f5f0e8', borderRadius: theme.radiusBtn, marginBottom: 20, fontSize: 14, color: theme.textPrimary, border: 'none', outline: 'none', boxSizing: 'border-box' }}
+          style={{
+            width: '100%', padding: '14px 16px', background: '#f5f0e8',
+            borderRadius: 14, marginBottom: 24, fontSize: 15, color: theme.textPrimary,
+            border: 'none', outline: 'none', boxSizing: 'border-box',
+          }}
         />
-
-        {/* Login button */}
         <div
           onClick={handleLogin}
-          style={{ width: '100%', padding: '14px 0', borderRadius: theme.radiusBtn, background: valid ? theme.primary : theme.border, cursor: valid ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', touchAction: 'manipulation' }}
+          style={{
+            width: '100%', padding: '14px 0', borderRadius: 16,
+            background: valid ? 'linear-gradient(135deg, #d4a574, #c4956a)' : '#e0dcd4',
+            cursor: valid ? 'pointer' : 'not-allowed',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            touchAction: 'manipulation', transition: 'opacity 0.15s',
+          }}
         >
-          <span style={{ fontSize: 15, fontWeight: 600, color: '#fff' }}>{loading ? '登录中...' : '登录'}</span>
+          <span style={{ fontSize: 15, fontWeight: 600, color: '#fff' }}>
+            {loading ? '登录中...' : '登录'}
+          </span>
         </div>
       </div>
 
-      {/* Register link */}
-      <div style={{ marginTop: 20, display: 'flex', justifyContent: 'center' }}>
+      {/* 去注册 */}
+      <div style={{ marginTop: 20, textAlign: 'center' }}>
         <span
           onClick={() => Taro.navigateTo({ url: '/pages/register/index' })}
-          style={{ fontSize: 13, color: theme.textSecondary, cursor: 'pointer', textDecoration: 'underline', textUnderlineOffset: 2, touchAction: 'manipulation' }}
+          style={{ fontSize: 13, color: theme.accent, cursor: 'pointer', touchAction: 'manipulation', fontWeight: 500 }}
         >
           没有账号? 去注册
         </span>

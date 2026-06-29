@@ -112,6 +112,7 @@ export default function IndexPage() {
   const [claimed, setClaimed] = useState(false)
   const [cl, setCl] = useState<any>(null)
   const [loading, setLoading] = useState(false)
+  const [userPhone, setUserPhone] = useState('')
 
   const gemCount = getGemCount()
   const scrapCount = getScrapCount()
@@ -121,9 +122,19 @@ export default function IndexPage() {
   const beadTotal = beadInv.reduce((s, i) => s + i.count, 0)
   const beadTypes = beadInv.length
   const collectedCount = new Set(beadInv.map(i => i.material)).size
-  const hasAny = gemCount > 0 || beadTotal > 0 || collectedCount > 0
 
-  useEffect(() => { preloadSounds() }, [])
+  useEffect(() => {
+    preloadSounds()
+    // 读取用户手机号
+    const phone = localStorage.getItem('user_phone')
+    if (phone) setUserPhone(phone)
+  }, [])
+
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user_phone')
+    window.location.hash = '#/pages/signin/index'
+  }, [])
 
   const claim = useCallback(async () => {
     if (claimed || loading) return; setLoading(true)
@@ -152,11 +163,28 @@ export default function IndexPage() {
             <div style={{ fontSize: 9, color: theme.textSecondary, letterSpacing: 2, marginTop: 1 }}>从一颗原石开始</div>
           </div>
           <div style={{ flex: 1 }} />
-          {/* 登录/注册入口 */}
-          <div onClick={() => { const t = Taro.getStorageSync('token'); if (t) Taro.showToast({ title: '已登录', icon: 'none' }); else go('/pages/signin/index') }}
-            style={{ padding: '4px 10px', borderRadius: 12, background: theme.borderLight, cursor: 'pointer', touchAction: 'manipulation' }}>
-            <span style={{ fontSize: 10, color: theme.textSecondary }}>{Taro.getStorageSync('token') ? '已登录' : '登录'}</span>
-          </div>
+          {/* 登录/登出入口 */}
+          {userPhone ? (
+            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <div style={{
+                width: 24, height: 24, borderRadius: 8, flexShrink: 0,
+                background: 'linear-gradient(135deg, #d4a574, #c4956a)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <span style={{ fontSize: 10, color: '#fff', fontWeight: 700 }}>
+                  {userPhone.slice(-4)}
+                </span>
+              </div>
+              <span onClick={handleLogout}
+                style={{ fontSize: 10, color: '#b8a898', cursor: 'pointer', touchAction: 'manipulation', padding: '2px 4px' }}
+              >退出</span>
+            </div>
+          ) : (
+            <div onClick={() => { const t = Taro.getStorageSync('token'); if (t) Taro.showToast({ title: '已登录', icon: 'none' }); else go('/pages/signin/index') }}
+              style={{ padding: '4px 10px', borderRadius: 12, background: theme.borderLight, cursor: 'pointer', touchAction: 'manipulation' }}>
+              <span style={{ fontSize: 10, color: theme.textSecondary }}>登录</span>
+            </div>
+          )}
         </div>
 
         {/* ===== 每日盲盒 ===== */}
