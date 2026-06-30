@@ -59,7 +59,7 @@ export function playRareSound() {
 export function startBGM(volume = 0.15) {
   stopBGM()
   try {
-    const audio = new Audio('/sounds/bgm.mp3')
+    const audio = new Audio('./sounds/bgm.mp3')
     audio.loop = true
     audio.volume = volume
     audio.play().catch(() => {

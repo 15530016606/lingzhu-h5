@@ -9,8 +9,11 @@ import { getInventory } from '@/lib/inventory'
 import { MATERIAL_INFO } from '@/lib/material-map'
 const BASE_URL = 'http://localhost:3000'
 async function api(path: string, options?: RequestInit) {
-  const res = await fetch(`${BASE_URL}/api${path}`, { ...options, headers: { 'Content-Type': 'application/json', ...options?.headers } })
-  return res.json()
+  try {
+    const res = await fetch(`${BASE_URL}/api${path}`, { ...options, headers: { 'Content-Type': 'application/json', ...options?.headers } })
+    if (!res.ok) return { success: false, message: '服务不可用' }
+    return await res.json()
+  } catch { return { success: false, message: '请连接后端服务' } }
 }
 
 function requireLogin(): boolean {
