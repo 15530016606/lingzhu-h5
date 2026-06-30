@@ -20,12 +20,12 @@ function requireLogin(): boolean {
 }
 
 const SOURCES = [
-  { id: 'crystal', name: '水晶矿场', desc: '开采水晶原矿', gif: '/videos/bear-brown.gif' },
-  { id: 'jade', name: '玉石矿场', desc: '开采玉石原石', gif: '/videos/bear-cub.gif' },
-  { id: 'forest', name: '森林', desc: '收集木材树根', gif: '/videos/deer.gif' },
-  { id: 'orchard', name: '果园', desc: '采摘果实种子', gif: '/videos/rabbit.gif' },
-  { id: 'beach', name: '河床海岸', desc: '拾取卵石贝壳', gif: '/videos/otter.gif' },
-  { id: 'workshop', name: '工坊', desc: '制胚烧制琉璃', gif: '/videos/workshop-icon.gif' },
+  { id: 'crystal', name: '水晶矿场', desc: '开采水晶原矿', gif: './videos/bear-brown.gif' },
+  { id: 'jade', name: '玉石矿场', desc: '开采玉石原石', gif: './videos/bear-cub.gif' },
+  { id: 'forest', name: '森林', desc: '收集木材树根', gif: './videos/deer.gif' },
+  { id: 'orchard', name: '果园', desc: '采摘果实种子', gif: './videos/rabbit.gif' },
+  { id: 'beach', name: '河床海岸', desc: '拾取卵石贝壳', gif: './videos/otter.gif' },
+  { id: 'workshop', name: '工坊', desc: '制胚烧制琉璃', gif: './videos/workshop-icon.gif' },
 ]
 
 const QC = { bgCard: theme.bgCard, br: theme.radiusCard, bd: `1px solid ${theme.borderLight}`, sh: `0 2px 12px ${theme.shadow}` }
@@ -401,7 +401,7 @@ export default function IndexPage() {
         {/* ===== ② 加工 ===== */}
         <FlowCard
           num={2}
-          imgSrc="/images/home/thumb_workshop-illustration.png"
+          imgSrc="./images/home/thumb_workshop-illustration.png"
           title="背包加工"
           desc={gemTypes > 0 ? `背包里有 ${gemTypes} 种原料可加工成珠子` : '先去采集源获取原料吧'}
           badge={{ text: gemTypes > 0 ? `${gemCount} 个原料待加工` : '空背包', active: gemTypes > 0 }}
@@ -411,7 +411,7 @@ export default function IndexPage() {
         {/* ===== ③ 串珠 ===== */}
         <FlowCard
           num={3}
-          imgSrc="/images/home/thumb_bead-stringing-icon.png"
+          imgSrc="./images/home/thumb_bead-stringing-icon.png"
           title="开始串珠"
           desc={beadTotal > 0 ? `已有 ${beadTotal} 颗珠子可串成手串` : '加工出珠子再来串手串吧'}
           badge={{ text: beadTotal > 0 ? `${beadTypes} 种珠子` : '暂无珠子', active: beadTotal > 0 }}

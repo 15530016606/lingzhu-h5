@@ -166,7 +166,7 @@ export default function BeadPreviewRing({ beads, ropeColor, onRemove, onReorder,
                 }} />
               </div>
               <img
-                src={`/images/beads/${bead.imageUrl}`}
+                src={`./images/beads/${bead.imageUrl}`}
                 style={{
                   width: '100%', height: '100%', objectFit: 'contain',
                   borderRadius: '50%',

@@ -25,7 +25,7 @@ export async function preloadSounds() {
   const results = await Promise.allSettled(SOUNDS.map(async (name) => {
     if (cache.has(name)) return
     const ext = ['coin','HAMMER','Splash_Small','whoosh','windowBreak'].includes(name) ? '.wav' : '.mp3'
-    const res = await fetch(`/sounds/${name}${ext}`)
+    const res = await fetch(`./sounds/${name}${ext}`)
     if (!res.ok) throw new Error(`404: ${name}${ext}`)
     const buf = await res.arrayBuffer()
     const audio = await c.decodeAudioData(buf)

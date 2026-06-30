@@ -7,7 +7,7 @@ interface Props {
 }
 
 export default function MaterialCard({ product, onSelect, compact }: Props) {
-  const imgUrl = `/images/beads/${product.imageUrl}`
+  const imgUrl = `./images/beads/${product.imageUrl}`
 
   const imgH = compact ? 56 : 120
   const infoPad = compact ? '4px 6px 6px' : '6px 8px 10px'

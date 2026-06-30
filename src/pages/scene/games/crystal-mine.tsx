@@ -180,7 +180,7 @@ export default function CrystalMineGame({source,onComplete}:{source:string,onCom
                 <div style={{width:56,height:56,borderRadius:12,overflow:'hidden',
                   border:`2px solid ${gemWon.id==='gold'?'#ffd54f':gemWon.id==='green'?'#69f0ae':gemWon.id==='blue'?'#40c4ff':'#a0c4ff'}88`,
                   boxShadow:`0 0 16px ${gemWon.id==='gold'?'#ffd54f':gemWon.id==='green'?'#69f0ae':gemWon.id==='blue'?'#40c4ff':'#a0c4ff'}66`}}>
-                  <img src={`/images/scenes/thumbs/thumb_${gemWon.id==='scrap'?'rock-chip':gemWon.id==='gold'?'raw-gold':gemWon.id==='green'?'raw-green':gemWon.id==='blue'?'raw-blue':gemWon.id==='purple'?'raw-purple':gemWon.id==='pink'?'raw-pink':'raw-white'}.png`} style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+                  <img src={`./images/scenes/thumbs/thumb_${gemWon.id==='scrap'?'rock-chip':gemWon.id==='gold'?'raw-gold':gemWon.id==='green'?'raw-green':gemWon.id==='blue'?'raw-blue':gemWon.id==='purple'?'raw-purple':gemWon.id==='pink'?'raw-pink':'raw-white'}.png`} style={{width:'100%',height:'100%',objectFit:'cover'}}/>
                 </div>
                 <span style={{fontSize:15,fontWeight:700,color:'#4A382C'}}>{gemWon.name}</span>
                 <span style={{fontSize:10,color:'#928370'}}>{gemWon.id==='gold'||gemWon.id==='green'||gemWon.id==='blue'?'稀有品质':'普通品质'}</span>
