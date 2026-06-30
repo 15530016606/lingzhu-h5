@@ -17,9 +17,8 @@ async function api(path: string, options?: RequestInit) {
 }
 
 function requireLogin(): boolean {
-  if (localStorage.getItem('token')) return true
-  Taro.navigateTo({ url: '/pages/signin/index' })
-  return false
+  // 公共展示版无需登录
+  return true
 }
 
 const SOURCES = [
@@ -195,7 +194,6 @@ export default function IndexPage() {
   const [claimed, setClaimed] = useState(false)
   const [cl, setCl] = useState<any>(null)
   const [loading, setLoading] = useState(false)
-  const [userPhone, setUserPhone] = useState('')
 
   const gemCount = getGemCount()
   const scrapCount = getScrapCount()
@@ -208,15 +206,6 @@ export default function IndexPage() {
 
   useEffect(() => {
     preloadSounds()
-    // 读取用户手机号
-    const phone = localStorage.getItem('user_phone')
-    if (phone) setUserPhone(phone)
-  }, [])
-
-  const handleLogout = useCallback(() => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user_phone')
-    window.location.hash = '#/pages/signin/index'
   }, [])
 
   const claim = useCallback(async () => {
@@ -248,28 +237,13 @@ export default function IndexPage() {
             <div style={{ fontSize: 9, color: theme.textSecondary, letterSpacing: 2, marginTop: 1 }}>从一颗原石开始</div>
           </div>
           <div style={{ flex: 1 }} />
-          {/* 登录/登出入口 */}
-          {userPhone ? (
-            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <div style={{
-                width: 24, height: 24, borderRadius: 8, flexShrink: 0,
-                background: 'linear-gradient(135deg, #d4a574, #c4956a)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <span style={{ fontSize: 10, color: '#fff', fontWeight: 700 }}>
-                  {userPhone.slice(-4)}
-                </span>
-              </div>
-              <span onClick={handleLogout}
-                style={{ fontSize: 10, color: '#b8a898', cursor: 'pointer', touchAction: 'manipulation', padding: '2px 4px' }}
-              >退出</span>
-            </div>
-          ) : (
-            <div onClick={() => { const t = Taro.getStorageSync('token'); if (t) Taro.showToast({ title: '已登录', icon: 'none' }); else go('/pages/signin/index') }}
-              style={{ padding: '4px 10px', borderRadius: 12, background: theme.borderLight, cursor: 'pointer', touchAction: 'manipulation' }}>
-              <span style={{ fontSize: 10, color: theme.textSecondary }}>登录</span>
-            </div>
-          )}
+          {/* 公共展示版标识 */}
+          <div style={{
+            padding: '3px 8px', borderRadius: 8,
+            background: `${theme.accent}22`,
+          }}>
+            <span style={{ fontSize: 9, color: theme.accent, fontWeight: 600 }}>展示版</span>
+          </div>
         </div>
 
         {/* ===== 每日盲盒 ===== */}
