@@ -48,7 +48,7 @@ const COLORS: Record<string, { c: string; g: string; n: string }> = {
   scrap: { c: '#d0c8b8', g: '#a09888', n: '废料' },
 }
 
-const BASE_URL = 'http://localhost:3000'
+const BASE_URL = ''
 async function api(path: string, options?: RequestInit) {
   const token = Taro.getStorageSync('token')
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }

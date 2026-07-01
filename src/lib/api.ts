@@ -1,5 +1,5 @@
 // 统一 API 客户端 — 自动携带 JWT token
-const BASE_URL = 'http://localhost:3000'
+const BASE_URL = ''
 
 function getToken(): string | null {
   return localStorage.getItem('token')

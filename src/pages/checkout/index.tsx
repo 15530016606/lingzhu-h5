@@ -5,7 +5,7 @@ import { BEAD_PRODUCTS, BeadProduct } from '@/data/bead-products'
 import BeadPreviewRing from '@/components/designer/BeadPreviewRing'
 import { getInventory } from '@/lib/inventory'
 
-const BASE_URL = 'http://localhost:3000'
+const BASE_URL = ''
 const CRAFT_FEE = 500 // ¥5.00 in cents
 const SHIPPING_FEE = 800 // ¥8.00 in cents
 

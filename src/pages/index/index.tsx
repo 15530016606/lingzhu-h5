@@ -7,7 +7,7 @@ import { preloadSounds, resumeAudio } from '@/lib/sound'
 import { getGemCount, getScrapCount, getBackpack } from '@/lib/backpack'
 import { getInventory } from '@/lib/inventory'
 import { MATERIAL_INFO } from '@/lib/material-map'
-const BASE_URL = 'http://localhost:3000'
+const BASE_URL = ''
 async function api(path: string, options?: RequestInit) {
   try {
     const res = await fetch(`${BASE_URL}/api${path}`, { ...options, headers: { 'Content-Type': 'application/json', ...options?.headers } })
@@ -17,8 +17,9 @@ async function api(path: string, options?: RequestInit) {
 }
 
 function requireLogin(): boolean {
-  // 公共展示版无需登录
-  return true
+  if (localStorage.getItem('token')) return true
+  Taro.navigateTo({ url: '/pages/signin/index' })
+  return false
 }
 
 const SOURCES = [
