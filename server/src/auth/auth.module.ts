@@ -5,7 +5,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 
-const JWT_SECRET = 'lingzh...2026';
+const JWT_SECRET = 'lingzhu-secret-key-2026';
 
 @Module({
   imports: [
