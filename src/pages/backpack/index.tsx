@@ -64,7 +64,7 @@ export default function BackpackPage() {
         display: 'flex', flexDirection: 'row', alignItems: 'center',
         boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
       }}>
-        <span onClick={() => Taro.navigateBack()} style={{
+        <span onClick={() => { try { Taro.navigateBack() } catch { window.location.hash = '#/pages/index/index' } }} style={{
           fontSize: 16, color: theme.textSecondary, marginRight: 12,
           cursor: 'pointer', touchAction: 'manipulation',
           padding: '2px 6px',

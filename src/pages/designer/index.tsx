@@ -109,7 +109,7 @@ export default function DesignerPage() {
         <div style={{
           marginBottom: 16, display: 'flex', flexDirection: 'row', alignItems: 'center',
         }}>
-          <span onClick={() => Taro.navigateBack()} style={{
+          <span onClick={() => { try { Taro.navigateBack() } catch { window.location.hash = '#/pages/index/index' } }} style={{
             fontSize: 16, color: theme.textSecondary, marginRight: 12,
             cursor: 'pointer', touchAction: 'manipulation', padding: '2px 4px',
           }}>‹</span>

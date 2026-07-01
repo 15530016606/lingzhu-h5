@@ -128,7 +128,9 @@ export const H5NavBar = () => {
         pageConfig.navigationStyle || globalConfig.navigationStyle || 'default',
       transparent:
         pageConfig.transparentTitle || globalConfig.transparentTitle || 'none',
-      leftIcon: LeftIcon.None,
+      leftIcon: shouldHideNav
+        ? LeftIcon.None
+        : computeLeftIcon(cleanRoute, tabBarPages, pages.length, cleanHomePage),
     });
   }, []);
 
