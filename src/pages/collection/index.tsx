@@ -10,16 +10,20 @@ export default function CollectionPage() {
   const [beads, setBeads] = useState<BeadItem[]>([])
 
   useEffect(() => {
-    setBeads(getInventory())
+    const refresh = () => setBeads(getInventory())
+    refresh()
+    window.addEventListener('hashchange', refresh)
+    return () => window.removeEventListener('hashchange', refresh)
   }, [])
 
   const collectedByMaterial: Record<string, BeadItem[]> = {}
   beads.forEach(b => {
-    if (!collectedByMaterial[b.material]) collectedByMaterial[b.material] = []
-    collectedByMaterial[b.material].push(b)
+    const key = b.material.replace('_rare', '')
+    if (!collectedByMaterial[key]) collectedByMaterial[key] = []
+    collectedByMaterial[key].push(b)
   })
 
-  const collectedCount = new Set(beads.map(i => i.material)).size
+  const collectedCount = new Set(beads.map(i => i.material.replace('_rare', ''))).size
 
   return (
     <div style={{ minHeight: '100vh', background: theme.bgPage }}>

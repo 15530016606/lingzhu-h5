@@ -8,7 +8,13 @@ export default function BackpackPage() {
   const [bp, setBp] = useState<BackpackItem[]>([])
 
   const refresh = useCallback(() => setBp(getBackpack()), [])
-  useEffect(refresh, [])
+
+  useEffect(() => {
+    refresh()
+    const onHash = () => refresh()
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [refresh])
 
   const gems = bp.filter(i => i.type === 'gem')
   const scraps = bp.filter(i => i.type === 'scrap')

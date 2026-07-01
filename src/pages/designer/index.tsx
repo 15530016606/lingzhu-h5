@@ -28,7 +28,10 @@ export default function DesignerPage() {
   const usedCount = useRef<Record<string, number>>({})
 
   useEffect(() => {
-    setInventory(getInventory())
+    const refresh = () => setInventory(getInventory())
+    refresh()
+    window.addEventListener('hashchange', refresh)
+    return () => window.removeEventListener('hashchange', refresh)
   }, [])
 
   const getUsed = useCallback((id: string) => usedCount.current[id] || 0, [])
