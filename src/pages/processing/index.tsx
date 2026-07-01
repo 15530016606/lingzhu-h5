@@ -3,7 +3,7 @@ import Taro from '@tarojs/taro'
 import { theme } from '@/lib/theme'
 import { SCENES } from '@/pages/scene/configs'
 import { playSound, playRareSound, preloadSounds, resumeAudio } from '@/lib/sound'
-import { addToBackpack, getBackpack } from '@/lib/backpack'
+import { addToBackpack, consumeBackpackItem } from '@/lib/backpack'
 import { addBead } from '@/lib/inventory'
 
 const KF = `
@@ -130,13 +130,7 @@ export default function ProcessingPage() {
       const quality = pc >= 2 ? '稀有' : pc >= 1 ? '普通' : '粗糙'
 
       // 从背包消耗原料
-      const bp = getBackpack()
-      const idx = bp.findIndex(i => i.id === material)
-      if (idx >= 0) {
-        bp[idx].count--
-        if (bp[idx].count <= 0) bp.splice(idx, 1)
-        Taro.setStorageSync('lingzhu_backpack', JSON.stringify(bp))
-      }
+      consumeBackpackItem(material)
 
       // 保存到本地珠子库存
       addBead(beadName, material, quality)
@@ -255,7 +249,7 @@ export default function ProcessingPage() {
             }}>
               <span style={{ fontSize: 12, color: theme.textPrimary }}>返回采集</span>
             </div>
-            <div onClick={() => Taro.switchTab({ url: '/pages/collection/index' })} onTouchEnd={() => Taro.switchTab({ url: '/pages/collection/index' })} style={{
+            <div onClick={() => Taro.navigateTo({ url: '/pages/collection/index' })} onTouchEnd={() => Taro.navigateTo({ url: '/pages/collection/index' })} style={{
               padding: '8px 20px', borderRadius: 20,
               background: `linear-gradient(135deg,${theme.primary},${cfg.accentColor})`,
               cursor: 'pointer', touchAction: 'manipulation',

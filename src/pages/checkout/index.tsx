@@ -3,7 +3,7 @@ import Taro from '@tarojs/taro'
 import { theme } from '@/lib/theme'
 import { BEAD_PRODUCTS, BeadProduct } from '@/data/bead-products'
 import BeadPreviewRing from '@/components/designer/BeadPreviewRing'
-import { getInventory } from '@/lib/inventory'
+import { getInventory, consumeBead } from '@/lib/inventory'
 
 const BASE_URL = ''
 const CRAFT_FEE = 500 // ¥5.00 in cents
@@ -93,7 +93,21 @@ export default function CheckoutPage() {
         }),
       })
       const data = await res.json()
-      if (data.success) setSubmitted(true)
+      if (data.success) {
+        // 消耗库存中的珠子
+        for (const item of beadSummary) {
+          if (item.owned > 0) {
+            try {
+              const inv = getInventory()
+              for (let i = 0; i < item.count && i < item.owned; i++) {
+                const match = inv.find(b => b.name.includes(item.product.name))
+                if (match) await consumeBead(match.id, match.material)
+              }
+            } catch {}
+          }
+        }
+        setSubmitted(true)
+      }
       else Taro.showToast({ title: data.message || '提交失败', icon: 'none' })
     } catch {
       Taro.showToast({ title: '提交失败', icon: 'none' })
@@ -109,7 +123,7 @@ export default function CheckoutPage() {
         </div>
         <span style={{ fontSize: 16, fontWeight: 700, color: theme.textPrimary, marginBottom: 8 }}>订单提交成功</span>
         <span style={{ fontSize: 12, color: theme.textSecondary, textAlign: 'center', marginBottom: 20 }}>我们会在24小时内联系您确认订单</span>
-        <div onClick={() => window.location.hash = '#/pages/index/index'} style={{ background: `linear-gradient(135deg, ${theme.primary}, #c4956a)`, borderRadius: 20, padding: '12px 28px', cursor: 'pointer', touchAction: 'manipulation' }}>
+        <div onClick={() => Taro.reLaunch({ url: '/pages/index/index' })} style={{ background: `linear-gradient(135deg, ${theme.primary}, #c4956a)`, borderRadius: 20, padding: '12px 28px', cursor: 'pointer', touchAction: 'manipulation' }}>
           <span style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>返回首页</span>
         </div>
       </div>

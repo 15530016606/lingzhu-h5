@@ -195,6 +195,7 @@ export default function IndexPage() {
   const [claimed, setClaimed] = useState(false)
   const [cl, setCl] = useState<any>(null)
   const [loading, setLoading] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
 
   const gemCount = getGemCount()
   const scrapCount = getScrapCount()
@@ -207,6 +208,9 @@ export default function IndexPage() {
 
   useEffect(() => {
     preloadSounds()
+    const onShow = () => setRefreshKey(k => k + 1)
+    window.addEventListener('hashchange', onShow)
+    return () => window.removeEventListener('hashchange', onShow)
   }, [])
 
   const claim = useCallback(async () => {
@@ -324,7 +328,7 @@ export default function IndexPage() {
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
               <span style={{ fontSize: 20, fontWeight: 700, color: theme.textPrimary }}>{collectedCount}/16</span>
               <span style={{ fontSize: 9, color: theme.textSecondary, letterSpacing: 0.5 }}>图鉴</span>
-              <div style={{ width: 20, height: 3, borderRadius: 2, background: col => collectedCount >= 8 ? '#69f0ae44' : `${theme.accent}44`, marginTop: 2 }} />
+              <div style={{ width: 20, height: 3, borderRadius: 2, background: collectedCount >= 8 ? '#69f0ae44' : `${theme.accent}44`, marginTop: 2 }} />
             </div>
             <div style={{ width: 1, height: 36, background: theme.borderLight }} />
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>

@@ -4,7 +4,6 @@ import { SCENES, GameEntry } from './configs'
 import { theme } from '@/lib/theme'
 import { playSound, playRareSound, resumeAudio } from '@/lib/sound'
 import { addToBackpack } from '@/lib/backpack'
-import { addBead } from '@/lib/inventory'
 import MemoryMatch from './games/memory-match'
 import MatchThree from './games/match-three'
 import StackMatch from './games/stack-match'
@@ -100,11 +99,6 @@ export default function ScenePage() {
   const handleCollect = useCallback(() => {
     if (!gameResult) return
     addToBackpack(gameResult.gemId, gameResult.gemName, gameResult.gemType)
-    // 同步加入珠子库存（免加工直接获得珠子）
-    if (gameResult.gemType === 'gem') {
-      const quality = gameResult.score >= 80 ? '稀有' : '普通'
-      addBead(`${gameResult.gemName}珠`, gameResult.gemId, quality)
-    }
     setGameResult(prev => prev ? { ...prev, collected: true } : null)
     playSound('coin', 0.5)
   }, [gameResult])
@@ -172,19 +166,21 @@ export default function ScenePage() {
           </div>
           {gameResult.collected ? (
             <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6, justifyContent: 'center' }}>
-              <div onClick={goProcess} style={{
-                padding: '7px 14px', borderRadius: 18,
-                background: `linear-gradient(135deg, ${theme.primary}, ${cfg.accentColor})`,
-                cursor: 'pointer', touchAction: 'manipulation',
-                transition: 'transform 0.15s, box-shadow 0.15s',
-              }}
-                onMouseDown={e => { (e.target as HTMLElement).style.transform = 'scale(0.94)' }}
-                onMouseUp={e => { (e.target as HTMLElement).style.transform = 'scale(1)' }}
-                onTouchStart={e => { (e.target as HTMLElement).style.transform = 'scale(0.94)' }}
-                onTouchEnd={e => { (e.target as HTMLElement).style.transform = 'scale(1)' }}
-              >
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#fff' }}>去加工</span>
-              </div>
+              {gameResult.gemType !== 'scrap' && (
+                <div onClick={goProcess} style={{
+                  padding: '7px 14px', borderRadius: 18,
+                  background: `linear-gradient(135deg, ${theme.primary}, ${cfg.accentColor})`,
+                  cursor: 'pointer', touchAction: 'manipulation',
+                  transition: 'transform 0.15s, box-shadow 0.15s',
+                }}
+                  onMouseDown={e => { (e.target as HTMLElement).style.transform = 'scale(0.94)' }}
+                  onMouseUp={e => { (e.target as HTMLElement).style.transform = 'scale(1)' }}
+                  onTouchStart={e => { (e.target as HTMLElement).style.transform = 'scale(0.94)' }}
+                  onTouchEnd={e => { (e.target as HTMLElement).style.transform = 'scale(1)' }}
+                >
+                  <span style={{ fontSize: 12, fontWeight: 600, color: '#fff' }}>去加工</span>
+                </div>
+              )}
               <div onClick={goHome} style={{
                 padding: '7px 14px', borderRadius: 18, border: `1px solid ${theme.border}`,
                 cursor: 'pointer', touchAction: 'manipulation',

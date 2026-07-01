@@ -45,7 +45,7 @@ export default function DesignerPage() {
       return
     }
     playSound('chime1', 0.3)
-    const imgIndex = MAT_LIST.indexOf(item.material)
+    const imgIndex = MAT_LIST.indexOf(item.material.replace('_rare', ''))
     const imageUrl = imgIndex >= 0 ? `${imgIndex}.png` : '0.png'
     const beadProduct: BeadProduct = {
       id: item.id,
